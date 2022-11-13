@@ -1,0 +1,5 @@
+
+13/11/2022
+- Descargar en la terminal SDL2
+- correr el ejemplo que está en la carpeta alumnos para chequear que no haya problemas con la biblioteca 
+- Setear git, hacer un commit para chequear que todo funcione bien
