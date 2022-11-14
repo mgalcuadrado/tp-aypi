@@ -3,3 +3,12 @@
 - Descargar en la terminal SDL2
 - correr el ejemplo que está en la carpeta alumnos para chequear que no haya problemas con la biblioteca 
 - Setear git, hacer un commit para chequear que todo funcione bien
+
+16/11/2022
+- Discutir diseño del TP
+    - Combinar TDAs imagen y pixel
+    - Definir qué otros TDAs vamos a tener
+        - Sí o sí tiene que haber un TDA moto
+    - Definir contratos preliminares de esos TDAs (funciones, precondiciones)
+- Definir un plan de juego
+    - Prioridades, por dónde conviene arrancar, etc
