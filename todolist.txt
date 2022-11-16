@@ -5,6 +5,9 @@
 - Setear git, hacer un commit para chequear que todo funcione bien
 
 16/11/2022
+
+https://algoritmos9511.gitlab.io/tps/20222_tp1.html
+
 - Discutir diseño del TP
     - Combinar TDAs imagen y pixel
     - Definir qué otros TDAs vamos a tener
