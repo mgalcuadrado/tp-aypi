@@ -1,0 +1,26 @@
+CFLAGS = -c -Wall -pedantic -std=c99
+CC = gcc
+
+all: pixeles
+
+pixel.o: pixel.c pixel.h
+	$(CC) $(CFLAGS) pixel.c
+
+imagen.o: imagen.c imagen.h pixel.h
+	$(CC) $(CFLAGS) imagen.c
+
+paleta.o: paleta.c paleta.h pixel.h
+	$(CC) $(CFLAGS) paleta.c
+
+fondo.o: fondo.c fondo.h 
+	$(CC) $(CFLAGS) fondo.c
+
+main.o: main.c imagen.h pixel.h fondo.h paleta.h config.h
+	$(CC) $(CFLAGS) main.c
+
+
+pixeles: pixel.o main.o imagen.o paleta.o fondo.o
+	$(CC) main.o pixel.o imagen.o paleta.o fondo.o -o pixeles
+
+clear:
+	rm *.o pixeles
