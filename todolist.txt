@@ -19,6 +19,7 @@ https://algoritmos9511.gitlab.io/tps/20222_tp1.html
 
 
 TDA PIXEL:
+- Chequear qué rompimos :D
 - Crear un nuevo tipo de pixel con sus crear y recuperar colores
 
 
