@@ -9,6 +9,8 @@
 #define MENSAJE_FORMATO "P3\n" 
 #define MAXIMO_PPM 255 
 
+#define MASK_BLANCO 0xf
+
 struct imagen{
     pixel_t **pixeles;
     size_t ancho, alto;
@@ -62,13 +64,11 @@ imagen_t *imagen_generar (size_t ancho, size_t alto, pixel_t valor){
 }
 
 void imagen_pegar (imagen_t *destino, const imagen_t *origen, int x, int y){
-    for (int i = y, k; (k = -(y - i)) < origen->alto; i++){
-        for (int j = x, l; (l = -(x - j)) < origen->ancho; j++){
-            if (i >= 0 && j >= 0 && origen -> pixeles[k][l] && i < destino->alto && j < destino->ancho){
-                destino->pixeles[i][j] = origen->pixeles[k][l]; 
+    for(int f = y >= 0 ? 0 : -y; f < origen->alto && f + y < destino->alto; f++)
+        for(int c = x >= 0 ? 0 : -x; c < origen->ancho && c + x < destino->ancho; c++)
+            if (origen -> pixeles[f][c] && origen->pixeles[f][c] != MASK_BLANCO){
+                destino->pixeles[f][c] = origen->pixeles[f][c]; 
             } 
-        }
-    }
 }
 
 /* en la función pegar_imagen utilicé para los valores del origen: 
@@ -98,11 +98,11 @@ imagen_t *imagen_escalar (const imagen_t *origen, size_t ancho_destino, size_t a
 
 
 void imagen_pegar_con_paleta(imagen_t *destino, const imagen_t *origen, int x, int y, const pixel_t paleta[]){
-    for (int i = y, k; (k = -(y - i)) < origen->alto; i++){
-        for (int j = x, l; (l = -(x - j)) < origen->ancho; j++){
-            if (origen->pixeles[k][l] && i >= 0 && j >= 0 && i < destino->alto && j < destino->ancho){
-                destino->pixeles[i][j] = paleta[origen->pixeles[k][l]]; 
-            } 
+    for(int f = y >= 0 ? 0 : -y; f < origen->alto && f + y < destino->alto; f++){
+        for(int c = x >= 0 ? 0 : -x; c < origen->ancho && c + x < destino->ancho; c++){
+            if (origen -> pixeles[f][c] && origen->pixeles[f][c] != MASK_BLANCO){
+                destino->pixeles[f][c] = paleta[origen->pixeles[f][c]]; 
+            }
         }
     }
 }
@@ -160,4 +160,11 @@ bool imagen_guardar_ppm(const imagen_t *im, const char *fn, void (*pixel_a_rgb)(
     return true;
 }
 
+//PRIMITIVA NUEVA //TP
+void imagen_a_textura(const imagen_t *im, uint16_t *v){
 
+}
+
+bool imagen_redimensionar(imagen_t * im, size_t ancho, size_t alto){
+    
+}

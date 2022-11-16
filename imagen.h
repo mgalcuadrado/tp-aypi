@@ -45,6 +45,7 @@ void imagen_escribir_ppm(const imagen_t *im, FILE *fo, void (*pixel_a_rgb)(pixel
 //escribe en el archivo la imagen en formato PPM con sus valores RGB correspondientes
 bool imagen_guardar_ppm(const imagen_t *im, const char *fn, void (*pixel_a_rgb)(pixel_t, uint8_t *, uint8_t *, uint8_t *));
 
-
+//COMENTAR CÓMO FUNCIONA //TP
+void imagen_a_textura(const imagen_t *im, uint16_t *v);
 
 #endif

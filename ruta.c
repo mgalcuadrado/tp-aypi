@@ -16,6 +16,18 @@ const struct figura_en_ruta figuras_en_ruta[] = {
     {FORUM, 34, -300, 0},
 };
 
+/*  1.0 = CURVA CHIQUITA, DERECHA
+    2.0 = CURVA GRANDE, DERECHA
+    3.0 = CURVA GRANDE TIRANDO A MUY MUCHO, DERECHA
+    4.0 = CURVA MUYMUY GRANDE, DERECHA
+    -1.0 = CURVA CHIQUITA, IZQUIERA
+    -2.0 = CURVA GRANDE, IZQUIERDA
+    -3.0 = CURVA GRANDE TIRANDO A MUY MUCHO, IZQUIERDA
+    -4.0 = CURVA MUYMUY GRANDE, IZQUIERDA
+*/
+
+
+
 const struct ruta ruta[4200 + 70] = {
     {0.0000000, 9999},
     {0.0000000, 9999},

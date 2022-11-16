@@ -1,5 +1,6 @@
 CFLAGS = -c -Wall -pedantic -std=c99
 CC = gcc
+LFLAGS = -lSDL2
 
 all: pixeles
 
@@ -16,11 +17,11 @@ fondo.o: fondo.c fondo.h
 	$(CC) $(CFLAGS) fondo.c
 
 main.o: main.c imagen.h pixel.h fondo.h paleta.h config.h
-	$(CC) $(CFLAGS) main.c
+	$(CC) $(CFLAGS) main.c $(LFLAGS)
 
 
 pixeles: pixel.o main.o imagen.o paleta.o fondo.o
-	$(CC) main.o pixel.o imagen.o paleta.o fondo.o -o pixeles
+	$(CC) main.o pixel.o imagen.o paleta.o fondo.o -o pixeles $(LFLAGS)
 
 clear:
 	rm *.o pixeles

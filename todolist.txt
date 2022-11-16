@@ -15,3 +15,47 @@ https://algoritmos9511.gitlab.io/tps/20222_tp1.html
     - Definir contratos preliminares de esos TDAs (funciones, precondiciones)
 - Definir un plan de juego
     - Prioridades, por dónde conviene arrancar, etc
+
+
+
+TDA PIXEL:
+- Crear un nuevo tipo de pixel con sus crear y recuperar colores
+
+
+TDA IMAGEN: 
+-Hacer Void imagen_a_textura
+-Crear una función imagen_redimensionar();
+    bool imagen_redimensionar(imagen_t * im, size_t ancho, size_t alto);
+
+
+TDA MOTO:
+-aceleracióm, frenado, desaceleración 
+- giro
+- reposo
+- posicion
+- choque
+-getters y setters copados
+
+
+
+MAIN:
+traer generación del fondo del main del ej4
+
+TESELAS:
+    -crear función
+        leer_figuras() (o cant_bits haciendo otros cambios)
+
+
+
+
+GAME PLAN: 
+
+- leer teselas, leer todas las rom y chequear que estén todas bien 
+- ruta :D divertido (ojo con lo de los 1's, ver discord)
+
+- cálculos moto (probar que funcione)
+- cálculos ruta
+- cálculos fondo
+- cálculos figs extras //pegar dónde van con la escala apropiada
+
+- debugging divertido por si nos mandamos macanas en el medio (Va a pasar)
