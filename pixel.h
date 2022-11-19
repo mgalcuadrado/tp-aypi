@@ -24,6 +24,9 @@ pixel_t pixel12_crear(uint8_t r, uint8_t g, uint8_t b);
 //devuelve las componentes RGB, cada una de 8 bits, por interfaz.
 void pixel12_a_rgb(pixel_t pixel12, uint8_t *r, uint8_t *g, uint8_t *b);
 
+//función creada por el alumno para convertir pixeles a formato RGB444
+uint16_t pixel_a_rgb444(pixel_t pixel);
+
 #endif
 
 /* 

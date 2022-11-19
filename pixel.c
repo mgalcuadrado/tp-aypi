@@ -46,3 +46,8 @@ void pixel12_a_rgb(pixel_t pixel12, uint8_t *r, uint8_t *g, uint8_t *b){
     *g = (pixel12 & MASK_PIXEL_12G);
     *b = (pixel12 & MASK_PIXEL_12B) << SHIFT_RGB_12;
 }
+
+//función nueva //TP
+uint16_t pixel_a_rgb444(pixel_t pixel){
+
+}

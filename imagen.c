@@ -149,6 +149,10 @@ bool imagen_guardar_ppm(const imagen_t *im, const char *fn, void (*pixel_a_rgb)(
 }
 
 //PRIMITIVAS NUEVAS //TP
-//void imagen_a_textura(const imagen_t *im, uint16_t *v);
+void imagen_a_textura(const imagen_t *im, uint16_t *v){
+    for (size_t f = 0; f < im->alto; f++)
+        for (size_t c = 0; c < im->ancho; c++)
+            v[f * c + c] = pixel_a_rgb444(im->pixeles[f][c]); //función a crear 
+}
 
 //bool imagen_redimensionar(imagen_t * im, size_t ancho, size_t alto);
