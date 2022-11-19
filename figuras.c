@@ -4,6 +4,13 @@ struct pos_figuras{
 
 typedef struct pos_figuras pos_figuras_t;
 
+// ?????
+typedef enum{
+    MOTO_1,
+    MOTO_2,
+    ...
+} enumfigs_t;
+
 const pos_figuras_t arr_pos_figuras[13]{
     [MOTO_1] = {532, 36, 73},
     [MOTO_2] = {11284, 46, 63},
@@ -20,7 +27,7 @@ const pos_figuras_t arr_pos_figuras[13]{
     [VIGA_BANNER] = {}, //Llenar esto
 };
 
-
+//???
 const size_t arreglo_inicio_figuras[14]{
     [0] = 532,
 
