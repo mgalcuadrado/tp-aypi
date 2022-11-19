@@ -83,20 +83,21 @@ void imagen_pegar (imagen_t *destino, const imagen_t *origen, int x, int y){
     for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++)
         for(int c = (x >= 0 ? 0 : -x); c < origen->ancho && c + x < destino->ancho; c++)
             if (origen -> pixeles[f][c]){ //ver manejo de blancos
-                destino->pixeles[y][x] = origen->pixeles[f][c]; 
+                destino->pixeles[y + f][x + c] = origen->pixeles[f][c]; 
             } 
 }       
 
 
-//********************FUNCIONES NUEVAS******************************//
+//********************FUNCIONES TP4******************************//
 
 
 void imagen_pegar_con_paleta(imagen_t *destino, const imagen_t *origen, int x, int y, const pixel_t paleta[]){
 for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++)
-        for(int c = (x >= 0 ? 0 : -x); c < origen->ancho && c + x < destino->ancho; c++)
+        for(int c = (x >= 0 ? 0 : -x); c < origen->ancho && c + x < destino->ancho; c++){
             if (origen -> pixeles[f][c]){ //ver manejo de blancos
-                destino->pixeles[y][x] = paleta[origen->pixeles[f][c]]; 
+                destino->pixeles[y + f][x + c] = paleta[origen->pixeles[f][c]]; 
             } 
+        }
 }
 
 
