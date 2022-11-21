@@ -18,16 +18,19 @@ typedef enum{
 
 typedef struct{
     const char cadena[MAX_CADENA];
-    size_t pos_x, pos_y; 
+    size_t pos_x, pos_y, paleta;
+    bool imp_derecha;
 }sttexto_t;
 
-sttexto_t textos[CANTIDAD_TEXTOS] = {
-    [TOP] = {"TOP", 0x14, 0xe},
-    [TIME] = {"TIME", 0x90, 0xe},
-    [SCORE] = {"SCORE", 0xc6, 0xe},
-    [STAGE] = {"STAGE", 0x14, 0x1c},
-    [SPEED] = {"SPEED", 0xc6, 0x1c},
+const sttexto_t textos[CANTIDAD_TEXTOS] = {
+    [TOP] = {"TOP", 0x14, 0xe, 5, true},
+    [TIME] = {"TIME", 0x90, 0xe, 6, false},
+    [SCORE] = {"SCORE", 0xc6, 0xe, 7, true},
+    [STAGE] = {"STAGE", 0x14, 0x1c, 5, true},
+    [SPEED] = {"SPEED", 0xc6, 0x1c, 6, true},
 };
+
+char *sizet_a_cadena(size_t n);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -46,9 +49,12 @@ int main() {
     int dormir = 0;
 
     // BEGIN código del alumno
-    double x_moto = -10, x_fondo = 320;
+    size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 0,[TIME] = 75, [SCORE] = 0, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos
+
+    double x_moto = 162, x_fondo = 320;
     bool mover_derecha = false, mover_izquierda = false,
     acelerar = false, frenar = false;
+    size_t t = 0;
 
     imagen_t *teselas[CANTIDAD_TESELAS_TOTAL];
 
@@ -66,8 +72,8 @@ int main() {
     
     imagen_guardar_ppm(teselas[CANTIDAD_TESELAS_OG + CANTIDAD_FIGURAS + 1], "ruta1.ppm", pixel3_a_rgb);
 
-    imagen_t *cuadro = imagen_generar(320, 224, 0xf);
-    imagen_t *cielo = imagen_generar(320, 128,0xf);
+    imagen_t *cuadro = imagen_generar(320, 224, 0);
+    imagen_t *cielo = imagen_generar(320, 128, 0xf);
     imagen_t *pasto = imagen_generar(1, 96, pixel12_crear(0, 13, 9));
     
     for(size_t i = 0; i < 10; i++)
@@ -127,43 +133,40 @@ int main() {
 
         // BEGIN código del alumno       
 
-        imagen_pegar(cuadro,cielo,0,0);
+        imagen_pegar(cuadro, cielo, 0, 0);
+        n_textos[TIME] = 75 - (t++ / JUEGO_FPS);
         
+        //impresión de textos:
         for(size_t i = 0; i < CANTIDAD_TEXTOS; i++){
             for (size_t j = 0; textos[i].cadena[j] != '\0'; j++)
-                imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[i]);
-        }
+                imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[textos[i].paleta]);
+            char *n_string = sizet_a_cadena(n_textos[i]);
+            fprintf(stderr, "cadena: %s\n", n_string);
+            for (size_t j = 0; n_string[j] != '\0'; j++)
+                imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(n_string[j])], textos[i].pos_x + (8 * j) + ((textos[i].imp_derecha) ? (1 + strlen(textos[i].cadena) * 8) : 0), textos[i].pos_y + ((textos[i].imp_derecha) ? 0 : 16), paleta_3[textos[i].paleta]);
+            free(n_string);
+            }
+    
         
         /*Acà irìa la generaciòn de la ruta*/
         
-        if (mover_izquierda){
-            x_moto-= 1;
-            x_fondo += 10;
-        }
-        if (mover_derecha){
-            x_moto += 1;
-            x_fondo -= 10;
-        }
-        
-        if(x_moto > 320)
-            x_moto = -10;
-        else if(x_moto < (-11))
-            x_moto = 320;
-        if(x_fondo < -2048)
-            x_fondo = 640;
-        else if(x_fondo > 640)
-            x_fondo = -2048;
+        if (mover_izquierda) x_fondo += 10;
+        if (mover_derecha) x_fondo -= 10;
+
+        if(x_fondo < -2048) x_fondo = 640;
+        else if(x_fondo > 640) x_fondo = -2048;
         
         /*Seguro todos estos ifs se pueden mejorar xD*/
 
+        
         imagen_pegar(cuadro, pasto_estirado, 0, 128);       
 
         imagen_pegar(cuadro, fondo2, (x_fondo * 0.75) + 320, 64);
         imagen_pegar(cuadro, fondo1, x_fondo + 320, 112);
 
         //esto sería la moto
-        imagen_t *cuadrado = imagen_generar(10, 10, 0x0f0);
-        imagen_pegar(cuadro, cuadrado, x_moto, (224 - 10) / 2);
+        imagen_t *cuadrado = imagen_generar(60, 73, 0xf00);
+        imagen_pegar(cuadro, cuadrado, x_moto - 30, 151);
         imagen_destruir(cuadrado);
 
         // Procedemos a dibujar a pantalla completa:
@@ -195,6 +198,15 @@ int main() {
         else
             printf("Perdiendo cuadros\n");
         ticks = SDL_GetTicks();
+
+        if(n_textos[TIME] == 0){
+            size_t secs = 0;
+            for(size_t i = 0;secs < 5; i++){
+                //Mensaje de game over
+                secs = i/JUEGO_FPS;
+            }
+            break;
+        }    
     }
 
 
@@ -218,3 +230,23 @@ int main() {
     return 0;
 }
 
+
+
+char *sizet_a_cadena (size_t n){
+    char *cadena = malloc (MAX_CADENA * sizeof(char));
+    size_t j = 0;
+    if(n == 0)
+        cadena[0] = n;
+    for (size_t i = 100000000; i > 0 && n > 0; i /= 10){
+        int aux = n / i;
+        bool arranco = false;
+        if (aux > 0 || arranco == true){
+            cadena[j++] = aux;
+            n -= aux * i;
+            if (arranco == false) arranco = true;
+        }
+    }
+    cadena[j] = '\0';
+    return cadena;
+}
+            
