@@ -5,6 +5,26 @@
 #include <stdbool.h>
 
 
+//etiquetas para los píxeles de 3 bits
+#define MASK_PIXEL_3R 0x4
+#define MASK_PIXEL_3G 0x2
+#define MASK_PIXEL_3B 0x1
+
+#define SHIFT_PIXEL_3R 2
+#define SHIFT_PIXEL_3G 1
+
+//etiquetas para los píxeles de 12 bits
+#define MASK_PIXEL_12R 0xF00
+#define MASK_PIXEL_12G 0x0F0
+#define MASK_PIXEL_12B 0x00F
+
+#define SHIFT_PIXEL_12R 8
+#define SHIFT_PIXEL_12G 4
+
+#define SHIFT_RGB_12 4
+
+
+
 typedef uint16_t pixel_t;
 
 

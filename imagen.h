@@ -3,6 +3,7 @@
 
 #include "pixel.h"
 #include <stdio.h>
+#include "config.h"
 
 
 typedef struct imagen imagen_t;
@@ -48,4 +49,6 @@ bool imagen_guardar_ppm(const imagen_t *im, const char *fn, void (*pixel_a_rgb)(
 //COMENTAR CÓMO FUNCIONA //TP
 void imagen_a_textura(const imagen_t *im, uint16_t *v);
 
+//COMENTAR CÓMO FUNCIONA //TP
+bool imagen_redimensionar(imagen_t * im, size_t n_ancho, size_t n_alto);
 #endif

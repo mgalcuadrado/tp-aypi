@@ -60,3 +60,5 @@ GAME PLAN:
 - cálculos figs extras //pegar dónde van con la escala apropiada
 
 - debugging divertido por si nos mandamos macanas en el medio (Va a pasar)
+
+

@@ -1,7 +1,6 @@
 
 
 #include "imagen.h"
-#include "config.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h> //para malloc() y free()
@@ -152,7 +151,42 @@ bool imagen_guardar_ppm(const imagen_t *im, const char *fn, void (*pixel_a_rgb)(
 void imagen_a_textura(const imagen_t *im, uint16_t *v){
     for (size_t f = 0; f < im->alto; f++)
         for (size_t c = 0; c < im->ancho; c++)
-            v[f * c + c] = pixel_a_rgb444(im->pixeles[f][c]); //función a crear 
+            v[(f * im->ancho) + c] = im->pixeles[f][c];
 }
 
-//bool imagen_redimensionar(imagen_t * im, size_t ancho, size_t alto);
+/*
+bool imagen_redimensionar(imagen_t * im, size_t n_ancho, size_t n_alto){
+    pixel_t ** aux = realloc (im->pixeles, n_alto * sizeof(pixel_t*));
+    if (aux == NULL){
+        return false;
+    }
+    if (im->alto < n_alto){
+        size_t i;
+        for (i = 0; i < im->alto; i++){
+            aux[i] = realloc (im->pixeles[i], n_ancho * sizeof(pixel_t));
+            if (aux[i] == NULL){
+                fprintf(stderr, "salió mal la redimensión de la fila %zd de aux\n", i);
+                _pixeles_destruir (i, aux);
+                free (aux);
+                return false;  
+            }
+        }
+        for (; i < n_alto; i++){
+            aux[i] = malloc (n_ancho * sizeof(pixel_t));
+            if (aux[i] == NULL){
+                fprintf(stderr, "salió mal el malloc en las fila %zd de las que me faltaban\n", i);
+                _pixeles_destruir (i, aux);
+                free (aux);
+                return false;
+            }
+        }
+        fprintf(stderr, "todo salió bien?????????????????\n");
+        im->pixeles = aux;
+        im->ancho = n_ancho;
+        im->alto = n_alto;
+        return true;
+    }
+    free(aux);
+    return false;
+}
+*/

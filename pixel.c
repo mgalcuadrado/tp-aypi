@@ -2,23 +2,6 @@
 
 #include <stdio.h>
 
-//etiquetas para los píxeles de 3 bits
-#define MASK_PIXEL_3R 0x4
-#define MASK_PIXEL_3G 0x2
-#define MASK_PIXEL_3B 0x1
-
-#define SHIFT_PIXEL_3R 2
-#define SHIFT_PIXEL_3G 1
-
-//etiquetas para los píxeles de 12 bits
-#define MASK_PIXEL_12R 0xF00
-#define MASK_PIXEL_12G 0x0F0
-#define MASK_PIXEL_12B 0x00F
-
-#define SHIFT_PIXEL_12R 8
-#define SHIFT_PIXEL_12G 4
-
-#define SHIFT_RGB_12 4
 
 
 //para los corrimientos se utiliza el tipo enumerativo rgb3_t definido en pixel.h
@@ -45,9 +28,4 @@ void pixel12_a_rgb(pixel_t pixel12, uint8_t *r, uint8_t *g, uint8_t *b){
     *r = (pixel12 & MASK_PIXEL_12R) >> SHIFT_RGB_12;
     *g = (pixel12 & MASK_PIXEL_12G);
     *b = (pixel12 & MASK_PIXEL_12B) << SHIFT_RGB_12;
-}
-
-//función nueva //TP
-uint16_t pixel_a_rgb444(pixel_t pixel){
-
 }
