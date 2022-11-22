@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include "imagen.h"
 
+/*figuras.o: figuras.c config.h imagen.h
+	$(CC) $(CFLAGS) figuras.c*/
 struct pos_figuras{
     size_t inicio, ancho, alto;
 };
