@@ -1,3 +1,6 @@
+#include "config.h"
+#include <stddef.h>
+
 struct pos_figuras{
     size_t inicio, ancho, alto;
 };
@@ -11,7 +14,7 @@ typedef enum{
     
 } enumfigs_t;
 
-const pos_figuras_t arr_pos_figuras[13]{
+const pos_figuras_t arr_pos_figuras[CANTIDAD_FIGURAS] = {
     [MOTO_1] = {532, 36, 73},
     [MOTO_2] = {11284, 46, 63},
     [MOTO_3] = {},
@@ -26,6 +29,5 @@ const pos_figuras_t arr_pos_figuras[13]{
     [BANNER_LARGADA] = {},
     [VIGA_BANNER] = {}, 
 };
-
 
 
