@@ -2,12 +2,10 @@
 #define TESELAS_H
 
 #include <stdint.h>
-#include "imagen.h"
 #include "paleta.h"
-#include "figuras.h"
+#include "imagen.h"
 
-/*Mechi, te dejo las explicaciones porque sos mejor explicando*/
-//bool _sumar_teselas(FILE * f, imagen_t * teselas[], size_t corrimiento);
+
 
 /**/
 bool leer_teselas(imagen_t *teselas[]);
