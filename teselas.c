@@ -1,3 +1,4 @@
+#include "figuras.c"
 
 #define MASK_MSB 0x80
 #define MASK_LSB 0x1
@@ -77,6 +78,49 @@ static bool leer_ruta (imagen_t * teselas[]){
     return (fclose(archivo) != EOF);
 }
 
+#define MASK_LSBYTE 0xFF
+#define SHIFT_BYTE 8
+//ya tengo MASK_4LSB 0xF para D
+
+
+bool leer_figuras (imagen_t * figuras[]){
+    uint16_t rom[229376];
+    for (size_t a = 6, i = 0; a < CANTIDAD_ROMS; a += 2, i += 2 * 32768){
+        FILE * bajo = fopen (archivos_rom[a - 1], "rb");
+        if (bajo == NULL) return false;
+        FILE * alto = fopen (archivos_rom[a], "rb");
+        if (alto == NULL){
+            fclose(bajo);
+            return false;
+        }
+        for (size_t byte = 0; byte < 2 * 32768; byte += 1){
+        if (fread (rom + byte + i, sizeof(uint16_t), 1, (byte % 2 == 0) ? bajo : alto) != 1){
+                fclose(bajo);
+                fclose (alto);
+                return false;
+            }
+        }
+        if (fclose(bajo) == EOF){
+            fclose(alto);
+            return false;
+        }
+        if (fclose(alto) == EOF) return false;
+    }
+    for (enum_figuras_t fig = 0; fig < 13; fig++){
+        for (size_t f = arr_pos_figuras[fig].inicio; f < arr_pos_figuras[fig].inicio + arr_pos_figuras[fig].alto; f++){
+           for (size_t c = 0; c < arr_pos_figuras[fig].ancho; c += 4){
+                uint16_t bajo = rom[f * arr_pos_figuras[fig].ancho + c];
+                uint16_t alto = rom[f * arr_pos_figuras[fig].ancho + c + 1];
+                imagen_set_pixel (figuras[fig], c, f - arr_pos_figuras[fig].inicio, (((alto >> (SHIFT_BYTE + SHIFT_LEC4)) & MASK_4LSB) << SHIFT_LEC4) | ((bajo >> (SHIFT_BYTE + SHIFT_LEC4)) & MASK_4LSB));
+                imagen_set_pixel (figuras[fig], c + 1, f - arr_pos_figuras[fig].inicio, (((alto >> SHIFT_BYTE) & MASK_4LSB) << SHIFT_LEC4) | ((bajo >> SHIFT_BYTE) & MASK_4LSB));
+                imagen_set_pixel (figuras[fig], c + 2, f - arr_pos_figuras[fig].inicio, (((alto >> SHIFT_LEC4) & MASK_4LSB) << SHIFT_LEC4) | ((bajo >> SHIFT_LEC4) & MASK_4LSB));
+                imagen_set_pixel (figuras[fig], c + 3, f - arr_pos_figuras[fig].inicio, ((alto & MASK_4LSB) << SHIFT_LEC4) | (bajo & MASK_4LSB));
+            }
+        }
+    }
+    return true;
+}
+
 bool leer_teselas(imagen_t *teselas[]){
     for (size_t color = 0; color < CANTIDAD_ROMS; color++){
         FILE * lectura = fopen(archivos_rom[color], "rb");
@@ -94,7 +138,6 @@ bool leer_teselas(imagen_t *teselas[]){
     }
     return true;
 }
-
 
 
 
