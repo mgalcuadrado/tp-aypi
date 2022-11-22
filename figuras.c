@@ -1,5 +1,5 @@
 #include "config.h"
-
+#include <stddef.h>
 
 struct pos_figuras{
     size_t inicio, ancho, alto;
@@ -24,7 +24,7 @@ typedef enum{
     VIGA_BANNER
 } enumfigs_t;
 
-const pos_figuras_t arr_pos_figuras[CANTIDAD_FIGURAS]{
+const pos_figuras_t arr_pos_figuras[CANTIDAD_FIGURAS] = {
     [MOTO_1] = {532, 36, 73},
     [MOTO_2] = {5670, 36, 70},
     [MOTO_3] = {11284, 46, 63},
@@ -40,9 +40,4 @@ const pos_figuras_t arr_pos_figuras[CANTIDAD_FIGURAS]{
     [VIGA_BANNER] = {127098, 198, 48},
 };
 
-//???
-const size_t arreglo_inicio_figuras[14]{
-    [0] = 532,
-
-};
 
