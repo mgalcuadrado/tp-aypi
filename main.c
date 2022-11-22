@@ -6,14 +6,15 @@
 #include "fondo.h"
 #include "paleta.h"
 
-#define MAX_CADENA 10
+#define MAX_CADENA 15
 
 typedef enum{
     TOP,
     TIME,
     SCORE,
     STAGE,
-    SPEED
+    SPEED,
+    KM
 }texto_t;
 
 typedef struct{
@@ -23,14 +24,18 @@ typedef struct{
 }sttexto_t;
 
 const sttexto_t textos[CANTIDAD_TEXTOS] = {
-    [TOP] = {"TOP", 0x14, 0xe, 5, true},
+    [TOP] = {"TOP", 0x14, 0xe, 8, true},
     [TIME] = {"TIME", 0x90, 0xe, 6, false},
     [SCORE] = {"SCORE", 0xc6, 0xe, 7, true},
     [STAGE] = {"STAGE", 0x14, 0x1c, 5, true},
     [SPEED] = {"SPEED", 0xc6, 0x1c, 6, true},
+    [KM] = {"KM", 0x10e, 0x1c, 6, false},
 };
 
-char *sizet_a_cadena(size_t n);
+size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000000,[TIME] = 75, [SCORE] = 10000000, [STAGE] = 1, [SPEED] = 80}; //en este arreglo de size_ts se guardan los valores asociados a los textos
+
+char *sizet_a_cadena(size_t n, size_t text);
+bool numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, bool mover);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -49,20 +54,21 @@ int main() {
     int dormir = 0;
 
     // BEGIN código del alumno
-    size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 0,[TIME] = 75, [SCORE] = 0, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos
-
     double x_moto = 162, x_fondo = 320;
     bool mover_derecha = false, mover_izquierda = false,
     acelerar = false, frenar = false;
     size_t t = 0;
-
+ 
     imagen_t *teselas[CANTIDAD_TESELAS_TOTAL];
+    imagen_t *segundos[10];
 
     for(size_t i = 0; i < CANTIDAD_TESELAS_OG; i++)
         teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
-    for (size_t i = CANTIDAD_TESELAS_OG + CANTIDAD_FIGURAS; i < CANTIDAD_TESELAS_TOTAL; i++){
+    for (size_t i = CANTIDAD_TESELAS_OG + CANTIDAD_FIGURAS; i < CANTIDAD_TESELAS_TOTAL; i++)
         teselas[i] = imagen_generar(ANCHO_RUTA, ALTO_RUTA, 0);
-    }
+    for (size_t i = 0; i < 10; i++)
+        segundos[i] = imagen_generar(ANCHO_TESELA, 2 * ALTO_TESELA, 0);
+
     if(!leer_teselas(teselas)){
         fprintf(stderr, "No se pudieron leer las teselas\n");
         for(size_t i = 0; i < CANTIDAD_TESELAS_TOTAL; i++)
@@ -70,12 +76,19 @@ int main() {
         return 1;
     }
     
+    for(size_t i = 0; i < 10; i++){
+        imagen_pegar(segundos[i],teselas[0x80 + (2 * i)],0,0);
+        imagen_pegar(segundos[i],teselas[0x81 + (2 * i)],0,8);
+    }
+
+
     imagen_guardar_ppm(teselas[CANTIDAD_TESELAS_OG + CANTIDAD_FIGURAS + 1], "ruta1.ppm", pixel3_a_rgb);
 
     imagen_t *cuadro = imagen_generar(320, 224, 0);
     imagen_t *cielo = imagen_generar(320, 128, 0xf);
     imagen_t *pasto = imagen_generar(1, 96, pixel12_crear(0, 13, 9));
-    
+
+
     for(size_t i = 0; i < 10; i++)
         imagen_set_pixel(pasto, 0, i, colores_pasto[i]);
 
@@ -140,14 +153,14 @@ int main() {
         for(size_t i = 0; i < CANTIDAD_TEXTOS; i++){
             for (size_t j = 0; textos[i].cadena[j] != '\0'; j++)
                 imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[textos[i].paleta]);
-            char *n_string = sizet_a_cadena(n_textos[i]);
-            fprintf(stderr, "cadena: %s\n", n_string);
-            for (size_t j = 0; n_string[j] != '\0'; j++)
-                imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(n_string[j])], textos[i].pos_x + (8 * j) + ((textos[i].imp_derecha) ? (1 + strlen(textos[i].cadena) * 8) : 0), textos[i].pos_y + ((textos[i].imp_derecha) ? 0 : 16), paleta_3[textos[i].paleta]);
-            free(n_string);
+            if(i == 1){
+                numeros_a_pantalla(cuadro,segundos, i, 8 + textos[i].pos_x,16 + textos[i].pos_y, false);
+                continue;
             }
-    
-        
+            numeros_a_pantalla(cuadro,teselas, i ,8 + textos[i].pos_x,textos[i].pos_y,true);
+        }
+
+
         /*Acà irìa la generaciòn de la ruta*/
         
         if (mover_izquierda) x_fondo += 10;
@@ -155,8 +168,6 @@ int main() {
 
         if(x_fondo < -2048) x_fondo = 640;
         else if(x_fondo > 640) x_fondo = -2048;
-        
-        /*Seguro todos estos ifs se pueden mejorar xD*/
 
         
         imagen_pegar(cuadro, pasto_estirado, 0, 128);       
@@ -165,9 +176,9 @@ int main() {
         imagen_pegar(cuadro, fondo1, x_fondo + 320, 112);
 
         //esto sería la moto
-        imagen_t *cuadrado = imagen_generar(60, 73, 0xf00);
-        imagen_pegar(cuadro, cuadrado, x_moto - 30, 151);
-        imagen_destruir(cuadrado);
+        imagen_t *moto = imagen_generar(60, 73, 0xf00);
+        imagen_pegar(cuadro, moto, x_moto - 30, 151);
+        imagen_destruir(moto);
 
         // Procedemos a dibujar a pantalla completa:
         imagen_t *cuadro_escalado = imagen_escalar(cuadro, VENTANA_ANCHO, VENTANA_ALTO);
@@ -230,20 +241,34 @@ int main() {
     return 0;
 }
 
+bool numeros_a_pantalla(imagen_t *destino, imagen_t **origen,size_t i, int x, int y, bool mover){
+    char *n_string = sizet_a_cadena(n_textos[i], i);
+    if(n_string == NULL) return false;
+    for (size_t j = 0; n_string[j] != '\0'; j++)
+        imagen_pegar_con_paleta(destino, origen[n_string[j] == ' ' ? (uint8_t)(n_string[j]) : (uint8_t)(n_string[j]) + (mover == true ? 48 : 0)],x + (8 * j) + ((textos[i].imp_derecha) == true ?  (8 * strlen(textos[i].cadena)) : 0),y,paleta_3[5]);
+    free(n_string);
+    return true;
+}
 
-
-char *sizet_a_cadena (size_t n){
+char *sizet_a_cadena (size_t n, size_t text){
     char *cadena = malloc (MAX_CADENA * sizeof(char));
+    if(cadena == NULL) return NULL;
     size_t j = 0;
-    if(n == 0)
+    if(n == 0){
         cadena[0] = n;
+        cadena[1] = '\0';
+        return cadena;
+    }
+    if(text == 4 && n < 100)
+        cadena[j++] = ' ';
+
+    bool arranco = false;
     for (size_t i = 100000000; i > 0 && n > 0; i /= 10){
-        int aux = n / i;
-        bool arranco = false;
+        size_t aux = n / i;
         if (aux > 0 || arranco == true){
             cadena[j++] = aux;
             n -= aux * i;
-            if (arranco == false) arranco = true;
+            arranco = true;
         }
     }
     cadena[j] = '\0';

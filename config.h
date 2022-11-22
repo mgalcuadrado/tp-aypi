@@ -36,7 +36,7 @@
 #define VENTANA_ANCHO 320
 #define VENTANA_ALTO 224
 
-#define CANTIDAD_TEXTOS 5
+#define CANTIDAD_TEXTOS 6
 
 #define JUEGO_FPS 30
 
