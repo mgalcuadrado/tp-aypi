@@ -32,10 +32,12 @@ const sttexto_t textos[CANTIDAD_TEXTOS] = {
     [KM] = {"KM", 0x10e, 0x1c, 6, false},
 };
 
-size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000000,[TIME] = 75, [SCORE] = 10000000, [STAGE] = 1, [SPEED] = 80}; //en este arreglo de size_ts se guardan los valores asociados a los textos
+size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 100000, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos
 
-char *sizet_a_cadena(size_t n, size_t text);
-bool numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, bool mover);
+//char *sizet_a_cadena(size_t n, size_t text);
+
+//Esta es una funcion auxiliar que imprime los diferentes tipos de numeros en la pantalla 
+bool numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -153,14 +155,16 @@ int main() {
         for(size_t i = 0; i < CANTIDAD_TEXTOS; i++){
             for (size_t j = 0; textos[i].cadena[j] != '\0'; j++)
                 imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[textos[i].paleta]);
-            if(i == 1){
-                numeros_a_pantalla(cuadro,segundos, i, 8 + textos[i].pos_x,16 + textos[i].pos_y, false);
-                continue;
+            if(i < (CANTIDAD_TEXTOS - 1)){
+                if(i == 1){
+                    numeros_a_pantalla(cuadro,segundos, i, 8 + textos[i].pos_x,16 + textos[i].pos_y);
+                    continue;
+                }
+                numeros_a_pantalla(cuadro,teselas, i ,8 + textos[i].pos_x,textos[i].pos_y);
             }
-            numeros_a_pantalla(cuadro,teselas, i ,8 + textos[i].pos_x,textos[i].pos_y,true);
         }
 
-
+        
         /*Acà irìa la generaciòn de la ruta*/
         
         if (mover_izquierda) x_fondo += 10;
@@ -212,7 +216,7 @@ int main() {
 
         if(n_textos[TIME] == 0){
             size_t secs = 0;
-            for(size_t i = 0;secs < 5; i++){
+            for(size_t i = 0;secs < 10; i++){
                 //Mensaje de game over
                 secs = i/JUEGO_FPS;
             }
@@ -241,37 +245,40 @@ int main() {
     return 0;
 }
 
-bool numeros_a_pantalla(imagen_t *destino, imagen_t **origen,size_t i, int x, int y, bool mover){
-    char *n_string = sizet_a_cadena(n_textos[i], i);
-    if(n_string == NULL) return false;
-    for (size_t j = 0; n_string[j] != '\0'; j++)
-        imagen_pegar_con_paleta(destino, origen[n_string[j] == ' ' ? (uint8_t)(n_string[j]) : (uint8_t)(n_string[j]) + (mover == true ? 48 : 0)],x + (8 * j) + ((textos[i].imp_derecha) == true ?  (8 * strlen(textos[i].cadena)) : 0),y,paleta_3[5]);
-    free(n_string);
+bool numeros_a_pantalla(imagen_t *destino, imagen_t **origen,size_t i, int x, int y){
+    char n_string[MAX_CADENA];// = sizet_a_cadena(n_textos[i], i);
+    sprintf(n_string,"%ld",n_textos[i]);
+
+    //if(n_string == NULL) return false;
+    for (size_t j = 0; n_string[j]; j++)
+        imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j]) + (i == 1 ? 10 : 0)], x + (8 * j) + ((textos[i].imp_derecha) == true ?  (8 * strlen(textos[i].cadena)) : 0),y,paleta_3[5]);
+    //free(n_string);
     return true;
 }
-
+/*
 char *sizet_a_cadena (size_t n, size_t text){
-    char *cadena = malloc (MAX_CADENA * sizeof(char));
+    char *cadena = malloc (10 * sizeof(char));
     if(cadena == NULL) return NULL;
     size_t j = 0;
     if(n == 0){
-        cadena[0] = n;
-        cadena[1] = '\0';
+        cadena[j++] = (char) n;
+        cadena[j] = '\0';
         return cadena;
     }
+    
     if(text == 4 && n < 100)
         cadena[j++] = ' ';
 
     bool arranco = false;
-    for (size_t i = 100000000; i > 0 && n > 0; i /= 10){
-        size_t aux = n / i;
+    for (int i = 100000000; i > 0; i /= 10){
+        int aux = n / i;
         if (aux > 0 || arranco == true){
-            cadena[j++] = aux;
+            cadena[j++] = (char) aux;
             n -= aux * i;
             arranco = true;
         }
     }
     cadena[j] = '\0';
     return cadena;
-}
+}*/
             
