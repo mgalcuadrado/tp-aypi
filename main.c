@@ -33,8 +33,9 @@ const sttexto_t textos[CANTIDAD_TEXTOS] = {
 };
 
 
+
 //Esta es una funcion auxiliar que imprime los diferentes tipos de numeros en la pantalla 
-void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y);
+void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -53,7 +54,7 @@ int main() {
     int dormir = 0;
 
     // BEGIN código del alumno
-    size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 100000, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos
+    size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 100000, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos    
 
     double x_moto = 162, x_fondo = 320;
     bool mover_derecha = false, mover_izquierda = false,
@@ -61,15 +62,15 @@ int main() {
     size_t t = 0;
  
     imagen_t *teselas[CANTIDAD_TESELAS];
-   // imagen_t *figuras[CANTIDAD_FIGURAS];
+    imagen_t *figuras[CANTIDAD_FIGURAS];
     imagen_t *segundos[10];
 
     for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
         teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
-    /*
+    ///*
     for(enumfigs_t i = 0; i < CANTIDAD_FIGURAS; i++)
         figuras[i] = imagen_generar(arr_pos_figuras[i].ancho, arr_pos_figuras[i].alto, 0);
-    */
+    //*/
     for (size_t i = 0; i < 10; i++)
         segundos[i] = imagen_generar(ANCHO_TESELA, 2 * ALTO_TESELA, 0);
 
@@ -80,7 +81,7 @@ int main() {
         return 1;
     }
 
-    /*
+    ///*
     if (!leer_figuras(figuras)){
         fprintf(stderr, "No se pudieron leer las figuras\n");
         for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
@@ -89,7 +90,7 @@ int main() {
             imagen_destruir(figuras[i]);
         return 1;
     }
-    */
+   // */
 
     for(size_t i = 0; i < 10; i++){
         imagen_pegar(segundos[i], teselas[0x80 + (2 * i)], 0, 0);
@@ -167,10 +168,10 @@ int main() {
                 imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[textos[i].paleta]);
             if(i < (CANTIDAD_TEXTOS - 1)){
                 if(i == 1){
-                    numeros_a_pantalla(cuadro, segundos, i, 8 + textos[i].pos_x,16 + textos[i].pos_y);
+                    numeros_a_pantalla(cuadro, segundos, i, 8 + textos[i].pos_x,16 + textos[i].pos_y, n_textos);
                     continue;
                 }
-                numeros_a_pantalla(cuadro, teselas, i, 8 + textos[i].pos_x,textos[i].pos_y);
+                numeros_a_pantalla(cuadro, teselas, i, 8 + textos[i].pos_x,textos[i].pos_y, n_textos);
             }
         }
 
@@ -245,10 +246,10 @@ int main() {
         imagen_destruir(teselas[i]);
     for(size_t i = 0; i < 10; i++)
         imagen_destruir(segundos[i]);
-    /*
+   // /*
     for(enumfigs_t i = 0; i < CANTIDAD_FIGURAS; i++)
         imagen_destruir(figuras[i]);
-    */
+    //*/
     imagen_destruir(pasto_estirado);
 
     // END código del alumno
@@ -260,11 +261,10 @@ int main() {
     return 0;
 }
 
-void numeros_a_pantalla(imagen_t *destino, imagen_t **origen,size_t i, int x, int y){
+void numeros_a_pantalla(imagen_t *destino, imagen_t **origen,size_t i, int x, int y, size_t *text){
     char n_string[MAX_CADENA];
-    sprintf(n_string,"%ld",n_textos[i]);
-
+    sprintf(n_string,"%ld",text[i]);
     for (size_t j = 0; n_string[j]; j++)
-        imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j]) - (i == 1 ? 38 : 0)], x + (8 * j) + ((textos[i].imp_derecha) == true ?  (8 * strlen(textos[i].cadena)) : 0),y,paleta_3[5]);
+        imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j]) + (i == 1 ? 10 : 0)], x + (8 * j) + ((textos[i].imp_derecha) == true ?  (8 * strlen(textos[i].cadena)) : 0),y,paleta_3[5]);
 }
             
