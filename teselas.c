@@ -60,21 +60,25 @@ static bool leer_ruta (imagen_t * teselas[]){
     /*for (*/ size_t i = CANTIDAD_TESELAS_OG + CANTIDAD_FIGURAS + 1; /* i < CANTIDAD_TESELAS_TOTAL; i++){ */
        // if (! imagen_redimensionar(teselas[i], ANCHO_RUTA, ALTO_RUTA)) return false;
         for (size_t f = 0; f < ALTO_RUTA; f++){
-            for (size_t color = 0; color < 4; color++){ // ???????
-            for (size_t c = 1; c < ANCHO_RUTA; c += 2){
+            //for (size_t color = 0; color < 4; color++){ // ???????
+            for (size_t c = 0; c < ANCHO_RUTA; c += 8){
                 uint8_t lec;
                 if (fread(&lec, sizeof(uint8_t), 1, archivo) != 1){
                     fclose(archivo);
                     return false;
                 }
+                for (size_t j = 0; j < 8; j++)
+               imagen_set_pixel(teselas[a], j + c, i, imagen_get_pixel(teselas[a], j, i) + ((n >> (CORRIMIENTO_MAX_UINT8T - j)) & MASK_LSB)); 
+               //imagen_set_pixel(teselas[a], j, i, (imagen_get_pixel(teselas[a], j, i)) << 1 + ((n >> (CORRIMIENTO_MAX_UINT8T - j)) & MASK_LSB)); 
+
                 //pixel_t imagen_get_pixel(const imagen_t *im, size_t x, size_t y){
-                imagen_set_pixel(teselas[i], c - 1, f, imagen_get_pixel (teselas[i], c - 1, f) + ((lec >> SHIFT_LEC4) & MASK_4LSB));
+                //imagen_set_pixel(teselas[i], c - 1, f, imagen_get_pixel (teselas[i], c - 1, f) + ((lec >> SHIFT_LEC4) & MASK_4LSB));
                 //[i]->pixeles[f][c - 1] = (lec >> SHIFT_LEC4) & MASK_4LSB;
-                imagen_set_pixel(teselas[i], c, f, imagen_get_pixel (teselas[i], c - 1, f) + (lec & MASK_4LSB));
+                //imagen_set_pixel(teselas[i], c, f, imagen_get_pixel (teselas[i], c - 1, f) + (lec & MASK_4LSB));
                 //teselas[i]->pixeles[f][c] = lec & MASK_4LSB;
            // }
             }
-            }
+          //  }
     }
     return (fclose(archivo) != EOF);
 }
@@ -139,7 +143,6 @@ bool leer_teselas(imagen_t *teselas[]){
     }
     return true;
 }
-
 
 
 
