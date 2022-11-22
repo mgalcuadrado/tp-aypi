@@ -106,18 +106,20 @@ bool leer_figuras (imagen_t * figuras[]){
         }
         if (fclose(alto) == EOF) return false;
     }
+    /* algo acá no me gusta 
     for (enum_figuras_t fig = 0; fig < 13; fig++){
         for (size_t f = arr_pos_figuras[fig].inicio; f < arr_pos_figuras[fig].inicio + arr_pos_figuras[fig].alto; f++){
-           for (size_t c = 0; c < arr_pos_figuras[fig].ancho; c += 4){
+           for (size_t c = 0, x = 0; x < arr_pos_figuras[fig].ancho; c += 2, x+= 4){
                 uint16_t bajo = rom[f * arr_pos_figuras[fig].ancho + c];
                 uint16_t alto = rom[f * arr_pos_figuras[fig].ancho + c + 1];
-                imagen_set_pixel (figuras[fig], c, f - arr_pos_figuras[fig].inicio, (((alto >> (SHIFT_BYTE + SHIFT_LEC4)) & MASK_4LSB) << SHIFT_LEC4) | ((bajo >> (SHIFT_BYTE + SHIFT_LEC4)) & MASK_4LSB));
-                imagen_set_pixel (figuras[fig], c + 1, f - arr_pos_figuras[fig].inicio, (((alto >> SHIFT_BYTE) & MASK_4LSB) << SHIFT_LEC4) | ((bajo >> SHIFT_BYTE) & MASK_4LSB));
-                imagen_set_pixel (figuras[fig], c + 2, f - arr_pos_figuras[fig].inicio, (((alto >> SHIFT_LEC4) & MASK_4LSB) << SHIFT_LEC4) | ((bajo >> SHIFT_LEC4) & MASK_4LSB));
-                imagen_set_pixel (figuras[fig], c + 3, f - arr_pos_figuras[fig].inicio, ((alto & MASK_4LSB) << SHIFT_LEC4) | (bajo & MASK_4LSB));
+                imagen_set_pixel (figuras[fig], x, f - arr_pos_figuras[fig].inicio, (((alto >> (SHIFT_BYTE + SHIFT_LEC4)) & MASK_4LSB) << SHIFT_LEC4) | ((bajo >> (SHIFT_BYTE + SHIFT_LEC4)) & MASK_4LSB));
+                imagen_set_pixel (figuras[fig], x + 1, f - arr_pos_figuras[fig].inicio, (((alto >> SHIFT_BYTE) & MASK_4LSB) << SHIFT_LEC4) | ((bajo >> SHIFT_BYTE) & MASK_4LSB));
+                imagen_set_pixel (figuras[fig], x + 2, f - arr_pos_figuras[fig].inicio, (((alto >> SHIFT_LEC4) & MASK_4LSB) << SHIFT_LEC4) | ((bajo >> SHIFT_LEC4) & MASK_4LSB));
+                imagen_set_pixel (figuras[fig], x + 3, f - arr_pos_figuras[fig].inicio, ((alto & MASK_4LSB) << SHIFT_LEC4) | (bajo & MASK_4LSB));
             }
         }
     }
+    */
     return true;
 }
 
