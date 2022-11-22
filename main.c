@@ -32,12 +32,9 @@ const sttexto_t textos[CANTIDAD_TEXTOS] = {
     [KM] = {"KM", 0x10e, 0x1c, 6, false},
 };
 
-size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 100000, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos
-
-//char *sizet_a_cadena(size_t n, size_t text);
 
 //Esta es una funcion auxiliar que imprime los diferentes tipos de numeros en la pantalla 
-bool numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y);
+void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -56,35 +53,48 @@ int main() {
     int dormir = 0;
 
     // BEGIN código del alumno
+    size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 100000, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos
+
     double x_moto = 162, x_fondo = 320;
     bool mover_derecha = false, mover_izquierda = false,
     acelerar = false, frenar = false;
     size_t t = 0;
  
-    imagen_t *teselas[CANTIDAD_TESELAS_TOTAL];
+    imagen_t *teselas[CANTIDAD_TESELAS];
+   // imagen_t *figuras[CANTIDAD_FIGURAS];
     imagen_t *segundos[10];
 
-    for(size_t i = 0; i < CANTIDAD_TESELAS_OG; i++)
+    for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
         teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
-    for (size_t i = CANTIDAD_TESELAS_OG + CANTIDAD_FIGURAS; i < CANTIDAD_TESELAS_TOTAL; i++)
-        teselas[i] = imagen_generar(ANCHO_RUTA, ALTO_RUTA, 0);
+    /*
+    for(enumfigs_t i = 0; i < CANTIDAD_FIGURAS; i++)
+        figuras[i] = imagen_generar(arr_pos_figuras[i].ancho, arr_pos_figuras[i].alto, 0);
+    */
     for (size_t i = 0; i < 10; i++)
         segundos[i] = imagen_generar(ANCHO_TESELA, 2 * ALTO_TESELA, 0);
 
     if(!leer_teselas(teselas)){
         fprintf(stderr, "No se pudieron leer las teselas\n");
-        for(size_t i = 0; i < CANTIDAD_TESELAS_TOTAL; i++)
+        for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
             imagen_destruir(teselas[i]);
         return 1;
     }
-    
-    for(size_t i = 0; i < 10; i++){
-        imagen_pegar(segundos[i],teselas[0x80 + (2 * i)],0,0);
-        imagen_pegar(segundos[i],teselas[0x81 + (2 * i)],0,8);
+
+    /*
+    if (!leer_figuras(figuras)){
+        fprintf(stderr, "No se pudieron leer las figuras\n");
+        for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
+            imagen_destruir(teselas[i]);
+        for(enumfigs_t i = 0; i < CANTIDAD_FIGURAS; i++)
+            imagen_destruir(figuras[i]);
+        return 1;
     }
+    */
 
-
-    imagen_guardar_ppm(teselas[CANTIDAD_TESELAS_OG + CANTIDAD_FIGURAS + 1], "ruta1.ppm", pixel3_a_rgb);
+    for(size_t i = 0; i < 10; i++){
+        imagen_pegar(segundos[i], teselas[0x80 + (2 * i)], 0, 0);
+        imagen_pegar(segundos[i], teselas[0x81 + (2 * i)], 0, 8);
+    }
 
     imagen_t *cuadro = imagen_generar(320, 224, 0);
     imagen_t *cielo = imagen_generar(320, 128, 0xf);
@@ -157,10 +167,10 @@ int main() {
                 imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[textos[i].paleta]);
             if(i < (CANTIDAD_TEXTOS - 1)){
                 if(i == 1){
-                    numeros_a_pantalla(cuadro,segundos, i, 8 + textos[i].pos_x,16 + textos[i].pos_y);
+                    numeros_a_pantalla(cuadro, segundos, i, 8 + textos[i].pos_x,16 + textos[i].pos_y);
                     continue;
                 }
-                numeros_a_pantalla(cuadro,teselas, i ,8 + textos[i].pos_x,textos[i].pos_y);
+                numeros_a_pantalla(cuadro, teselas, i, 8 + textos[i].pos_x,textos[i].pos_y);
             }
         }
 
@@ -231,9 +241,14 @@ int main() {
     imagen_destruir(fondo2);
     imagen_destruir(cielo);
 
-    for(size_t i = 0; i < CANTIDAD_TESELAS_TOTAL; i++)
+    for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
         imagen_destruir(teselas[i]);
-
+    for(size_t i = 0; i < 10; i++)
+        imagen_destruir(segundos[i]);
+    /*
+    for(enumfigs_t i = 0; i < CANTIDAD_FIGURAS; i++)
+        imagen_destruir(figuras[i]);
+    */
     imagen_destruir(pasto_estirado);
 
     // END código del alumno
@@ -245,40 +260,11 @@ int main() {
     return 0;
 }
 
-bool numeros_a_pantalla(imagen_t *destino, imagen_t **origen,size_t i, int x, int y){
-    char n_string[MAX_CADENA];// = sizet_a_cadena(n_textos[i], i);
+void numeros_a_pantalla(imagen_t *destino, imagen_t **origen,size_t i, int x, int y){
+    char n_string[MAX_CADENA];
     sprintf(n_string,"%ld",n_textos[i]);
 
-    //if(n_string == NULL) return false;
     for (size_t j = 0; n_string[j]; j++)
-        imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j]) + (i == 1 ? 10 : 0)], x + (8 * j) + ((textos[i].imp_derecha) == true ?  (8 * strlen(textos[i].cadena)) : 0),y,paleta_3[5]);
-    //free(n_string);
-    return true;
+        imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j]) - (i == 1 ? 38 : 0)], x + (8 * j) + ((textos[i].imp_derecha) == true ?  (8 * strlen(textos[i].cadena)) : 0),y,paleta_3[5]);
 }
-/*
-char *sizet_a_cadena (size_t n, size_t text){
-    char *cadena = malloc (10 * sizeof(char));
-    if(cadena == NULL) return NULL;
-    size_t j = 0;
-    if(n == 0){
-        cadena[j++] = (char) n;
-        cadena[j] = '\0';
-        return cadena;
-    }
-    
-    if(text == 4 && n < 100)
-        cadena[j++] = ' ';
-
-    bool arranco = false;
-    for (int i = 100000000; i > 0; i /= 10){
-        int aux = n / i;
-        if (aux > 0 || arranco == true){
-            cadena[j++] = (char) aux;
-            n -= aux * i;
-            arranco = true;
-        }
-    }
-    cadena[j] = '\0';
-    return cadena;
-}*/
             

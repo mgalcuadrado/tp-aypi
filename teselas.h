@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "imagen.h"
 #include "paleta.h"
+#include "figuras.h"
 
 /*Mechi, te dejo las explicaciones porque sos mejor explicando*/
 //bool _sumar_teselas(FILE * f, imagen_t * teselas[], size_t corrimiento);
