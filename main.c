@@ -5,6 +5,7 @@
 #include "teselas.h"
 #include "fondo.h"
 #include "paleta.h"
+#include "figuras.h"
 
 #define MAX_CADENA 15
 
@@ -33,8 +34,9 @@ const sttexto_t textos[CANTIDAD_TEXTOS] = {
 };
 
 
+
 //Esta es una funcion auxiliar que imprime los diferentes tipos de numeros en la pantalla 
-void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y);
+void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -53,23 +55,24 @@ int main() {
     int dormir = 0;
 
     // BEGIN código del alumno
-    size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 100000, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos
+    size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 100000, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos    
 
     double x_moto = 162, x_fondo = 320;
     bool mover_derecha = false, mover_izquierda = false,
     acelerar = false, frenar = false;
+    short boton_presionado = 0;
     size_t t = 0;
  
     imagen_t *teselas[CANTIDAD_TESELAS];
-   // imagen_t *figuras[CANTIDAD_FIGURAS];
+    imagen_t *figuras[CANTIDAD_FIGURAS];
     imagen_t *segundos[10];
 
     for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
         teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
-    /*
-    for(enumfigs_t i = 0; i < CANTIDAD_FIGURAS; i++)
-        figuras[i] = imagen_generar(arr_pos_figuras[i].ancho, arr_pos_figuras[i].alto, 0);
-    */
+    ///*
+    for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++)
+        figuras[i] = imagen_generar(figura_get_ancho(i), figura_get_alto(i), 0);
+    //*/
     for (size_t i = 0; i < 10; i++)
         segundos[i] = imagen_generar(ANCHO_TESELA, 2 * ALTO_TESELA, 0);
 
@@ -79,17 +82,18 @@ int main() {
             imagen_destruir(teselas[i]);
         return 1;
     }
-
-    /*
+    prueba_figuras();
+    ///*
     if (!leer_figuras(figuras)){
         fprintf(stderr, "No se pudieron leer las figuras\n");
         for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
             imagen_destruir(teselas[i]);
-        for(enumfigs_t i = 0; i < CANTIDAD_FIGURAS; i++)
+        for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++)
             imagen_destruir(figuras[i]);
         return 1;
     }
-    */
+   // */
+
 
     for(size_t i = 0; i < 10; i++){
         imagen_pegar(segundos[i], teselas[0x80 + (2 * i)], 0, 0);
@@ -99,7 +103,9 @@ int main() {
     imagen_t *cuadro = imagen_generar(320, 224, 0);
     imagen_t *cielo = imagen_generar(320, 128, 0xf);
     imagen_t *pasto = imagen_generar(1, 96, pixel12_crear(0, 13, 9));
+    imagen_t *moto = imagen_generar(60, 73, 0);
 
+    imagen_pegar_con_paleta(moto, figuras[0], 0, 0, paleta_4[16]);
 
     for(size_t i = 0; i < 10; i++)
         imagen_set_pixel(pasto, 0, i, colores_pasto[i]);
@@ -123,15 +129,23 @@ int main() {
                 switch(event.key.keysym.sym){
                     case SDLK_UP:
                         acelerar = true;
+                        if(boton_presionado++ > 2)
+                            boton_presionado = 3;
                         break;
                     case SDLK_DOWN:
                         frenar = true;
+                        if(boton_presionado++ > 2)
+                            boton_presionado = 3;
                         break;
                     case SDLK_RIGHT:
                         mover_derecha = true;
+                        if(boton_presionado++ > 2)
+                            boton_presionado = 3;
                         break;
                     case SDLK_LEFT:
                         mover_izquierda = true;
+                        if(boton_presionado++ > 2)
+                            boton_presionado = 3;
                         break;
                 }
             }
@@ -140,15 +154,19 @@ int main() {
                 switch(event.key.keysym.sym) {
                     case SDLK_UP:
                         acelerar = false;
+                        boton_presionado = 0;
                         break;
                     case SDLK_DOWN:
                         frenar = false;
+                        boton_presionado = 0;
                         break;
                     case SDLK_RIGHT:
                         mover_derecha = false;
+                        boton_presionado = 0;
                         break;
                     case SDLK_LEFT:
                         mover_izquierda = false;
+                        boton_presionado = 0;
                         break;
                 }
             }
@@ -167,32 +185,49 @@ int main() {
                 imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[textos[i].paleta]);
             if(i < (CANTIDAD_TEXTOS - 1)){
                 if(i == 1){
-                    numeros_a_pantalla(cuadro, segundos, i, 8 + textos[i].pos_x,16 + textos[i].pos_y);
+                    numeros_a_pantalla(cuadro, segundos, i, 8 + textos[i].pos_x,16 + textos[i].pos_y, n_textos);
                     continue;
                 }
-                numeros_a_pantalla(cuadro, teselas, i, 8 + textos[i].pos_x,textos[i].pos_y);
+                numeros_a_pantalla(cuadro, teselas, i, 8 + textos[i].pos_x,textos[i].pos_y, n_textos);
             }
         }
 
         
         /*Acà irìa la generaciòn de la ruta*/
         
-        if (mover_izquierda) x_fondo += 10;
+        if (mover_izquierda) x_fondo += 10; 
         if (mover_derecha) x_fondo -= 10;
+
+        bool a = t % (JUEGO_FPS/(JUEGO_FPS /2))
+        if(a){
+            if(acelerar == false && frenar == false && n_textos[SPEED] >= 80){ //Desaceleración
+                n_textos[SPEED] -= 90/JUEGO_FPS;
+                //Pegar con paleta 0 y 1 (usa a)
+            }
+
+            if((acelerar == true || n_textos[SPEED] < 80) && frenar == false){ //Aceleración
+                n_textos[SPEED] = 279 - ((279 - n_textos[SPEED]) * exp(-0.224358 * (1/JUEGO_FPS)));
+                //Pegar con paleta 0 y 1 (usa a)
+            }
+
+            else if(frenar == true && n_textos[SPEED] > 0){ //Frenado
+                n_textos[SPEED] -= 300/JUEGO_FPS;
+                //ACA VA LAS ANIMACIONES DE FRENADO CON SU PALETA
+                //La paleta es 1 y 2
+            }
+        }
 
         if(x_fondo < -2048) x_fondo = 640;
         else if(x_fondo > 640) x_fondo = -2048;
 
         
         imagen_pegar(cuadro, pasto_estirado, 0, 128);       
-
         imagen_pegar(cuadro, fondo2, (x_fondo * 0.75) + 320, 64);
         imagen_pegar(cuadro, fondo1, x_fondo + 320, 112);
 
         //esto sería la moto
-        imagen_t *moto = imagen_generar(60, 73, 0xf00);
+
         imagen_pegar(cuadro, moto, x_moto - 30, 151);
-        imagen_destruir(moto);
 
         // Procedemos a dibujar a pantalla completa:
         imagen_t *cuadro_escalado = imagen_escalar(cuadro, VENTANA_ANCHO, VENTANA_ALTO);
@@ -240,15 +275,16 @@ int main() {
     imagen_destruir(fondo1);
     imagen_destruir(fondo2);
     imagen_destruir(cielo);
+    imagen_destruir(moto);
 
     for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
         imagen_destruir(teselas[i]);
     for(size_t i = 0; i < 10; i++)
         imagen_destruir(segundos[i]);
-    /*
-    for(enumfigs_t i = 0; i < CANTIDAD_FIGURAS; i++)
+   // /*
+    for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++)
         imagen_destruir(figuras[i]);
-    */
+    //*/
     imagen_destruir(pasto_estirado);
 
     // END código del alumno
@@ -260,11 +296,10 @@ int main() {
     return 0;
 }
 
-void numeros_a_pantalla(imagen_t *destino, imagen_t **origen,size_t i, int x, int y){
+void numeros_a_pantalla(imagen_t *destino, imagen_t **origen,size_t i, int x, int y, size_t *text){
     char n_string[MAX_CADENA];
-    sprintf(n_string,"%ld",n_textos[i]);
-
+    sprintf(n_string,"%ld",text[i]);
     for (size_t j = 0; n_string[j]; j++)
-        imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j]) - (i == 1 ? 38 : 0)], x + (8 * j) + ((textos[i].imp_derecha) == true ?  (8 * strlen(textos[i].cadena)) : 0),y,paleta_3[5]);
+        imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j]) + (i == 1 ? 24 : 0)], x + (8 * j) + ((textos[i].imp_derecha) == true ?  (8 * strlen(textos[i].cadena)) : 0),y,paleta_3[5]);
 }
             
