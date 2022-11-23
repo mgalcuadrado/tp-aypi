@@ -25,7 +25,7 @@ teselas.o: teselas.c teselas.h figuras.h imagen.h
 main.o: main.c imagen.h pixel.h fondo.h paleta.h teselas.h figuras.h
 	$(CC) $(CFLAGS) main.c $(LFLAGS)
 
-pixeles: pixel.o imagen.o paleta.o fondo.o teselas.o main.o figuras.o
+pixeles: pixel.o imagen.o paleta.o fondo.o teselas.o figuras.o main.o 
 	$(CC) pixel.o imagen.o paleta.o fondo.o teselas.o figuras.o main.o -o pixeles  $(LFLAGS)
 
 clear:

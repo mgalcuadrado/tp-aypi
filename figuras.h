@@ -4,9 +4,6 @@
 #include <stdbool.h>
 #include "imagen.h"
 
-/*figuras.o: figuras.c config.h imagen.h
-	$(CC) $(CFLAGS) figuras.c*/
-
 
 typedef struct pos_figuras pos_figuras_t;
 
