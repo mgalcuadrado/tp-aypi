@@ -202,17 +202,19 @@ imagen_t * imagen_reflejar (imagen_t * im){
     if (ref == NULL) return NULL;
     ref->ancho = im->ancho;
     ref->alto = im->alto;
-    /*
+    
     for (size_t f = 0; f < im->alto; f++){
         for (size_t c = 0; c < im->ancho; c++)
-            ref->pixeles[f][c] = im->pixeles[(im->alto - 1) - f][(im->ancho - 1) - c];
+            ref->pixeles[f][c] = im->pixeles[f][(im->ancho - 1) - c];
     }
-    */
-    for (size_t f = 0; f < im->alto / 2; f++)
+    //dejé f igual y solo cambié las columnas de lugar, también arreglé la comentada por si queremos ir por esa opción para ahorrar iteraciones
+    /*
+    for (size_t f = 0; f < im->alto; f++)
         for (size_t c = 0; c < im->ancho /2; c++){
-            ref->pixeles[f][c] = im->pixeles[(im->alto - 1) - f][(im->ancho - 1) - c];
-            ref->pixeles[(im->alto -1) - f][(im->ancho - 1) -c] = im->pixeles[f][c];
+            ref->pixeles[f][c] = im->pixeles[f][(im->ancho - 1) - c];
+            ref->pixeles[f][(im->ancho - 1) -c] = im->pixeles[f][c];
         }
+    */
     return ref;
     
 }
