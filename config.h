@@ -9,7 +9,8 @@
 #define ANCHO_TESELA 8
 #define ALTO_TESELA 8
 #define ANCHO_RUTA 512
-#define ALTO_RUTA 128
+#define ALTO_RUTA_OG 128
+#define ALTO_RUTA_NUEVO 96
 
 /*#define VENTANA_ANCHO 800
 #define VENTANA_ALTO 600*/
@@ -39,6 +40,7 @@
 #define ARCHIVO_ROM_FIGURA_13 "roms/6845.rom"
 #define ARCHIVO_ROM_FIGURA_14 "roms/6846.rom"
 
+extern const char *archivos_rom[CANTIDAD_ROMS];
 
 /*
 typedef enum{
