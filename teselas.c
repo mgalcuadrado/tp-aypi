@@ -26,26 +26,7 @@
 #define MASK_4LSB 0xF
 #define SHIFT_BYTE 8
 
-const char *archivos_rom[CANTIDAD_ROMS] = {
-    [0] = ARCHIVO_ROM_B,
-    [1] = ARCHIVO_ROM_G,
-    [2] = ARCHIVO_ROM_R,
-    [3] = ARCHIVO_ROM_RUTA,
-    [4] = ARCHIVO_ROM_FIGURA_1,
-    [5] = ARCHIVO_ROM_FIGURA_2,
-    [6] = ARCHIVO_ROM_FIGURA_3,
-    [7] = ARCHIVO_ROM_FIGURA_4,
-    [8] = ARCHIVO_ROM_FIGURA_5,
-    [9] = ARCHIVO_ROM_FIGURA_6,
-    [10] = ARCHIVO_ROM_FIGURA_7,
-    [11] = ARCHIVO_ROM_FIGURA_8,
-    [12] = ARCHIVO_ROM_FIGURA_9,
-    [13] = ARCHIVO_ROM_FIGURA_10,
-    [14] = ARCHIVO_ROM_FIGURA_11,
-    [15] = ARCHIVO_ROM_FIGURA_12,
-    [16] = ARCHIVO_ROM_FIGURA_13,
-    [17] = ARCHIVO_ROM_FIGURA_14,
-};
+
 
 //función interna creada por el alumno para sumar en las teselas los valores dados por cada archivo.
 //recibe un archivo abierto en formato de lectura binaria y el puntero al arreglo de imágenes teselas (no cierra el archivo).
@@ -69,7 +50,12 @@ bool leer_ruta(imagen_t * ruta){
     FILE * archivo = fopen (ARCHIVO_ROM_RUTA, "rb");
     if (archivo == NULL) return false;
     for (size_t i = 0; i < CANTIDAD_RUTAS; i++){ 
-        for (size_t f = 0; f < ALTO_RUTA; f++){
+        uint8_t n[(ALTO_RUTA_OG - ALTO_RUTA_NUEVO) / 2  * ANCHO_RUTA / 8];
+        if (fread(n, sizeof(uint8_t), (ALTO_RUTA_OG - ALTO_RUTA_NUEVO) / 2 * ANCHO_RUTA / 8, archivo) != 16 * ANCHO_RUTA / 8){
+            fclose(archivo);
+            return false;
+        }
+        for (size_t f = 0; f < ALTO_RUTA_NUEVO; f++){
                 for (size_t c = 0; c < ANCHO_RUTA / 8; c ++){
                     uint8_t lec;
                     if (fread(&lec, sizeof(uint8_t), 1, archivo) != 1){
@@ -80,7 +66,12 @@ bool leer_ruta(imagen_t * ruta){
                         imagen_set_pixel(ruta, c * 8 + j, f, imagen_get_pixel(ruta, c * 8 + j, f) + (((lec >> (CORRIMIENTO_MAX_UINT8T - j)) & MASK_LSB) << i)); 
                 }
         }
+        if (fread(n, sizeof(uint8_t), (ALTO_RUTA_OG - ALTO_RUTA_NUEVO) / 2 * ANCHO_RUTA / 8, archivo) != 16 * ANCHO_RUTA / 8){
+            fclose(archivo);
+            return false;
+        }
     }
+    fprintf(stderr, "esto debería funcionar\n");
     return (fclose(archivo) != EOF);
 }
 
@@ -89,7 +80,12 @@ bool prueba_ruta(imagen_t * ruta){
     FILE * archivo = fopen (ARCHIVO_ROM_RUTA, "rb");
     if (archivo == NULL) return false;
     /*for (*/size_t r = 0; //r < CANTIDAD_RUTAS; r++){
-        for (size_t f = 0; f < ALTO_RUTA; f++){
+        uint8_t n[16 * ANCHO_RUTA / 8];
+        if (fread(n, sizeof(uint8_t), 16 * ANCHO_RUTA / 8, archivo) != 16 * ANCHO_RUTA / 8){
+            fclose(archivo);
+            return false;
+        }
+        for (size_t f = 0; f < ALTO_RUTA_NUEVO; f++){
             for (size_t c = 0; c < ANCHO_RUTA / 8; c++){
                 uint8_t n;
                 if (fread(&n, sizeof(uint8_t), 1, archivo) != 1){
@@ -100,6 +96,10 @@ bool prueba_ruta(imagen_t * ruta){
                     imagen_set_pixel(ruta, c * 8 + j, f, imagen_get_pixel(ruta, c * 8 + j, f) + (((n >> (CORRIMIENTO_MAX_UINT8T - j)) & MASK_LSB) << r)); 
                 }
             }
+        }
+        if (fread(n, sizeof(uint8_t), 16 * ANCHO_RUTA / 8, archivo) != 16 * ANCHO_RUTA / 8){
+            fclose(archivo);
+            return false;
         }
     fclose(archivo);
     imagen_guardar_ppm(ruta, "rutamil.ppm", pixel12_a_rgb);
@@ -169,7 +169,7 @@ bool leer_figuras (imagen_t * figuras[]){
 bool prueba_figuras(void){
     imagen_t * im = imagen_generar(8, 9, 0);
     //valida magoya
-    bool new_line = false;
+    //bool new_line = false;
     uint16_t prueba[18] = {0xf0fe, 0x0f0f, 0xf0ee, 0xef0f, 0xf07e, 0x170f, 0xf422, 0x440f, 0xfabb, 0xae0f, 0xf05b, 0x240f, 0xf04c, 0x7b0f, 0xf0b9, 0xba0f, 0xf0ab, 0xaf0f};
     for (size_t f = 0; f < 9; f++){
             for (size_t c = 0, x = 0; c < 8 / 4; c++){
@@ -180,11 +180,11 @@ bool prueba_figuras(void){
                         break;
                     } */
                     if (i == 3 && (n & MASK_4LSB) == MASK_4LSB) {
-                        new_line = true;
+                       // new_line = true;
                         break;
                     }
                     imagen_set_pixel(im, x++, f, (n & (MASK_4MSB >> i * 4)) >> (SHIFT_BYTE + SHIFT_4LEC - i * 4));
-                    new_line = false;
+                    //new_line = false;
                 }
                // if (new_line) break;
             }
