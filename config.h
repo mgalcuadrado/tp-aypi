@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <stdint.h>
+
 #define CANTIDAD_TESELAS 4096
 #define CANTIDAD_FIGURAS 13
 #define CANTIDAD_RUTAS 4
@@ -16,6 +18,14 @@
 #define VENTANA_ALTO 600*/
 #define VENTANA_ANCHO 320
 #define VENTANA_ALTO 224
+
+#define FILA_CUADROS 3
+#define COLUMNA_CUADRO_TOP 5
+#define COLUMNA_CUADRO_SCORE 7
+#define COLUMNA_CUADRO_TIME 6
+#define FILA_GOAL_GAMEOVER 2
+#define COLUMNA_GAMEOVER 15
+#define COLUMNA_GOAL 7
 
 #define CANTIDAD_TEXTOS 6
 
@@ -42,6 +52,17 @@
 
 extern const char *archivos_rom[CANTIDAD_ROMS];
 
+extern const uint16_t mosaico_cuadro_top[FILA_CUADROS][COLUMNA_CUADRO_TOP];
+extern const uint8_t mosaico_paleta_top[FILA_CUADROS][COLUMNA_CUADRO_TOP];
+extern const uint16_t mosaico_cuadro_score[FILA_CUADROS][COLUMNA_CUADRO_SCORE];
+extern const uint8_t mosaico_paleta_score[FILA_CUADROS][COLUMNA_CUADRO_SCORE];
+extern const uint16_t mosaico_cuadro_time[FILA_CUADROS][COLUMNA_CUADRO_TIME];
+extern const uint8_t mosaico_paleta_time[FILA_CUADROS][COLUMNA_CUADRO_TIME];
+extern const uint16_t mosaico_cuadro_goal[FILA_GOAL_GAMEOVER][COLUMNA_GOAL];
+extern const uint8_t mosaico_paleta_goal[FILA_GOAL_GAMEOVER][COLUMNA_GOAL];
+extern const uint16_t mosaico_cuadro_gameover[FILA_GOAL_GAMEOVER][COLUMNA_GAMEOVER];
+extern const uint8_t mosaico_paleta_gameover[FILA_GOAL_GAMEOVER][COLUMNA_GAMEOVER];
+//Perdon mechi xD
 /*
 typedef enum{
     ARCHIVO_ROM_B,

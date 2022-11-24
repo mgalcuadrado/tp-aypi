@@ -25,18 +25,16 @@ typedef struct{
 }sttexto_t;
 
 const sttexto_t textos[CANTIDAD_TEXTOS] = {
-    [TOP] = {"TOP", 0x14, 0xe, 8},
-    [TIME] = {"TIME", 0x90, 0xe, 6},
-    [SCORE] = {"SCORE", 0xc6, 0xe, 7},
+    [TOP] = {"TOP", 0xd, 0x6, 8},
+    [TIME] = {"TIME", 0x90, 0x6, 6},
+    [SCORE] = {"SCORE", 0xc6, 0x6, 7},
     [STAGE] = {"STAGE", 0x14, 0x1c, 5},
     [SPEED] = {"SPEED", 0xc6, 0x1c, 6},
     [KM] = {"KM", 0x10e, 0x1c, 6},
 };
 
-
-
 //Esta es una funcion auxiliar que imprime los diferentes tipos de numeros en la pantalla 
-void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text);
+void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text, size_t paleta);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -55,7 +53,7 @@ int main() {
     int dormir = 0;
 
     // BEGIN código del alumno
-    size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 100000, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos        
+    size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 10000, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos        
 
     /*moto_t *moto;
     moto_set_x(moto,0);
@@ -83,8 +81,6 @@ int main() {
         figuras[i] = imagen_generar(figura_get_ancho(i), figura_get_alto(i), 0);
 
     ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA_NUEVO, 0);
-    
-
 
     if(!leer_teselas(teselas)){
         fprintf(stderr, "No se pudieron leer las teselas\n");
@@ -125,7 +121,7 @@ int main() {
         fprintf(stderr, "che falló en reflejar\n");
         return 1;
     }
-    
+
     fprintf(stderr, "rutaza es de %zd x %zd\n", imagen_get_ancho(rutaza), imagen_get_alto(rutaza));
     imagen_guardar_ppm(rutaza, "ruta0.ppm", pixel12_a_rgb);
 
@@ -144,7 +140,20 @@ int main() {
     
     imagen_t *fondo1 = generar_mosaico(teselas, paleta_3, FONDO1_FILAS, FONDO1_COLUMNAS, fondo1_mosaico, fondo1_paleta);
     imagen_t *fondo2 = generar_mosaico(teselas, paleta_3, FONDO2_FILAS, FONDO2_COLUMNAS, fondo2_mosaico, fondo2_paleta);
-    
+    /*
+    imagen_t *cuadros_de_texto[3]
+    for(size_t i = 0; i < 3; i++)
+        cuadros_de_texto[i] = generar_mosaico(teselas,paleta_3,FILA_CUADROS,COLUMNA_CUADRO_TOP,mosaico_cuadro_top,mosaico_paleta_top);
+  
+    typedef struct {
+        const uint16_t mosaico[][];
+        const uint8_t paleta[][];
+        imagen_t *cuadro;
+    }stcuadro_t;
+   
+    */
+
+
     // END código del alumno
 
     unsigned int ticks = SDL_GetTicks();
@@ -178,12 +187,12 @@ int main() {
                     case SDLK_LEFT:
                         /*moto_set_izq(moto,true);
                         aux = moto_get_pos(moto);
-                        moto_set_pos(moto,aux++);           AAAAAAAAAAAAAAAAAAAAA
-                        if(aux > 2)
-                            moto_set_pos(moto,3);*/
+                        moto_set_pos(moto,aux--);           AAAAAAAAAAAAAAAAAAAAA
+                        if(aux < -2)
+                            moto_set_pos(moto,-3);*/
                         mover_izquierda = true;
-                        if(boton_presionado++ > 2)
-                            boton_presionado = 3;
+                        if(boton_presionado-- < -2)
+                            boton_presionado = -3;
                         break;
                 }
             }
@@ -227,17 +236,19 @@ int main() {
         
         //impresión de textos:
         for(size_t i = 0; i < CANTIDAD_TEXTOS; i++){
+            if(i < (CANTIDAD_TEXTOS - 1))
+                numeros_a_pantalla(cuadro, teselas, i, 8 + textos[i].pos_x + (i < 3 ? 8 : 0),textos[i].pos_y + (i < 3 ? 0x8 : 0),n_textos,textos[i].paleta);
+            if(i < 3){
+                //imagen_pegar(cuadro,texto_top,textos[i].pos_x,textos[i].pos_y);
+                continue;
+            }
             for (size_t j = 0; textos[i].cadena[j] != '\0'; j++)
                 imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[textos[i].paleta]);
-            if(i < (CANTIDAD_TEXTOS - 1))
-                numeros_a_pantalla(cuadro, teselas, i, 8 + textos[i].pos_x,textos[i].pos_y,n_textos);
-        }
 
+        }
         /* CALCULO EL METRO DE LA RUTA QUE VA                     
                                                                 AAAAAAAAAAAAAAAAAAAAAAAAAA
-        moto_set_x(moto,moto_get_x(moto) + (moto_get_vel(moto) * (60.0/1000)))*/
-
-
+        moto_set_x(moto,moto_get_x(moto) + ((float)1/JUEGO_FPS) * (moto_get_vel(moto) * (60.0/1000)))*/    
         
         /*Acà irìa la generaciòn de la ruta*/
 
@@ -246,7 +257,7 @@ int main() {
         if (mover_izquierda) x_fondo += 10; 
         if (mover_derecha) x_fondo -= 10;
 
-        if(t % (JUEGO_FPS/(JUEGO_FPS /2))){
+        if(t - (((t - t > 30 ? 30 : 0) % JUEGO_FPS) * JUEGO_FPS) % JUEGO_FPS){
 
             /* //Desaceleración
             if(!moto_get_acelerar(moto) && !moto_get_frenar(moto) && moto_get_vel(moto) >= 80){ 
@@ -269,24 +280,30 @@ int main() {
             }*/
 
             if((acelerar == true || n_textos[SPEED] < 80) && frenar == false){ //Aceleración
-                n_textos[SPEED] = 279 - ((279 - (n_textos[SPEED])) * exp(-0.224358 * ((float)1/JUEGO_FPS)));
+                size_t aux = 279 - (size_t)((279 - (n_textos[SPEED])) * exp(-0.224358 * ((float)1/JUEGO_FPS)));
+                n_textos[SPEED] = aux;
                 //Pegar con paleta 0 y 1
             }
 
             /*  //Frenado
             else if(moto_get_frenar(moto) && moto_get_vel > 0){
                 moto_set_vel(moto,n_textos[SPEED] - 300/JUEGO_FPS);
-
+                if(mono_get_vel(moto) < 0)
+                    moto_set_vel(moto, 0);
                 //LAS PALETAS DE FRENADO SON DIFERENTES
                 //La paletas es la 2 y 3
             }
             */
             else if(frenar == true && n_textos[SPEED] > 0){ //Frenado
                 n_textos[SPEED] -= 300/JUEGO_FPS;
-                //ACA VA LAS ANIMACIONES DE FRENADO CON SU PALETA
+                if(n_textos[SPEED] < 0)
+                    n_textos[SPEED] = 0;
+                //ACA VA LAS ANIMACIONES DE FRENADO CON SU PALETA 
                 //La paleta es 2 y 3
             }
         }
+
+        //n_textos[SPEED] = moto_get_vel(moto);
 
         if(x_fondo < -2048) x_fondo = 640;
         else if(x_fondo > 640) x_fondo = -2048;
@@ -330,7 +347,7 @@ int main() {
             printf("Perdiendo cuadros\n");
         ticks = SDL_GetTicks();
 
-        if(n_textos[TIME] == 0){
+        if(n_textos[TIME] == 0 /*|| moto_get_x(moto) == 4200*/){
             size_t secs = 0;
             for(size_t i = 0;secs < 10; i++){
                 //Mensaje de game over
@@ -367,26 +384,17 @@ int main() {
     return 0;
 }
 
-void numeros_a_pantalla(imagen_t *destino, imagen_t **origen,size_t i, int x, int y, size_t *text){
+void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text, size_t paleta){
     char n_string[MAX_CADENA];
     sprintf(n_string,"%ld",text[i]);
     if(i == 1){
-        imagen_t *segundos[10];
-        for (size_t i = 0; i < 10; i++)
-            segundos[i] = imagen_generar(ANCHO_TESELA, 2 * ALTO_TESELA, 0);
-        for(size_t i = 0; i < 10; i++){
-            imagen_pegar(segundos[i], origen[0x80 + (2 * i)], 0, 0);
-            imagen_pegar(segundos[i], origen[0x81 + (2 * i)], 0, 8);
-        }
-        
-        //for(size_t j = 0; n_string[j]; j++)
-            //imagen_pegar_con_paleta(destino, segundos[(char)n_string[j]], x + (8 * j),y + 16,paleta_3[5]);
-
-        for(size_t i = 0; i < 10; i++)
-            imagen_destruir(segundos[i]);
+        for(size_t j = 0; j < strlen(n_string); j++){
+            imagen_pegar_con_paleta(destino, origen[0x80 + ((text[i] > 9 && j == 0)? 2 * (text[i]/10) : 0) + (j == 1 ? (2 * (text[i] - 10 * (text[i]/10))) : 0)], x + (8 * j),y + 16,paleta_3[5]);
+            imagen_pegar_con_paleta(destino, origen[0x81 + ((text[i] > 9 && j == 0)? 2 * (text[i]/10) : 0) + (j == 1 ? (2 * (text[i] - 10 * (text[i]/10))) : 0)], x + (8 * j),y + 24,paleta_3[5]);
+        } 
         return;
     }
     for (size_t j = 0; n_string[j]; j++)
-        imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j])], x + (8 * j) + (8 * strlen(textos[i].cadena)),y,paleta_3[5]);
+        imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j])], x + (8 * j) + (8 * strlen(textos[i].cadena)) + (i == 4 && text[i] < 100 ? 8 : 0),y,paleta_3[paleta + (i == 3 ? 1 : 0)]);
 }
     
