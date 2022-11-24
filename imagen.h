@@ -51,4 +51,7 @@ void imagen_a_textura(const imagen_t *im, uint16_t *v);
 
 //COMENTAR CÓMO FUNCIONA //TP
 bool imagen_redimensionar(imagen_t * im, size_t n_ancho, size_t n_alto);
+
+//Esta función recibe una imagen y devuelve por el nombre esa imagen reflejada
+imagen_t * imagen_reflejar (imagen_t * im);
 #endif

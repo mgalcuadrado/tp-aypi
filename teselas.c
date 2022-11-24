@@ -65,28 +65,47 @@ static bool _sumar_teselas(FILE * f, imagen_t *teselas[], size_t corrimiento/*, 
 
 
 
-bool leer_ruta (imagen_t * ruta[]){
-    FILE * archivo = fopen (archivos_rom[4], "rb");
+bool leer_ruta(imagen_t * ruta){
+    FILE * archivo = fopen (ARCHIVO_ROM_RUTA, "rb");
     if (archivo == NULL) return false;
-    /*for (*/ size_t i = 0; /* i < CANTIDAD_TESELAS_TOTAL; i++){ */
-       // if (! imagen_redimensionar(teselas[i], ANCHO_RUTA, ALTO_RUTA)) return false;
+    for (size_t i = 0; i < CANTIDAD_RUTAS; i++){ 
         for (size_t f = 0; f < ALTO_RUTA; f++){
-           // for (size_t color = 0; color < 4; color++){ // ???????
-            for (size_t c = 1; c < ANCHO_RUTA; c += 2){
-                uint8_t lec;
-                if (fread(&lec, sizeof(uint8_t), 1, archivo) != 1){
-                    fclose(archivo);
-                    return false;
+                for (size_t c = 0; c < ANCHO_RUTA / 8; c ++){
+                    uint8_t lec;
+                    if (fread(&lec, sizeof(uint8_t), 1, archivo) != 1){
+                        fclose(archivo);
+                        return false;
+                    }
+                    for (size_t j = 0; j < 8; j++)
+                        imagen_set_pixel(ruta, c * 8 + j, f, imagen_get_pixel(ruta, c * 8 + j, f) + (((lec >> (CORRIMIENTO_MAX_UINT8T - j)) & MASK_LSB) << i)); 
                 }
-                imagen_set_pixel(ruta[i], c - 1, f, imagen_get_pixel (ruta[i], c - 1, f) + ((lec >> SHIFT_4LEC) & MASK_4LSB));
-                //[i]->pixeles[f][c - 1] = (lec >> SHIFT_LEC4) & MASK_4LSB;
-                imagen_set_pixel(ruta[i], c, f, imagen_get_pixel (ruta[i], c - 1, f) + (lec & MASK_4LSB));
-                //teselas[i]->pixeles[f][c] = lec & MASK_4LSB;
-            }
-          //  }
+        }
     }
     return (fclose(archivo) != EOF);
 }
+
+
+bool prueba_ruta(imagen_t * ruta){
+    FILE * archivo = fopen (ARCHIVO_ROM_RUTA, "rb");
+    if (archivo == NULL) return false;
+    /*for (*/size_t r = 0; //r < CANTIDAD_RUTAS; r++){
+        for (size_t f = 0; f < ALTO_RUTA; f++){
+            for (size_t c = 0; c < ANCHO_RUTA / 8; c++){
+                uint8_t n;
+                if (fread(&n, sizeof(uint8_t), 1, archivo) != 1){
+                    fclose(archivo);
+                    return false;
+                }
+                for (size_t j = 0; j < 8; j++){
+                    imagen_set_pixel(ruta, c * 8 + j, f, imagen_get_pixel(ruta, c * 8 + j, f) + (((n >> (CORRIMIENTO_MAX_UINT8T - j)) & MASK_LSB) << r)); 
+                }
+            }
+        }
+    fclose(archivo);
+    imagen_guardar_ppm(ruta, "rutamil.ppm", pixel12_a_rgb);
+    return true;
+}
+
 
 
 bool leer_figuras (imagen_t * figuras[]){
@@ -106,7 +125,7 @@ bool leer_figuras (imagen_t * figuras[]){
         for (size_t byte = 0; byte < 32768; byte++){
             uint8_t b, a;
             if ((fread (&b, sizeof(uint8_t), 1, bajo) != 1) || fread(&a, sizeof(uint8_t), 1, alto) != 1){
-                fprintf(stderr, "falló la lectura del byte %zd por el archivo este o uno menos %zd\n", byte, a);
+                fprintf(stderr, "falló la lectura del byte %zd por el archivo este o uno menos %d\n", byte, a);
                 fclose(bajo);
                 fclose (alto);
                 return false;
@@ -123,9 +142,7 @@ bool leer_figuras (imagen_t * figuras[]){
             return false;
         }
     }
-    fprintf(stderr, "levanté todo de los archivos\n");
     for (figs_t fig = 0; fig < 13; fig++){
-        fprintf(stderr, "******************* FIGURA %d *****************\n", (int) fig);
         bool new_line = false;
         for (size_t f = 0; f < figura_get_alto(fig); f++){
             for (size_t c = 0, x = 0; c < figura_get_ancho(fig) / 4; c++){
@@ -140,14 +157,12 @@ bool leer_figuras (imagen_t * figuras[]){
                         break;
                     }
                     imagen_set_pixel(figuras[fig], x++, f, (n & (MASK_4MSB >> i * 4)) >> (SHIFT_BYTE + SHIFT_4LEC - i * 4));
-                    //fprintf(stderr, "guardé %d en x: %zd e y: %zd \n", imagen_get_pixel(figuras[fig], x - 1, f), x - 1, f);
                     new_line = false;
                 }
                 if (new_line) break;
             }
         }
     }
-    fprintf(stderr, "salí de figuras :D\n");
     return true;
 }
 
@@ -159,7 +174,6 @@ bool prueba_figuras(void){
     for (size_t f = 0; f < 9; f++){
             for (size_t c = 0, x = 0; c < 8 / 4; c++){
                 uint16_t n = prueba[f * 2 + c];
-                fprintf(stderr, "prueba[%zd] = %d\n", f * 2 + c, n);
                 for (size_t i = 0; i < 4; i++){
                   /* if ((n & (MASK_4LSB << 12) == (MASK_4LSB << 12)) && ((n & MASK_4LSB) == MASK_4LSB)){
                         new_line = true;
@@ -170,13 +184,12 @@ bool prueba_figuras(void){
                         break;
                     }
                     imagen_set_pixel(im, x++, f, (n & (MASK_4MSB >> i * 4)) >> (SHIFT_BYTE + SHIFT_4LEC - i * 4));
-                   fprintf(stderr, "prueba guardé %d en x: %zd e y: %zd \n", (n & (MASK_4MSB >> i * 4)) >> (SHIFT_BYTE + SHIFT_4LEC - i * 4), x - 1, f);
                     new_line = false;
                 }
                // if (new_line) break;
             }
     }
-    imagen_guardar_ppm (im, "prueba.ppm", pixel3_a_rgb);
+   // imagen_guardar_ppm (im, "prueba.ppm", pixel3_a_rgb);
     imagen_destruir(im);
     return true;
 }

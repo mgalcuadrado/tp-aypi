@@ -3,6 +3,7 @@
 #include "imagen.h"
 #include <stdint.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h> //para malloc() y free()
 
 #define MENSAJE_FORMATO "P3\n" 
@@ -79,11 +80,14 @@ imagen_t *imagen_escalar (const imagen_t *origen, size_t ancho_destino, size_t a
 
 
 void imagen_pegar (imagen_t *destino, const imagen_t *origen, int x, int y){
-    for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++)
+    for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++){
+        bool pixeles_pegados = false;
         for(int c = (x >= 0 ? 0 : -x); c < origen->ancho && c + x < destino->ancho; c++)
-            if (origen -> pixeles[f][c]){ //ver manejo de blancos
+            if (origen -> pixeles[f][c] != 0){ 
                 destino->pixeles[y + f][x + c] = origen->pixeles[f][c]; 
+                pixeles_pegados = true;
             } 
+    }
 }       
 
 
@@ -91,12 +95,14 @@ void imagen_pegar (imagen_t *destino, const imagen_t *origen, int x, int y){
 
 
 void imagen_pegar_con_paleta(imagen_t *destino, const imagen_t *origen, int x, int y, const pixel_t paleta[]){
-for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++)
+for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++){
+        bool pixeles_pegados = false;
         for(int c = (x >= 0 ? 0 : -x); c < origen->ancho && c + x < destino->ancho; c++){
-            if (origen -> pixeles[f][c]){ //ver manejo de blancos
+            if (origen -> pixeles[f][c] != 0 && (origen->pixeles[f][c] != 0xF || pixeles_pegados)){ 
                 destino->pixeles[y + f][x + c] = paleta[origen->pixeles[f][c]]; 
             } 
         }
+    }
 }
 
 
@@ -190,3 +196,23 @@ bool imagen_redimensionar(imagen_t * im, size_t n_ancho, size_t n_alto){
     return false;
 }
 */
+//Esta funcion refleja las imagenes
+imagen_t * imagen_reflejar (imagen_t * im){
+    imagen_t * ref = imagen_generar(im->ancho, im->alto, 0);
+    if (ref == NULL) return NULL;
+    ref->ancho = im->ancho;
+    ref->alto = im->alto;
+    /*
+    for (size_t f = 0; f < im->alto; f++){
+        for (size_t c = 0; c < im->ancho; c++)
+            ref->pixeles[f][c] = im->pixeles[(im->alto - 1) - f][(im->ancho - 1) - c];
+    }
+    */
+    for (size_t f = 0; f < im->alto / 2; f++)
+        for (size_t c = 0; c < im->ancho /2; c++){
+            ref->pixeles[f][c] = im->pixeles[(im->alto - 1) - f][(im->ancho - 1) - c];
+            ref->pixeles[(im->alto -1) - f][(im->ancho - 1) -c] = im->pixeles[f][c];
+        }
+    return ref;
+    
+}
