@@ -32,7 +32,7 @@ void moto_set_frenar (moto_t * m, bool fr);
 
 void moto_set_der (moto_t * m, bool d);
 
-void moto_get_izq (moto_t * m, bool i);
+void moto_set_izq (moto_t * m, bool i);
 
 
 #endif
