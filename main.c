@@ -82,7 +82,7 @@ int main() {
     for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++)
         figuras[i] = imagen_generar(figura_get_ancho(i), figura_get_alto(i), 0);
 
-    ruta = imagen_generar(512, 128, 0);
+    ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA_NUEVO, 0);
     
 
 
@@ -117,7 +117,7 @@ int main() {
         return 1;
     }
 
-    
+    imagen_guardar_ppm(ruta, "rutatotal.ppm", pixel12_a_rgb);
 
     imagen_t *rutaza = imagen_reflejar(ruta);
     fprintf(stderr, "hasta acá llega piola\n");
