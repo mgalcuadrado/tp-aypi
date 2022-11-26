@@ -8,8 +8,6 @@ struct moto{
     bool acelerar, frenar, mover_izq, mover_der;
 };
 
-//inv de rep: moto_t siempre tiene inicializados sus valores mientras m != NULL
-
 short moto_get_pos (moto_t * m){
     return m->pos;
 }
