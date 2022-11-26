@@ -1,4 +1,5 @@
 #include "moto.h"
+#include <stdlib.h>
 
 //Paleta 0 y 1 para cuando està andando
 //Paleta 2 y 3 para cuando està frenando
@@ -7,6 +8,25 @@ struct moto{
     size_t x, vel;
     bool acelerar, frenar, mover_izq, mover_der;
 };
+
+//inv de rep: moto_t siempre tiene inicializados sus valores mientras m != NULL
+
+moto_t * moto_crear(short posi, size_t xi, size_t veli, bool aci, bool fri, bool izqi, bool deri){
+    moto_t * m = malloc (sizeof(moto_t));
+    if (m == NULL) return NULL;
+    m->pos = posi;
+    m->x = xi;
+    m->vel =veli;
+    m->acelerar = aci;
+    m->frenar = fri;
+    m->mover_izq = izqi;
+    m->mover_der = deri;
+    return m;
+}
+
+void moto_destruir (moto_t * m){
+    free(m);
+}
 
 short moto_get_pos (moto_t * m){
     return m->pos;

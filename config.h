@@ -31,6 +31,7 @@
 
 #define JUEGO_FPS 30
 
+/*
 #define ARCHIVO_ROM_R   "roms/6841.rom"
 #define ARCHIVO_ROM_G   "roms/6842.rom"
 #define ARCHIVO_ROM_B   "roms/6843.rom"
@@ -50,7 +51,7 @@
 #define ARCHIVO_ROM_FIGURA_13 "roms/6845.rom"
 #define ARCHIVO_ROM_FIGURA_14 "roms/6846.rom"
 
-extern const char *archivos_rom[CANTIDAD_ROMS];
+*/
 
 extern const uint16_t mosaico_cuadro_top[FILA_CUADROS][COLUMNA_CUADRO_TOP];
 extern const uint8_t mosaico_paleta_top[FILA_CUADROS][COLUMNA_CUADRO_TOP];
@@ -64,6 +65,7 @@ extern const uint16_t mosaico_cuadro_gameover[FILA_GOAL_GAMEOVER][COLUMNA_GAMEOV
 extern const uint8_t mosaico_paleta_gameover[FILA_GOAL_GAMEOVER][COLUMNA_GAMEOVER];
 //Perdon mechi xD
 /*
+
 typedef enum{
     ARCHIVO_ROM_B,
     ARCHIVO_ROM_G,

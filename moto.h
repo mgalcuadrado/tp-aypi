@@ -6,6 +6,10 @@
 
 typedef struct moto moto_t;
 
+moto_t * moto_crear(short posi, size_t xi, size_t veli, bool aci, bool fri, bool izqi, bool deri);
+
+void moto_destruir(moto_t * m);
+
 short moto_get_pos (moto_t * m);
 
 void moto_set_pos(moto_t * m, short p);

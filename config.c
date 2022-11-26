@@ -57,24 +57,3 @@ extern const uint8_t mosaico_paleta_gameover[FILA_GOAL_GAMEOVER][COLUMNA_GAMEOVE
     {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
     {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
 };
-
-extern const char *archivos_rom[CANTIDAD_ROMS] = {
-    [0] = ARCHIVO_ROM_B,
-    [1] = ARCHIVO_ROM_G,
-    [2] = ARCHIVO_ROM_R,
-    [3] = ARCHIVO_ROM_RUTA,
-    [4] = ARCHIVO_ROM_FIGURA_1,
-    [5] = ARCHIVO_ROM_FIGURA_2,
-    [6] = ARCHIVO_ROM_FIGURA_3,
-    [7] = ARCHIVO_ROM_FIGURA_4,
-    [8] = ARCHIVO_ROM_FIGURA_5,
-    [9] = ARCHIVO_ROM_FIGURA_6,
-    [10] = ARCHIVO_ROM_FIGURA_7,
-    [11] = ARCHIVO_ROM_FIGURA_8,
-    [12] = ARCHIVO_ROM_FIGURA_9,
-    [13] = ARCHIVO_ROM_FIGURA_10,
-    [14] = ARCHIVO_ROM_FIGURA_11,
-    [15] = ARCHIVO_ROM_FIGURA_12,
-    [16] = ARCHIVO_ROM_FIGURA_13,
-    [17] = ARCHIVO_ROM_FIGURA_14,
-};

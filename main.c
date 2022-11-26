@@ -2,7 +2,7 @@
 #include <stdbool.h>
 
 #include "imagen.h"
-#include "teselas.h"
+#include "roms.h"
 #include "fondo.h"
 #include "paleta.h"
 #include "figuras.h"
@@ -55,82 +55,57 @@ int main() {
     // BEGIN código del alumno
     size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 10000, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos        
 
+    moto_t * moto = moto_crear(0, 0, 0, false, false, false, false);
     /*moto_t *moto;
     moto_set_x(moto,0);
     moto_set_pos(moto,0);
-    moto_set_acelerar(moto,false);                          AAAAAAAAAAAAAAAAAAAAAAAAAAA
+    moto_set_acelerar(moto,false);                          
     moto_set_frenar(moto,false);
     moto_set_izq(moto,false);
     moto_set_der(moto,false);
     */
     double x_moto = 162, x_fondo = 320;
     bool mover_derecha = false, mover_izquierda = false,
-    acelerar = false, frenar = false;
+    acelerar = false, frenar = false; //consulta, todos estos bools ???? no los tenés en la estructura ya??
     short boton_presionado = 0;
     size_t t = 0;
- 
+
     imagen_t *teselas[CANTIDAD_TESELAS];
     imagen_t *figuras[CANTIDAD_FIGURAS];
     imagen_t *ruta;
     
 
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
-        teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
-
-    for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++)
-        figuras[i] = imagen_generar(figura_get_ancho(i), figura_get_alto(i), 0);
-
-    ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA_NUEVO, 0);
-
-    if(!leer_teselas(teselas)){
-        fprintf(stderr, "No se pudieron leer las teselas\n");
-        for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
-            imagen_destruir(teselas[i]);
-        return 1;
-    }
-    prueba_figuras();
-    
-    if (!leer_figuras(figuras)){
-        fprintf(stderr, "No se pudieron leer las figuras\n");
-        for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
-            imagen_destruir(teselas[i]);
-        for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++)
-            imagen_destruir(figuras[i]);
-        return 1;
-    }
-   
-
-    prueba_ruta(ruta);
-    
-
-    if (!leer_ruta(ruta)){
-        fprintf(stderr, "No se pudieron leer las rutas\n");
-        for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
-            imagen_destruir(teselas[i]);
-        for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++)
-            imagen_destruir(figuras[i]);
-        imagen_destruir(ruta);
+    if (! roms_levantar(teselas, figuras, ruta)){
+        fprintf(stderr, "al levantar se rompe todo\n");
         return 1;
     }
 
-    imagen_guardar_ppm(ruta, "rutatotal.ppm", pixel12_a_rgb);
+    imagen_guardar_ppm(figuras[MOTO_1], "moto1.ppm", pixel12_a_rgb);
+    imagen_guardar_ppm(figuras[MOTO_2], "moto2.ppm", pixel12_a_rgb);
+    imagen_guardar_ppm(figuras[MOTO_3], "moto3.ppm", pixel12_a_rgb);
+    imagen_guardar_ppm(figuras[MOTO_4], "moto4.ppm", pixel12_a_rgb);
+    imagen_guardar_ppm(figuras[ARBOL], "arbol.ppm", pixel12_a_rgb);
+    imagen_guardar_ppm(figuras[CARTEL], "cartel.ppm", pixel12_a_rgb);
+
 
     imagen_t *rutaza = imagen_reflejar(ruta);
     fprintf(stderr, "hasta acá llega piola\n");
     if (rutaza == NULL){
         fprintf(stderr, "che falló en reflejar\n");
+        roms_destruir(teselas, figuras, ruta); 
         return 1;
     }
 
     fprintf(stderr, "rutaza es de %zd x %zd\n", imagen_get_ancho(rutaza), imagen_get_alto(rutaza));
-    imagen_guardar_ppm(rutaza, "ruta0.ppm", pixel12_a_rgb);
 
     imagen_t *cuadro = imagen_generar(320, 224, 0);
     imagen_t *cielo = imagen_generar(320, 128, 0xf);
     imagen_t *pasto = imagen_generar(1, 96, pixel12_crear(0, 13, 9));
     imagen_t *cuadro_moto = imagen_generar(60, 73, 0);
 
-    imagen_pegar_con_paleta(cuadro_moto, figuras[0], 0, 0, paleta_4[16]);
+
+//acá estamos pegando la moto correspondiente a la figura
+   imagen_pegar_con_paleta(cuadro_moto, figuras[MOTO_2], 0, 0, paleta_4[16]);
 
     for(size_t i = 0; i < 10; i++)
         imagen_set_pixel(pasto, 0, i, colores_pasto[i]);
@@ -164,32 +139,32 @@ int main() {
             // BEGIN código del alumno
             if (event.type == SDL_KEYDOWN) {
                 // Se apretó una tecla
-                //short aux = moto_get_pos(moto);           AAAAAAAAAAAAAAAAAAAAAAAA
+                short aux = moto_get_pos(moto);          
                 switch(event.key.keysym.sym){
                     case SDLK_UP:
-                        //moto_set_acelerar(moto,true);     AAAAAAAAAAAAAAAAAAAAAAAAAA
+                        moto_set_acelerar(moto,true);     
                         acelerar = true;
                         break;
                     case SDLK_DOWN:
-                        //moto_set_frenar(moto,true);       AAAAAAAAAAAAAAAAAAAAAAAAA
+                        moto_set_frenar(moto,true);       
                         frenar = true;
                         break;
                     case SDLK_RIGHT:
-                        /*moto_set_der(moto,true);
+                        moto_set_der(moto,true);
                         aux = moto_get_pos(moto);
-                        moto_set_pos(moto,aux++);           AAAAAAAAAAAAAAAAAAAAAAAAA
+                        moto_set_pos(moto,aux++);           
                         if(aux > 2)
-                            moto_set_pos(moto,3);*/
+                            moto_set_pos(moto,3);
                         mover_derecha = true;
                         if(boton_presionado++ > 2)
                             boton_presionado = 3;
                         break;
                     case SDLK_LEFT:
-                        /*moto_set_izq(moto,true);
+                        moto_set_izq(moto,true);
                         aux = moto_get_pos(moto);
-                        moto_set_pos(moto,aux--);           AAAAAAAAAAAAAAAAAAAAA
+                        moto_set_pos(moto,aux--);           
                         if(aux < -2)
-                            moto_set_pos(moto,-3);*/
+                            moto_set_pos(moto,-3);
                         mover_izquierda = true;
                         if(boton_presionado-- < -2)
                             boton_presionado = -3;
@@ -200,26 +175,26 @@ int main() {
                 // Se soltó una tecla
                 switch(event.key.keysym.sym) {
                     case SDLK_UP:
-                        /*moto_set_acelerar(moto,false);        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                        moto_set_pos(moto,0);*/
+                        moto_set_acelerar(moto,false);        
+                        moto_set_pos(moto,0);
                         acelerar = false;
                         boton_presionado = 0;
                         break;
                     case SDLK_DOWN:
-                        /*moto_set_frenar(moto,false);          AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                        moto_set_pos(moto,0);*/
+                        moto_set_frenar(moto,false);          
+                        moto_set_pos(moto,0);
                         frenar = false;
                         boton_presionado = 0;
                         break;
                     case SDLK_RIGHT:
-                        /*moto_set_der(moto,false);             AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                        moto_set_pos(moto,0);*/
+                        moto_set_der(moto,false);             
+                        moto_set_pos(moto,0);
                         mover_derecha = false;
                         boton_presionado = 0;
                         break;
                     case SDLK_LEFT:
-                        /*moto_set_izq(moto,false);             AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                        moto_set_pos(moto,0);*/
+                        moto_set_izq(moto,false);            
+                        moto_set_pos(moto,0);
                         mover_izquierda = false;
                         boton_presionado = 0;
                         break;
@@ -246,14 +221,15 @@ int main() {
                 imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[textos[i].paleta]);
 
         }
+
         /* CALCULO EL METRO DE LA RUTA QUE VA                     
                                                                 AAAAAAAAAAAAAAAAAAAAAAAAAA
         moto_set_x(moto,moto_get_x(moto) + ((float)1/JUEGO_FPS) * (moto_get_vel(moto) * (60.0/1000)))*/    
         
         /*Acà irìa la generaciòn de la ruta*/
 
-        /*if(moto_get_izq)) x_fondo += 10;                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        if(moto_get_izq)) x_fondo -= 10;*/
+        //if(moto_get_izq)) x_fondo += 10;                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        //if(moto_get_der)) x_fondo -= 10;*/
         if (mover_izquierda) x_fondo += 10; 
         if (mover_derecha) x_fondo -= 10;
 
@@ -313,9 +289,13 @@ int main() {
         imagen_pegar(cuadro, fondo2, (x_fondo * 0.75) + 320, 64);
         imagen_pegar(cuadro, fondo1, x_fondo + 320, 112);
 
+    
         //esto sería la moto
 
         imagen_pegar(cuadro, cuadro_moto, x_moto - 30, 151);
+
+        //esto es de pruebas //mgalcuadrado
+        imagen_pegar(cuadro, arbol, VENTANA_ANCHO / 2,  80);
 
         // Procedemos a dibujar a pantalla completa:
         imagen_t *cuadro_escalado = imagen_escalar(cuadro, VENTANA_ANCHO, VENTANA_ALTO);
@@ -357,7 +337,6 @@ int main() {
         }    
     }
 
-
     // BEGIN código del alumno
     imagen_destruir(cuadro);
     imagen_destruir(fondo1);
@@ -365,13 +344,7 @@ int main() {
     imagen_destruir(cielo);
     imagen_destruir(cuadro_moto);
 
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
-        imagen_destruir(teselas[i]);
-    
-    for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++)
-        imagen_destruir(figuras[i]);
-    
-    imagen_destruir(ruta);
+    roms_destruir(teselas, figuras, ruta);
 
     imagen_destruir(pasto_estirado);
 
@@ -397,4 +370,3 @@ void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, i
     for (size_t j = 0; n_string[j]; j++)
         imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j])], x + (8 * j) + (8 * strlen(textos[i].cadena)) + (i == 4 && text[i] < 100 ? 8 : 0),y,paleta_3[paleta + (i == 3 ? 1 : 0)]);
 }
-    
