@@ -36,6 +36,9 @@ const sttexto_t textos[CANTIDAD_TEXTOS] = {
 //Esta es una funcion auxiliar que imprime los diferentes tipos de numeros en la pantalla 
 void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text, size_t paleta);
 
+bool roms_inicializar(imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta);
+
+
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -73,20 +76,40 @@ int main() {
     imagen_t *teselas[CANTIDAD_TESELAS];
     imagen_t *figuras[CANTIDAD_FIGURAS];
     imagen_t *ruta;
-    
+
+    for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
+        teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
+        if (teselas[i] == NULL){
+            fprintf(stderr, "generar teselas falló\n");
+            for (size_t j = 0; j < i; j++)
+                imagen_destruir(teselas[j]);
+            return 1;
+        }
+    }
+
+    for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++){
+        figuras[i] = imagen_generar(figura_get_ancho(i), figura_get_alto(i), 0);
+        if (figuras[i] == NULL){
+            fprintf(stderr, "generar figuras falló\n");
+            for (size_t j = 0; j < CANTIDAD_TESELAS; j++)
+                imagen_destruir(teselas[j]);
+            for (size_t j = 0; j < i; j++)
+                imagen_destruir(figuras[j]);
+            return 1;
+        }
+    }
+
+    ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA_NUEVO, 0);
+    if (ruta == NULL){
+        fprintf(stderr, "generar ruta falló\n");
+        roms_destruir(teselas, figuras, ruta);
+        return 1;
+    }
 
     if (! roms_levantar(teselas, figuras, ruta)){
         fprintf(stderr, "al levantar se rompe todo\n");
         return 1;
     }
-
-    imagen_guardar_ppm(figuras[MOTO_1], "moto1.ppm", pixel12_a_rgb);
-    imagen_guardar_ppm(figuras[MOTO_2], "moto2.ppm", pixel12_a_rgb);
-    imagen_guardar_ppm(figuras[MOTO_3], "moto3.ppm", pixel12_a_rgb);
-    imagen_guardar_ppm(figuras[MOTO_4], "moto4.ppm", pixel12_a_rgb);
-    imagen_guardar_ppm(figuras[ARBOL], "arbol.ppm", pixel12_a_rgb);
-    imagen_guardar_ppm(figuras[CARTEL], "cartel.ppm", pixel12_a_rgb);
-
 
     imagen_t *rutaza = imagen_reflejar(ruta);
     fprintf(stderr, "hasta acá llega piola\n");
@@ -294,8 +317,6 @@ int main() {
 
         imagen_pegar(cuadro, cuadro_moto, x_moto - 30, 151);
 
-        //esto es de pruebas //mgalcuadrado
-        imagen_pegar(cuadro, arbol, VENTANA_ANCHO / 2,  80);
 
         // Procedemos a dibujar a pantalla completa:
         imagen_t *cuadro_escalado = imagen_escalar(cuadro, VENTANA_ANCHO, VENTANA_ALTO);
@@ -370,3 +391,40 @@ void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, i
     for (size_t j = 0; n_string[j]; j++)
         imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j])], x + (8 * j) + (8 * strlen(textos[i].cadena)) + (i == 4 && text[i] < 100 ? 8 : 0),y,paleta_3[paleta + (i == 3 ? 1 : 0)]);
 }
+
+
+/*
+bool roms_inicializar(imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta){
+    for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
+        teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
+        if (teselas[i] == NULL){
+            fprintf(stderr, "generar teselas falló\n");
+            for (size_t j = 0; j < i; j++)
+                imagen_destruir(teselas[j]);
+            return false;
+        }
+    }
+
+    for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++){
+        figuras[i] = imagen_generar(figura_get_ancho(i), figura_get_alto(i), 0);
+        if (figuras[i] == NULL){
+            fprintf(stderr, "generar figuras falló\n");
+            for (size_t j = 0; j < CANTIDAD_TESELAS; j++)
+                imagen_destruir(teselas[j]);
+            for (size_t j = 0; j < i; j++)
+                imagen_destruir(figuras[j]);
+            return false;
+        }
+    }
+
+    ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA_NUEVO, 0);
+    if (ruta == NULL){
+        fprintf(stderr, "generar ruta falló\n");
+        roms_destruir(teselas, figuras, ruta);
+        return false;
+    }
+
+    return true;
+}
+
+*/
