@@ -56,21 +56,12 @@ int main() {
     int dormir = 0;
 
     // BEGIN código del alumno
-    size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 10000, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos        
+    size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 10000,[TIME] = 75, [SCORE] = 0, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos        
 
-    moto_t * moto = moto_crear(0, 0, 0, false, false, false, false);
-    /*moto_t *moto;
-    moto_set_x(moto,0);
-    moto_set_pos(moto,0);
-    moto_set_acelerar(moto,false);                          
-    moto_set_frenar(moto,false);
-    moto_set_izq(moto,false);
-    moto_set_der(moto,false);
-    */
+    moto_t *moto = moto_crear(0, 0, 0, false, false, false, false);
+    //Acà se crea la moto inicializado en sus respectivos valores
+
     double x_moto = 162, x_fondo = 320;
-    bool mover_derecha = false, mover_izquierda = false,
-    acelerar = false, frenar = false; //consulta, todos estos bools ???? no los tenés en la estructura ya??
-    short boton_presionado = 0;
     size_t t = 0;
 
     imagen_t *teselas[CANTIDAD_TESELAS];
@@ -106,7 +97,7 @@ int main() {
         return 1;
     }
 
-    if (! roms_levantar(teselas, figuras, ruta)){
+    if (!roms_levantar(teselas, figuras, ruta)){
         fprintf(stderr, "al levantar se rompe todo\n");
         return 1;
     }
@@ -124,11 +115,10 @@ int main() {
     imagen_t *cuadro = imagen_generar(320, 224, 0);
     imagen_t *cielo = imagen_generar(320, 128, 0xf);
     imagen_t *pasto = imagen_generar(1, 96, pixel12_crear(0, 13, 9));
-    imagen_t *cuadro_moto = imagen_generar(60, 73, 0);
 
-
-//acá estamos pegando la moto correspondiente a la figura
-   imagen_pegar_con_paleta(cuadro_moto, figuras[MOTO_2], 0, 0, paleta_4[16]);
+    //acá estamos pegando la moto correspondiente a la figura
+    
+    //Las paletas de la moto principal son la 0,1,2 y 3
 
     for(size_t i = 0; i < 10; i++)
         imagen_set_pixel(pasto, 0, i, colores_pasto[i]);
@@ -147,8 +137,9 @@ int main() {
         const uint16_t mosaico[][];
         const uint8_t paleta[][];
         imagen_t *cuadro;
+        size_t filas, columnas;
     }stcuadro_t;
-   
+    
     */
 
 
@@ -166,31 +157,21 @@ int main() {
                 switch(event.key.keysym.sym){
                     case SDLK_UP:
                         moto_set_acelerar(moto,true);     
-                        acelerar = true;
                         break;
                     case SDLK_DOWN:
                         moto_set_frenar(moto,true);       
-                        frenar = true;
                         break;
                     case SDLK_RIGHT:
                         moto_set_der(moto,true);
-                        aux = moto_get_pos(moto);
-                        moto_set_pos(moto,aux++);           
+                        moto_set_pos(moto,++aux);           
                         if(aux > 2)
                             moto_set_pos(moto,3);
-                        mover_derecha = true;
-                        if(boton_presionado++ > 2)
-                            boton_presionado = 3;
                         break;
                     case SDLK_LEFT:
                         moto_set_izq(moto,true);
-                        aux = moto_get_pos(moto);
-                        moto_set_pos(moto,aux--);           
-                        if(aux < -2)
-                            moto_set_pos(moto,-3);
-                        mover_izquierda = true;
-                        if(boton_presionado-- < -2)
-                            boton_presionado = -3;
+                        moto_set_pos(moto,++aux);           
+                        if(aux > 2)
+                            moto_set_pos(moto,3);
                         break;
                 }
             }
@@ -200,26 +181,18 @@ int main() {
                     case SDLK_UP:
                         moto_set_acelerar(moto,false);        
                         moto_set_pos(moto,0);
-                        acelerar = false;
-                        boton_presionado = 0;
                         break;
                     case SDLK_DOWN:
                         moto_set_frenar(moto,false);          
                         moto_set_pos(moto,0);
-                        frenar = false;
-                        boton_presionado = 0;
                         break;
                     case SDLK_RIGHT:
                         moto_set_der(moto,false);             
                         moto_set_pos(moto,0);
-                        mover_derecha = false;
-                        boton_presionado = 0;
                         break;
                     case SDLK_LEFT:
                         moto_set_izq(moto,false);            
                         moto_set_pos(moto,0);
-                        mover_izquierda = false;
-                        boton_presionado = 0;
                         break;
                 }
             }
@@ -228,8 +201,12 @@ int main() {
         }
 
         // BEGIN código del alumno       
+        imagen_t *cuadro_moto = imagen_generar(60, 73, 0);
 
         imagen_pegar(cuadro, cielo, 0, 0);
+        imagen_pegar(cuadro, pasto_estirado, 0, 128);       
+        imagen_pegar(cuadro, fondo2, (x_fondo * 0.75) + 320, 64);
+        imagen_pegar(cuadro, fondo1, x_fondo + 320, 112);
         n_textos[TIME] = 75 - (t++ / JUEGO_FPS);
         
         //impresión de textos:
@@ -245,72 +222,64 @@ int main() {
 
         }
 
-        /* CALCULO EL METRO DE LA RUTA QUE VA                     
-                                                                AAAAAAAAAAAAAAAAAAAAAAAAAA
-        moto_set_x(moto,moto_get_x(moto) + ((float)1/JUEGO_FPS) * (moto_get_vel(moto) * (60.0/1000)))*/    
+        //CALCULO EL METRO DE LA RUTA QUE VA                    
+        size_t x = moto_get_x(moto);
+        moto_set_x(moto, x + (1.0/JUEGO_FPS) * ((moto_get_vel(moto) * (1000.0/3600))));   
+        
+
+        size_t aux;
+        if(moto_get_vel(moto) < 117)
+            n_textos[SCORE] += 125 * (moto_get_x(moto) - x);
+
+        else
+            n_textos[SCORE] += (moto_get_x(moto) - x) * (3.13 * moto_get_vel(moto) - 240);
+
+        fprintf(stderr,"%ld\n",x);
         
         /*Acà irìa la generaciòn de la ruta*/
 
-        //if(moto_get_izq)) x_fondo += 10;                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        //if(moto_get_der)) x_fondo -= 10;*/
-        if (mover_izquierda) x_fondo += 10; 
-        if (mover_derecha) x_fondo -= 10;
+        if(moto_get_izq(moto)){
+            x_fondo += 10;
+            /*Lo mismo que la de la derecha pero reflejada*/
+        } 
+        else if(moto_get_der(moto)) {
+            x_fondo -= 10;
+            imagen_pegar_con_paleta(cuadro_moto, figuras[moto_get_pos(moto)], 0, 0, paleta_4[0]);
+        }
 
         if(t - (((t - t > 30 ? 30 : 0) % JUEGO_FPS) * JUEGO_FPS) % JUEGO_FPS){
 
-            /* //Desaceleración
+            //Desaceleración
             if(!moto_get_acelerar(moto) && !moto_get_frenar(moto) && moto_get_vel(moto) >= 80){ 
                 moto_set_vel(moto,n_textos[SPEED] - 90/JUEGO_FPS);                   
-                                                                    AAAAAAAAAAAAAAAAA
+                imagen_pegar_con_paleta(cuadro_moto, figuras[moto_get_pos(moto)], 0, 0, paleta_4[0]);
                 //Pegar moto con paleta 0 y 1
-            }*/
+            }
             
-            if(acelerar == false && frenar == false && n_textos[SPEED] >= 80){ //Desaceleración
-                n_textos[SPEED] -= 90/JUEGO_FPS;
-                
-                //Pegar con paleta 0 y 1
-            }
-
-            /*//Aceleración
+            //Aceleración
             if((moto_get_acelerar(moto) || moto_get_vel(moto) < 80) && !moto_get_frenar(moto)){
-                moto_set_vel(moto,279 - ((279 - (n_textos[SPEED])) * exp(-0.224358 * ((float)1/JUEGO_FPS))));
-                                                    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                //Pegar con paleta 0 y 1
-            }*/
-
-            if((acelerar == true || n_textos[SPEED] < 80) && frenar == false){ //Aceleración
-                size_t aux = 279 - (size_t)((279 - (n_textos[SPEED])) * exp(-0.224358 * ((float)1/JUEGO_FPS)));
-                n_textos[SPEED] = aux;
+                moto_set_vel(moto,279 - (size_t)((279 - (n_textos[SPEED])) * exp(-0.224358 * ((float)1/JUEGO_FPS))));
+                imagen_pegar_con_paleta(cuadro_moto, figuras[moto_get_pos(moto)], 0, 0, paleta_4[0]);
                 //Pegar con paleta 0 y 1
             }
-
-            /*  //Frenado
-            else if(moto_get_frenar(moto) && moto_get_vel > 0){
-                moto_set_vel(moto,n_textos[SPEED] - 300/JUEGO_FPS);
-                if(mono_get_vel(moto) < 0)
+            //Frenado
+            else if(moto_get_frenar(moto) && moto_get_vel(moto) > 40){
+                moto_set_vel(moto,(size_t)(n_textos[SPEED] - 300.0/JUEGO_FPS));
+                if(moto_get_vel(moto) < 0)
                     moto_set_vel(moto, 0);
+                imagen_pegar_con_paleta(cuadro_moto, figuras[moto_get_pos(moto)], 0, 0, paleta_4[2]);
                 //LAS PALETAS DE FRENADO SON DIFERENTES
                 //La paletas es la 2 y 3
             }
-            */
-            else if(frenar == true && n_textos[SPEED] > 0){ //Frenado
-                n_textos[SPEED] -= 300/JUEGO_FPS;
-                if(n_textos[SPEED] < 0)
-                    n_textos[SPEED] = 0;
-                //ACA VA LAS ANIMACIONES DE FRENADO CON SU PALETA 
-                //La paleta es 2 y 3
-            }
         }
 
-        //n_textos[SPEED] = moto_get_vel(moto);
+        n_textos[SPEED] = moto_get_vel(moto);
 
         if(x_fondo < -2048) x_fondo = 640;
         else if(x_fondo > 640) x_fondo = -2048;
 
         
-        imagen_pegar(cuadro, pasto_estirado, 0, 128);       
-        imagen_pegar(cuadro, fondo2, (x_fondo * 0.75) + 320, 64);
-        imagen_pegar(cuadro, fondo1, x_fondo + 320, 112);
+
 
     
         //esto sería la moto
@@ -331,6 +300,7 @@ int main() {
         */
 
         imagen_destruir(cuadro_escalado);
+        imagen_destruir(cuadro_moto);
 
         // END código del alumno
 
@@ -348,7 +318,18 @@ int main() {
             printf("Perdiendo cuadros\n");
         ticks = SDL_GetTicks();
 
-        if(n_textos[TIME] == 0 /*|| moto_get_x(moto) == 4200*/){
+
+        if(moto_get_x(moto) == 4200){
+            size_t secs = 0;
+            for(size_t i = 0;secs < 10; i++){
+                //Mensaje de win
+                secs = i/JUEGO_FPS;
+            }
+            break; //Podria hacer una funcion auxiliar para pegar los mensajes y hacer esperar unos
+                   //5 segundos para que se vean los msg 
+        }
+
+        if(n_textos[TIME] == 0){
             size_t secs = 0;
             for(size_t i = 0;secs < 10; i++){
                 //Mensaje de game over
@@ -363,7 +344,6 @@ int main() {
     imagen_destruir(fondo1);
     imagen_destruir(fondo2);
     imagen_destruir(cielo);
-    imagen_destruir(cuadro_moto);
 
     roms_destruir(teselas, figuras, ruta);
 
