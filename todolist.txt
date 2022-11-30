@@ -61,4 +61,13 @@ GAME PLAN:
 
 - debugging divertido por si nos mandamos macanas en el medio (Va a pasar)
 
+30/11/2022
 
+-Arreglar leer_ruta, en realidad no está rota, pero no imprime bien las lineas del medio y
+me dijeron que es eso en el grupo.
+
+-Hacer las perspectivas y curvas
+
+-Poner los cuadros de textos
+
+-Que funcione todo y despues mejorar lo mejorable

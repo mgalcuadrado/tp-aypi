@@ -39,6 +39,6 @@ void moto_set_der (moto_t * m, bool d);
 
 void moto_set_izq (moto_t * m, bool i);
 
-void pegar_moto(imagen_t *imagen, imagen_t *origen[], moto_t *moto, size_t x, size_t y, size_t t);
+void pegar_moto(imagen_t *imagen, imagen_t *origen[], moto_t *moto, size_t t);
 
 #endif

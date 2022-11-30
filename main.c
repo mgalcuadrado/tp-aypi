@@ -17,6 +17,8 @@ typedef enum{
     STAGE,
     SPEED,
     KM,
+    GOAL,
+    GAMEOVER,
 }texto_t;
 
 typedef struct{
@@ -36,16 +38,15 @@ const sttexto_t textos[CANTIDAD_TEXTOS] = {
 typedef struct{
     const uint16_t mosaico[][];
     const uint8_t paleta[][];
-    imagen_t *cuadro;
     size_t filas, columnas;
 }stcuadro_t;
     
-const stcuadro_t cuadro_textos[CANTIDAD_CUADROS]{
-    [TOP] = {mos_cuadro_top, mos_paleta_top, ?, FILA_CUADRO, COLUMNA_TOP};
-    [SCORE] = {mos_cuadro_score, mos_paleta_score, ?, FILA_CUADRO, COLUMNA_SCORE};
-    [TIME] = {mos_cuadro_time, mos_paleta_time, ?, FILA_CUADRO, COLUMNA_TIME};
-    [GOAL] = {mos_cuadro_goal, mos_paleta_goal, ?, FILA_GOAL_GAMEOVER, COLUMNA_GOAL};
-    [GAMEOVER] = {mos_cuadro_gameover, mos_paleta_gameover, ?, FILA_GOAL_GAMEOVER, COLUMNA_GAMEOVER};
+const stcuadro_t cuadro_textos[CANTIDAD_CUADROS] = {
+    [TOP] = {mos_cuadro_top, mos_paleta_top, FILA_CUADROS, COLUMNA_TOP},
+    [SCORE] = {mos_cuadro_score, mos_paleta_score, FILA_CUADROS, COLUMNA_SCORE},
+    [TIME] = {mos_cuadro_time, mos_paleta_time, FILA_CUADROS, COLUMNA_TIME},
+    [GOAL] = {mos_cuadro_goal, mos_paleta_goal, FILA_GOAL_GAMEOVER, COLUMNA_GOAL},
+    [GAMEOVER] = {mos_cuadro_gameover, mos_paleta_gameover, FILA_GOAL_GAMEOVER, COLUMNA_GAMEOVER},
     };
 */
 
@@ -77,8 +78,9 @@ int main() {
     moto_t *moto = moto_crear(0, 0, 0, false, false, false, false);
     //Acà se crea la moto inicializado en sus respectivos valores
 
-    double x_moto = 162, x_fondo = 320;
-    size_t t = 0;
+    double x_moto = 162, x_fondo = 320, y = 0;
+    size_t t = 0; 
+    
 
     imagen_t *teselas[CANTIDAD_TESELAS];
     imagen_t *figuras[CANTIDAD_FIGURAS];
@@ -126,15 +128,16 @@ int main() {
         return 1;
     }
 
-    fprintf(stderr, "rutaza es de %zd x %zd\n", imagen_get_ancho(rutaza), imagen_get_alto(rutaza));
+    imagen_t *ruta_completa = imagen_generar(2 * ANCHO_RUTA,ALTO_RUTA_NUEVO, 0);
+    if(ruta_completa == NULL) return 1;
+    imagen_pegar(ruta_completa,ruta,0,0); 
+    imagen_pegar(ruta_completa,rutaza,ANCHO_RUTA - 8,0);
+    imagen_destruir(ruta);
+    imagen_destruir(rutaza);
 
     imagen_t *cuadro = imagen_generar(320, 224, 0);
     imagen_t *cielo = imagen_generar(320, 128, 0xf);
     imagen_t *pasto = imagen_generar(1, 96, pixel12_crear(0, 13, 9));
-
-    //acá estamos pegando la moto correspondiente a la figura
-    
-    //Las paletas de la moto principal son la 0,1,2 y 3
 
     for(size_t i = 0; i < 10; i++)
         imagen_set_pixel(pasto, 0, i, colores_pasto[i]);
@@ -144,6 +147,7 @@ int main() {
     
     imagen_t *fondo1 = generar_mosaico(teselas, paleta_3, FONDO1_FILAS, FONDO1_COLUMNAS, fondo1_mosaico, fondo1_paleta);
     imagen_t *fondo2 = generar_mosaico(teselas, paleta_3, FONDO2_FILAS, FONDO2_COLUMNAS, fondo2_mosaico, fondo2_paleta);
+    
     /*
     imagen_t *cuadros_de_texto[CANTIDAD_CUADROS]
     for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
@@ -184,6 +188,7 @@ int main() {
             }
             else if (event.type == SDL_KEYUP) {
                 // Se soltó una tecla
+                short aux = moto_get_pos(moto);
                 switch(event.key.keysym.sym) {
                     case SDLK_UP:
                         moto_set_acelerar(moto,false);        
@@ -193,12 +198,11 @@ int main() {
                         break;
                     case SDLK_RIGHT:
                         moto_set_der(moto,false);             
-                        moto_set_pos(moto,0);
+                        moto_set_pos(moto,--aux);
                         break;
                     case SDLK_LEFT:
                         moto_set_izq(moto,false);            
-                        moto_set_pos(moto,0);
-
+                        moto_set_pos(moto,++aux);
                         break;
                 }
             }
@@ -229,17 +233,23 @@ int main() {
 
         }
         
-        /*Acà irìa la generaciòn de la ruta*/
-        
+        //Posicion m_y junto al movimiento de los fondos
         if(moto_get_izq(moto)){
             x_fondo += 10;
-            //pegar_moto(cuadro_moto,figuras, moto, figura_get_alto(), figura_get_ancho(), t);
+            y -= (6 * moto_get_pos(moto) + 3);
         } 
         else if(moto_get_der(moto)) {
             x_fondo -= 10;
+            y -= (6 * moto_get_pos(moto) - 3);
         } 
-        //FISICA DE LA MOTO
+
+        if(y < -435 || y > 435)
+            y = y < 0 ? -435 : 435;
+
+        if(x_fondo < -2048 || x_fondo > 640)
+            x_fondo = x_fondo < 0 ? 640 : -2048;
         
+                
         //Posicion m_x                    
         size_t x = moto_get_x(moto);
         moto_set_x(moto, x + (1.0/JUEGO_FPS) * ((moto_get_vel(moto) * (1000.0/3600))));   
@@ -258,19 +268,32 @@ int main() {
         else if(!moto_get_acelerar(moto) && !moto_get_frenar(moto) && moto_get_vel(moto) >= 80){ 
             moto_set_vel(moto,n_textos[SPEED] - 90/JUEGO_FPS);                   
         }
+        
+        if((!moto_get_izq(moto) && !moto_get_der(moto)) && moto_get_pos(moto) != 0){
+            short aux = moto_get_pos(moto);
+            moto_set_pos(moto,aux < 0 ? ++aux : --aux);   
+        }
+        
+        pegar_moto(cuadro_moto, figuras, moto, t);
 
-        pegar_moto(cuadro_moto,figuras, moto, 0, 0, t);
         n_textos[SPEED] = moto_get_vel(moto);
 
-        //ESTOS DOS IRIAN DENTRO DE UN IF POR SI ESTA MORDIENDO LA BANQUINA
-        if(moto_get_vel(moto) < 117)
-            n_textos[SCORE] += 125 * (moto_get_x(moto) - x);
+        /*  //Choques
+        
+        */
 
-        else
-            n_textos[SCORE] += (moto_get_x(moto) - x) * (3.13 * moto_get_vel(moto) - 240);
+        //Morder la banquina + puntaje
+        if(y > -215 || y < 215){
+            if(moto_get_vel(moto) < 117)
+                n_textos[SCORE] += 125 * (moto_get_x(moto) - x);
 
-        //fprintf(stderr,"%ld\n",x);
+            else
+                n_textos[SCORE] += (moto_get_x(moto) - x) * (3.13 * moto_get_vel(moto) - 240);
+        }
 
+        //Victoria
+        if(n_textos[TOP] < n_textos[SCORE])
+            n_textos[TOP] = n_textos[SCORE];
         
         if(moto_get_x(moto) == 4200){
             size_t secs = 0;
@@ -282,6 +305,7 @@ int main() {
                    //5 segundos para que se vean los msg 
         }
 
+        //Derrota
         if(n_textos[TIME] == 0){
             size_t secs = 0;
             for(size_t i = 0;secs < 10; i++){
@@ -291,10 +315,9 @@ int main() {
             break;
         } 
 
-
-
-        if(x_fondo < -2048) x_fondo = 640;
-        else if(x_fondo > 640) x_fondo = -2048;
+        
+        imagen_pegar_con_paleta(cuadro,ruta_completa,(y - 346),128,colores_ruta[0]);
+        //A ver, la ruta esta pero hay que arreglarlo
     
         
         //esto sería la moto

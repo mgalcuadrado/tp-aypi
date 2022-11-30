@@ -10,6 +10,8 @@ struct moto{
     bool acelerar, frenar, mover_izq, mover_der;
 };
 
+static size_t calc_pos(moto_t *moto, bool b);
+
 //inv de rep: moto_t siempre tiene inicializados sus valores mientras m != NULL
 
 moto_t * moto_crear(short pos_i, size_t x_i, size_t vel_i, bool ac_i, bool fr_i, bool izq_i, bool der_i){
@@ -85,12 +87,31 @@ void moto_set_izq (moto_t * m, bool i){
     m->mover_izq = i;
 }
 
-void pegar_moto(imagen_t *imagen, imagen_t *origen[], moto_t *moto, size_t x, size_t y, size_t t){
+void pegar_moto(imagen_t *imagen, imagen_t *origen[], moto_t *moto, size_t t){
     if (moto->pos < 0){
         imagen_t *reflejo = imagen_reflejar(origen[-1 * (moto->pos)]);
-        imagen_pegar_con_paleta(imagen, reflejo, 0, 0, paleta_4[t % 2 + ((moto->frenar) == true ? 2 : 0)]);
+        imagen_pegar_con_paleta(imagen, reflejo,calc_pos(moto,true),calc_pos(moto,false), paleta_4[t % 2 + (moto->frenar) * 2]);
         free(reflejo);
     }
     else
-        imagen_pegar_con_paleta(imagen, origen[moto->pos], 0, 0, paleta_4[t % 2 + ((moto->frenar) == true ? 2 : 0)]);
+        imagen_pegar_con_paleta(imagen, origen[moto->pos],calc_pos(moto,true),calc_pos(moto,false), paleta_4[t % 2 + (moto->frenar) * 2]);
+}
+
+static size_t calc_pos(moto_t *moto, bool b){
+    if(b == true){
+        if(moto->pos == 2 || moto->pos == -2)
+            return 7;
+        if(moto->pos == 3 || moto->pos == -3)
+            return 0;    
+        return 12;
+    }
+    else{
+        if(!moto->pos)
+            return 0;
+        if(moto->pos == 1 || moto->pos == -1)
+            return 3;
+        if(moto->pos == 2 || moto->pos == -2)
+            return 10;
+        return 19;
+    }
 }
