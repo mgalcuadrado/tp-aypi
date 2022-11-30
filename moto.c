@@ -1,4 +1,5 @@
 #include "moto.h"
+#include "paleta.h"
 #include <stdlib.h>
 
 //Paleta 0 y 1 para cuando està andando
@@ -11,16 +12,16 @@ struct moto{
 
 //inv de rep: moto_t siempre tiene inicializados sus valores mientras m != NULL
 
-moto_t * moto_crear(short posi, size_t xi, size_t veli, bool aci, bool fri, bool izqi, bool deri){
+moto_t * moto_crear(short pos_i, size_t x_i, size_t vel_i, bool ac_i, bool fr_i, bool izq_i, bool der_i){
     moto_t * m = malloc (sizeof(moto_t));
     if (m == NULL) return NULL;
-    m->pos = posi;
-    m->x = xi;
-    m->vel =veli;
-    m->acelerar = aci;
-    m->frenar = fri;
-    m->mover_izq = izqi;
-    m->mover_der = deri;
+    m->pos = pos_i;
+    m->x = x_i;
+    m->vel = vel_i;
+    m->acelerar = ac_i;
+    m->frenar = fr_i;
+    m->mover_izq = izq_i;
+    m->mover_der = der_i;
     return m;
 }
 
@@ -82,4 +83,14 @@ void moto_set_der (moto_t * m, bool d){
 
 void moto_set_izq (moto_t * m, bool i){
     m->mover_izq = i;
+}
+
+void pegar_moto(imagen_t *imagen, imagen_t *origen[], moto_t *moto, size_t x, size_t y, size_t t){
+    if (moto->pos < 0){
+        imagen_t *reflejo = imagen_reflejar(origen[-1 * (moto->pos)]);
+        imagen_pegar_con_paleta(imagen, reflejo, 0, 0, paleta_4[t % 2 + ((moto->frenar) == true ? 2 : 0)]);
+        free(reflejo);
+    }
+    else
+        imagen_pegar_con_paleta(imagen, origen[moto->pos], 0, 0, paleta_4[t % 2 + ((moto->frenar) == true ? 2 : 0)]);
 }

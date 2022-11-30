@@ -1,12 +1,13 @@
 #ifndef MOTO_H
 #define MOTO_H
 
+#include "imagen.h"
 #include <stdbool.h>
 #include <stddef.h>
 
 typedef struct moto moto_t;
 
-moto_t * moto_crear(short posi, size_t xi, size_t veli, bool aci, bool fri, bool izqi, bool deri);
+moto_t * moto_crear(short pos_i, size_t x_i, size_t vel_i, bool ac_i, bool fr_i, bool izq_i, bool der_i);
 
 void moto_destruir(moto_t * m);
 
@@ -38,5 +39,6 @@ void moto_set_der (moto_t * m, bool d);
 
 void moto_set_izq (moto_t * m, bool i);
 
+void pegar_moto(imagen_t *imagen, imagen_t *origen[], moto_t *moto, size_t x, size_t y, size_t t);
 
 #endif

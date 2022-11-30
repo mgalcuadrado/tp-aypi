@@ -28,7 +28,7 @@ roms.o: roms.c roms.h figuras.h imagen.h
 main.o: main.c config.h imagen.h pixel.h fondo.h paleta.h roms.h figuras.h moto.h
 	$(CC) $(CFLAGS) main.c $(LFLAGS)
 
-moto.c: moto.c moto.h
+moto.c: moto.c moto.h imagen.h paleta.h
 	$(CC) $(CFLAGS) moto.c
 
 pixeles: pixel.o imagen.o paleta.o fondo.o config.o roms.o figuras.o moto.o main.o 
