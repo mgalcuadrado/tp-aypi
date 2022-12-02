@@ -175,7 +175,7 @@ static bool leer_ruta(imagen_t * ruta){
             fclose(archivo);
             return false;
         }
-        for (size_t f = 0; f < ALTO_RUTA_NUEVO; f++){
+        for (size_t f = 16; f < ALTO_RUTA - 16; f++){
                 for (size_t c = 0; c < ANCHO_RUTA / 8; c ++){
                     uint8_t lec;
                     if (fread(&lec, sizeof(uint8_t), 1, archivo) != 1){
@@ -193,8 +193,7 @@ static bool leer_ruta(imagen_t * ruta){
             return false;
         }
     }
-    imagen_guardar_ppm(ruta, "ruta40.ppm", pixel12_a_rgb);
-    fprintf(stderr, "la ruta se guardó bien\n");
+    imagen_guardar_ppm(ruta, "ruta8.ppm", pixel12_a_rgb);
     return (fclose(archivo) != EOF);
 }
 
@@ -209,7 +208,7 @@ bool prueba_ruta(imagen_t * ruta){
             fclose(archivo);
             return false;
         }
-        for (size_t f = 0; f < ALTO_RUTA_NUEVO; f++){
+        for (size_t f = 16; f < ALTO_RUTA - 16; f++){
             for (size_t c = 0; c < ANCHO_RUTA / 8; c++){
                 uint8_t n;
                 if (fread(&n, sizeof(uint8_t), 1, archivo) != 1){

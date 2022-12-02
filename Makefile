@@ -2,7 +2,7 @@ CFLAGS = -c -Wall -pedantic -std=c99 -c
 CC = gcc
 LFLAGS = -lSDL2
 
-all: pixeles
+all: hang.on
 
 pixel.o: pixel.c pixel.h
 	$(CC) $(CFLAGS) pixel.c
@@ -31,8 +31,8 @@ main.o: main.c config.h imagen.h pixel.h fondo.h paleta.h roms.h figuras.h moto.
 moto.c: moto.c moto.h imagen.h paleta.h
 	$(CC) $(CFLAGS) moto.c
 
-pixeles: pixel.o imagen.o paleta.o fondo.o config.o roms.o figuras.o moto.o main.o 
-	$(CC) pixel.o imagen.o paleta.o fondo.o config.o roms.o figuras.o moto.o main.o -o pixeles  $(LFLAGS)
+hang.on: pixel.o imagen.o paleta.o fondo.o config.o roms.o figuras.o moto.o main.o 
+	$(CC) pixel.o imagen.o paleta.o fondo.o config.o roms.o figuras.o moto.o main.o -o hang.on  $(LFLAGS)
 
 clear:
-	rm *.o pixeles
+	rm *.o hang.on

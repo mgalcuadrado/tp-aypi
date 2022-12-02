@@ -5,8 +5,6 @@
 #include "imagen.h"
 #include <stddef.h>
 
-bool leer_ruta (imagen_t * ruta[]);
-
 typedef enum {ARBOL, CARTEL, ROCA, BELL, FORUM, DELFIN} figura_t; //esto va a haber que cambiarlo para que coincida con fig
 
 struct figura_en_ruta {

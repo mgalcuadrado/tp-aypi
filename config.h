@@ -11,8 +11,7 @@
 #define ANCHO_TESELA 8
 #define ALTO_TESELA 8
 #define ANCHO_RUTA 512
-#define ALTO_RUTA_OG 128
-#define ALTO_RUTA_NUEVO 96
+#define ALTO_RUTA 128
 
 /*#define VENTANA_ANCHO 800
 #define VENTANA_ALTO 600*/
@@ -30,7 +29,7 @@
 #define CANTIDAD_TEXTOS 6
 #define CANTIDAD_CUADROS 5
 
-#define JUEGO_FPS 30
+#define JUEGO_FPS 15
 
 /*
 #define ARCHIVO_ROM_R   "roms/6841.rom"

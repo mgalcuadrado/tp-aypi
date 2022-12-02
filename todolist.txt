@@ -66,6 +66,7 @@ GAME PLAN:
 -Arreglar leer_ruta, en realidad no está rota, pero no imprime bien las lineas del medio y
 me dijeron que es eso en el grupo.
 
+
 -Hacer las perspectivas y curvas
 
 -Poner los cuadros de textos

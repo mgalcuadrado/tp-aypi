@@ -75,14 +75,7 @@ int main() {
     // BEGIN código del alumno
     size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 1000000,[TIME] = 0, [SCORE] = 0, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos        
 
-    moto_t *moto = moto_crear(0, 0, 0, false, false, false, false);
-    //Acà se crea la moto inicializado en sus respectivos valores
-
-    double x_moto = 162, x_fondo = 320, y = 0;
-    size_t t = 0; 
-    
-
-    imagen_t *teselas[CANTIDAD_TESELAS];
+       imagen_t *teselas[CANTIDAD_TESELAS];
     imagen_t *figuras[CANTIDAD_FIGURAS];
     imagen_t *ruta;
 
@@ -108,7 +101,7 @@ int main() {
         }
     }
 
-    ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA_NUEVO, 0);
+    ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA, 0);
     if (ruta == NULL){
         fprintf(stderr, "generar ruta falló\n");
         roms_destruir(teselas, figuras, ruta);
@@ -121,19 +114,27 @@ int main() {
     }
 
     imagen_t *rutaza = imagen_reflejar(ruta);
-    fprintf(stderr, "hasta acá llega piola\n");
     if (rutaza == NULL){
         fprintf(stderr, "che falló en reflejar\n");
         roms_destruir(teselas, figuras, ruta); 
         return 1;
     }
 
-    imagen_t *ruta_completa = imagen_generar(2 * ANCHO_RUTA,ALTO_RUTA_NUEVO, 0);
+    imagen_t *ruta_completa = imagen_generar(2 * ANCHO_RUTA,ALTO_RUTA, 0);
     if(ruta_completa == NULL) return 1;
     imagen_pegar(ruta_completa,ruta,0,0); 
     imagen_pegar(ruta_completa,rutaza,ANCHO_RUTA - 8,0);
     imagen_destruir(ruta);
     imagen_destruir(rutaza);
+
+    imagen_guardar_ppm(ruta_completa, "ruta40.ppm", pixel12_a_rgb); //pruebas //mgalcuadrado
+
+    moto_t *moto = moto_crear(0, 0, 0, false, false, false, false);
+    //Acá se crea la moto inicializado en sus respectivos valores
+
+    double x_moto = 162, x_fondo = 320, y = 0;
+    size_t t = 0; 
+    
 
     imagen_t *cuadro = imagen_generar(320, 224, 0);
     imagen_t *cielo = imagen_generar(320, 128, 0xf);
@@ -315,13 +316,14 @@ int main() {
             break;
         } 
 
-        
-        imagen_pegar_con_paleta(cuadro,ruta_completa,(y - 346),128,colores_ruta[0]);
+        //Acá se pega la ruta
+        //lo que hay que hacer es intercalar cada cierta cantidad de metros la paleta para que queden bien las rayas blancas y negras, nos conviene hacerlo al mismo tiempo que las curvamos y eso
+        //paleta
+        imagen_pegar_con_paleta(cuadro,ruta_completa,(y - 346),128 - 16,colores_ruta[3]);
         //A ver, la ruta esta pero hay que arreglarlo
     
         
         //esto sería la moto
-
         imagen_pegar(cuadro, cuadro_moto, x_moto - 30, 151);
 
 
@@ -362,11 +364,11 @@ int main() {
     imagen_destruir(fondo1);
     imagen_destruir(fondo2);
     imagen_destruir(cielo);
+    imagen_destruir(pasto_estirado);
+
     moto_destruir(moto);
 
     roms_destruir(teselas, figuras, ruta);
-
-    imagen_destruir(pasto_estirado);
 
     // END código del alumno
 
@@ -390,39 +392,3 @@ void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, i
     for (size_t j = 0; n_string[j]; j++)
         imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j])], x + (8 * j) + (8 * strlen(textos[i].cadena)) + (i == 4 && text[i] < 100 ? (text[i] < 0 ? 16 : 8) : 0),y,paleta_3[paleta + (i == 3 ? 1 : 0)]);
 }
-
-/*
-bool roms_inicializar(imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta){
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
-        teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
-        if (teselas[i] == NULL){
-            fprintf(stderr, "generar teselas falló\n");
-            for (size_t j = 0; j < i; j++)
-                imagen_destruir(teselas[j]);
-            return false;
-        }
-    }
-
-    for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++){
-        figuras[i] = imagen_generar(figura_get_ancho(i), figura_get_alto(i), 0);
-        if (figuras[i] == NULL){
-            fprintf(stderr, "generar figuras falló\n");
-            for (size_t j = 0; j < CANTIDAD_TESELAS; j++)
-                imagen_destruir(teselas[j]);
-            for (size_t j = 0; j < i; j++)
-                imagen_destruir(figuras[j]);
-            return false;
-        }
-    }
-
-    ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA_NUEVO, 0);
-    if (ruta == NULL){
-        fprintf(stderr, "generar ruta falló\n");
-        roms_destruir(teselas, figuras, ruta);
-        return false;
-    }
-
-    return true;
-}
-
-*/
