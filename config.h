@@ -2,11 +2,13 @@
 #define CONFIG_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 #define CANTIDAD_TESELAS 4096
 #define CANTIDAD_FIGURAS 13
 #define CANTIDAD_RUTAS 4
 #define CANTIDAD_ROMS 18
+#define CANTIDAD_MOTOS 4
 
 #define ANCHO_TESELA 8
 #define ALTO_TESELA 8
@@ -23,13 +25,55 @@
 #define COLUMNA_SCORE 7
 #define COLUMNA_TIME 6
 #define FILA_GOAL_GAMEOVER 2
-#define COLUMNA_GAMEOVER 15
-#define COLUMNA_GOAL 7
+#define COLUMNA_CUADRO 16
+#define COLUMNA_GOAL 8
 
 #define CANTIDAD_TEXTOS 6
-#define CANTIDAD_CUADROS 5
+#define CANTIDAD_CUADROS 8
 
-#define JUEGO_FPS 15
+#define JUEGO_FPS 30
+
+
+typedef enum{
+    TOP,
+    TIME,
+    SCORE,
+    STAGE,
+    SPEED,
+    KM,
+    GOAL,
+    GAMEOVER,
+}texto_t;
+/*/
+extern const uint16_t mos_cuadro_top[FILA_CUADROS][COLUMNA_CUADRO];
+extern const uint8_t mos_paleta_top[FILA_CUADROS][COLUMNA_CUADRO];
+
+extern const uint16_t mos_cuadro_score[FILA_CUADROS][COLUMNA_CUADRO];
+extern const uint8_t mos_paleta_score[FILA_CUADROS][COLUMNA_CUADRO];
+
+extern const uint16_t mos_cuadro_time[FILA_CUADROS][COLUMNA_CUADRO];
+extern const uint8_t mos_paleta_time[FILA_CUADROS][COLUMNA_CUADRO];
+
+extern const uint16_t mos_cuadro_goal[FILA_GOAL_GAMEOVER][COLUMNA_CUADRO];
+extern const uint8_t mos_paleta_goal[FILA_GOAL_GAMEOVER][COLUMNA_CUADRO];
+
+extern const uint16_t mos_cuadro_gameover[FILA_GOAL_GAMEOVER][COLUMNA_CUADRO];
+extern const uint8_t mos_paleta_gameover[FILA_GOAL_GAMEOVER][COLUMNA_CUADRO];
+
+
+typedef struct{
+    size_t filas, columnas;
+    const uint16_t *mosaico[COLUMNA_CUADRO];
+    const uint8_t *paleta[COLUMNA_CUADRO];
+}stcuadro_t;
+ 
+const stcuadro_t cuadro_textos[CANTIDAD_CUADROS] = {
+    [TOP] = {3, 5, mos_cuadro_top[COLUMNA_CUADRO], mos_paleta_top[COLUMNA_CUADRO]},
+    [SCORE] = {3, 7, mos_cuadro_score[COLUMNA_CUADRO], mos_paleta_score[COLUMNA_CUADRO]},
+    [TIME] = {3, 6, mos_cuadro_time[COLUMNA_CUADRO], mos_paleta_time[COLUMNA_CUADRO]},
+    [GOAL] = {2, 8, mos_cuadro_goal[COLUMNA_CUADRO], mos_paleta_goal[COLUMNA_CUADRO]},
+    [GAMEOVER] = {2, 16, mos_cuadro_gameover[COLUMNA_CUADRO], mos_paleta_gameover[COLUMNA_CUADRO]},
+};*/
 
 /*
 #define ARCHIVO_ROM_R   "roms/6841.rom"
@@ -51,19 +95,11 @@
 #define ARCHIVO_ROM_FIGURA_13 "roms/6845.rom"
 #define ARCHIVO_ROM_FIGURA_14 "roms/6846.rom"
 
-*/
 
-extern const uint16_t mos_cuadro_top[FILA_CUADROS][COLUMNA_TOP];
-extern const uint8_t mos_paleta_top[FILA_CUADROS][COLUMNA_TOP];
-extern const uint16_t mos_cuadro_score[FILA_CUADROS][COLUMNA_SCORE];
-extern const uint8_t mos_paleta_score[FILA_CUADROS][COLUMNA_SCORE];
-extern const uint16_t mos_cuadro_time[FILA_CUADROS][COLUMNA_TIME];
-extern const uint8_t mos_paleta_time[FILA_CUADROS][COLUMNA_TIME];
-extern const uint16_t mos_cuadro_goal[FILA_GOAL_GAMEOVER][COLUMNA_GOAL];
-extern const uint8_t mos_paleta_goal[FILA_GOAL_GAMEOVER][COLUMNA_GOAL];
-extern const uint16_t mos_cuadro_gameover[FILA_GOAL_GAMEOVER][COLUMNA_GAMEOVER];
-extern const uint8_t mos_paleta_gameover[FILA_GOAL_GAMEOVER][COLUMNA_GAMEOVER];
-//Perdon mechi xD
+extern const uint16_t m[2][5];
+extern const uint8_t p[2][5];
+
+*/
 /*
 
 typedef enum{

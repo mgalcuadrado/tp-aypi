@@ -10,7 +10,16 @@ struct moto{
     bool acelerar, frenar, mover_izq, mover_der;
 };
 
-static size_t calc_pos(moto_t *moto, bool b);
+typedef struct{ //Se define aca porque es una estructura solo para el tda
+    size_t x,y;
+}stmoto_pos_t;
+
+const stmoto_pos_t pos[4] = {
+    {12,0},     //Posiciones (x,y) de la moto 0
+    {12,3},     //Posiciones (x,y) de la moto 1
+    {7,10},     //Posiciones (x,y) de la moto 2
+    {0,19},     //Posiciones (x,y) de la moto 3
+};
 
 //inv de rep: moto_t siempre tiene inicializados sus valores mientras m != NULL
 
@@ -90,28 +99,9 @@ void moto_set_izq (moto_t * m, bool i){
 void pegar_moto(imagen_t *imagen, imagen_t *origen[], moto_t *moto, size_t t){
     if (moto->pos < 0){
         imagen_t *reflejo = imagen_reflejar(origen[-1 * (moto->pos)]);
-        imagen_pegar_con_paleta(imagen, reflejo,calc_pos(moto,true),calc_pos(moto,false), paleta_4[t % 2 + (moto->frenar) * 2]);
+        imagen_pegar_con_paleta(imagen, reflejo,pos[-1 * moto->pos].x,pos[-1 * moto->pos].y, paleta_4[t % 2 + (moto->frenar) * 2]);
         free(reflejo);
     }
     else
-        imagen_pegar_con_paleta(imagen, origen[moto->pos],calc_pos(moto,true),calc_pos(moto,false), paleta_4[t % 2 + (moto->frenar) * 2]);
-}
-
-static size_t calc_pos(moto_t *moto, bool b){
-    if(b == true){
-        if(moto->pos == 2 || moto->pos == -2)
-            return 7;
-        if(moto->pos == 3 || moto->pos == -3)
-            return 0;    
-        return 12;
-    }
-    else{
-        if(!moto->pos)
-            return 0;
-        if(moto->pos == 1 || moto->pos == -1)
-            return 3;
-        if(moto->pos == 2 || moto->pos == -2)
-            return 10;
-        return 19;
-    }
+        imagen_pegar_con_paleta(imagen, origen[moto->pos],pos[moto->pos].x,pos[moto->pos].y, paleta_4[t % 2 + (moto->frenar) * 2]);
 }

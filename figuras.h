@@ -16,14 +16,13 @@ typedef enum{
     ARBOL,
     CARTEL,
     ROCA,
-    CARTEL_BELL, 
-    CARTEL_FORUM,
-    CARTEL_DELFIN,
+    BELL, 
+    FORUM,
+    DELFIN,
     SEMAFORO,
     BANNER_LARGADA,
     VIGA_BANNER
 } figs_t;
-
 
 size_t figura_get_inicio (figs_t fig);
 size_t figura_get_ancho (figs_t fig);

@@ -96,8 +96,12 @@ void imagen_pegar_con_paleta(imagen_t *destino, const imagen_t *origen, int x, i
 for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++){
         bool pixeles_pegados = false;
         for(int c = (x >= 0 ? 0 : -x); c < origen->ancho && c + x < destino->ancho; c++){
-            if (origen -> pixeles[f][c] != 0 && (origen->pixeles[f][c] != 0xF || pixeles_pegados)){ 
+            if (origen->pixeles[f][c] == 0 || origen->pixeles[f][c] == 0xF){
+                pixeles_pegados = false;
+            }
+            else if (origen->pixeles[f][c] != 0 && (origen->pixeles[f][c] != 0xF || pixeles_pegados)){ 
                 destino->pixeles[y + f][x + c] = paleta[origen->pixeles[f][c]]; 
+                pixeles_pegados = true;
             } 
         }
     }

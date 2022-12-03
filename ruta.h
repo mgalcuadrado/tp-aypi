@@ -3,12 +3,12 @@
 
 #include <stdbool.h>
 #include "imagen.h"
+#include "figuras.h"
 #include <stddef.h>
 
-typedef enum {ARBOL, CARTEL, ROCA, BELL, FORUM, DELFIN} figura_t; //esto va a haber que cambiarlo para que coincida con fig
 
 struct figura_en_ruta {
-    figura_t figura;
+    figs_t figura;
     size_t paleta;
     int y;
     bool reflejar;

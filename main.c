@@ -7,19 +7,12 @@
 #include "paleta.h"
 #include "figuras.h"
 #include "moto.h"
+#include "ruta.h"
 
 #define MAX_CADENA 15
 
-typedef enum{
-    TOP,
-    TIME,
-    SCORE,
-    STAGE,
-    SPEED,
-    KM,
-    GOAL,
-    GAMEOVER,
-}texto_t;
+#define MAX_FILAS_CUADRO 3
+#define MAX_COLUMNAS_CUADRO 15
 
 typedef struct{
     const char cadena[MAX_CADENA];
@@ -27,29 +20,29 @@ typedef struct{
 }sttexto_t;
 
 const sttexto_t textos[CANTIDAD_TEXTOS] = {
-    [TOP] = {"TOP", 0xd, 0x6, 8},
-    [TIME] = {"TIME", 0x90, 0x6, 6},
-    [SCORE] = {"SCORE", 0xc6, 0x6, 7},
+    [TOP] = {" ", 0xd, 0x6, 8},
+    [TIME] = {" ", 0x90, 0x6, 7},
+    [SCORE] = {" ", 0xc6, 0x6, 7},
     [STAGE] = {"STAGE", 0x14, 0x1c, 5},
     [SPEED] = {"SPEED", 0xc6, 0x1c, 6},
     [KM] = {"KM", 0x10e, 0x1c, 6},
 };
 /*
 typedef struct{
-    const uint16_t mosaico[][];
-    const uint8_t paleta[][];
     size_t filas, columnas;
+    const uint16_t *mosaico[COLUMNA_CUADRO];
+    const uint8_t *paleta[COLUMNA_CUADRO];
 }stcuadro_t;
     
+ 
 const stcuadro_t cuadro_textos[CANTIDAD_CUADROS] = {
-    [TOP] = {mos_cuadro_top, mos_paleta_top, FILA_CUADROS, COLUMNA_TOP},
-    [SCORE] = {mos_cuadro_score, mos_paleta_score, FILA_CUADROS, COLUMNA_SCORE},
-    [TIME] = {mos_cuadro_time, mos_paleta_time, FILA_CUADROS, COLUMNA_TIME},
-    [GOAL] = {mos_cuadro_goal, mos_paleta_goal, FILA_GOAL_GAMEOVER, COLUMNA_GOAL},
-    [GAMEOVER] = {mos_cuadro_gameover, mos_paleta_gameover, FILA_GOAL_GAMEOVER, COLUMNA_GAMEOVER},
-    };
+    [TOP] = {FILA_CUADROS, COLUMNA_TOP, mos_cuadro_top, mos_paleta_top},
+    [SCORE] = {FILA_CUADROS, COLUMNA_SCORE, mos_cuadro_score, mos_paleta_score},
+    [TIME] = {FILA_CUADROS, COLUMNA_TIME, mos_cuadro_time, mos_paleta_time},
+    [GOAL] = {FILA_GOAL_GAMEOVER, COLUMNA_GOAL, mos_cuadro_goal, mos_paleta_goal},
+    [GAMEOVER] = {FILA_GOAL_GAMEOVER, COLUMNA_CUADRO, mos_cuadro_gameover, mos_paleta_gameover},
+};
 */
-
 //Esta es una funcion auxiliar que imprime los diferentes tipos de numeros en la pantalla 
 void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text, size_t paleta);
 
@@ -73,11 +66,13 @@ int main() {
     int dormir = 0;
 
     // BEGIN código del alumno
+
+
     size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 1000000,[TIME] = 0, [SCORE] = 0, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos        
 
-       imagen_t *teselas[CANTIDAD_TESELAS];
+    imagen_t *teselas[CANTIDAD_TESELAS];
     imagen_t *figuras[CANTIDAD_FIGURAS];
-    imagen_t *ruta;
+    imagen_t *rutaza;
 
     for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
         teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
@@ -101,58 +96,127 @@ int main() {
         }
     }
 
-    ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA, 0);
-    if (ruta == NULL){
+    rutaza = imagen_generar(ANCHO_RUTA, ALTO_RUTA, 0);
+    if (rutaza == NULL){
         fprintf(stderr, "generar ruta falló\n");
-        roms_destruir(teselas, figuras, ruta);
+        roms_destruir(teselas, figuras, rutaza);
         return 1;
     }
 
-    if (!roms_levantar(teselas, figuras, ruta)){
+    if (!roms_levantar(teselas, figuras, rutaza)){
         fprintf(stderr, "al levantar se rompe todo\n");
         return 1;
     }
 
-    imagen_t *rutaza = imagen_reflejar(ruta);
-    if (rutaza == NULL){
+    imagen_t *ruta_reflejada = imagen_reflejar(rutaza);
+    if (ruta_reflejada == NULL){
         fprintf(stderr, "che falló en reflejar\n");
-        roms_destruir(teselas, figuras, ruta); 
+        roms_destruir(teselas, figuras, rutaza);
+        imagen_destruir(rutaza);
         return 1;
     }
 
     imagen_t *ruta_completa = imagen_generar(2 * ANCHO_RUTA,ALTO_RUTA, 0);
     if(ruta_completa == NULL) return 1;
-    imagen_pegar(ruta_completa,ruta,0,0); 
-    imagen_pegar(ruta_completa,rutaza,ANCHO_RUTA - 8,0);
-    imagen_destruir(ruta);
-    imagen_destruir(rutaza);
 
-    imagen_guardar_ppm(ruta_completa, "ruta40.ppm", pixel12_a_rgb); //pruebas //mgalcuadrado
+    imagen_pegar(ruta_completa,rutaza,0,0); 
+    imagen_pegar(ruta_completa,ruta_reflejada,ANCHO_RUTA - 8,0);
+    imagen_destruir(rutaza);
+    imagen_destruir(ruta_reflejada);
+
+     /*
+            int v = 96 - 96 * exp(-0.11 * i);
+            float unuevo = 
+            */
+
+    //imagen_guardar_ppm(ruta_completa, "ruta40.ppm", pixel12_a_rgb); //pruebas //mgalcuadrado
 
     moto_t *moto = moto_crear(0, 0, 0, false, false, false, false);
+    if(moto == NULL){
+        roms_destruir(teselas, figuras, ruta_completa);
+        return 1;
+    }
+    
     //Acá se crea la moto inicializado en sus respectivos valores
 
-    double x_moto = 162, x_fondo = 320, y = 0;
+    double x_fondo = 320, y = 0;
+    int x_ruta = 0;
     size_t t = 0; 
     
+    //Acá voy a crear las variables que necesito relativas a la posición de la ruta/figuras
 
     imagen_t *cuadro = imagen_generar(320, 224, 0);
+    if(cuadro == NULL){
+        roms_destruir(teselas, figuras, ruta_completa);
+        moto_destruir(moto);
+        return 1;
+    }
     imagen_t *cielo = imagen_generar(320, 128, 0xf);
+    if(cielo == NULL){
+        roms_destruir(teselas, figuras, ruta_completa);
+        moto_destruir(moto);
+        imagen_destruir(cuadro);
+        return 1;
+    }
     imagen_t *pasto = imagen_generar(1, 96, pixel12_crear(0, 13, 9));
+    if(pasto == NULL){
+        roms_destruir(teselas, figuras, ruta_completa);
+        moto_destruir(moto);
+        imagen_destruir(cuadro);
+        imagen_destruir(cielo);
+        return 1;
+    }
 
     for(size_t i = 0; i < 10; i++)
         imagen_set_pixel(pasto, 0, i, colores_pasto[i]);
 
     imagen_t *pasto_estirado = imagen_escalar(pasto, 320, 96);
     imagen_destruir(pasto);
+    if(pasto_estirado == NULL){
+        roms_destruir(teselas, figuras, ruta_completa);
+        moto_destruir(moto);
+        imagen_destruir(cuadro);
+        imagen_destruir(cielo);
+        return 1;
+    }
     
     imagen_t *fondo1 = generar_mosaico(teselas, paleta_3, FONDO1_FILAS, FONDO1_COLUMNAS, fondo1_mosaico, fondo1_paleta);
+    if(fondo1 == NULL){
+        roms_destruir(teselas, figuras, ruta_completa);
+        moto_destruir(moto);
+        imagen_destruir(cuadro);
+        imagen_destruir(cielo);
+        imagen_destruir(pasto_estirado);
+        return 1;
+    }
     imagen_t *fondo2 = generar_mosaico(teselas, paleta_3, FONDO2_FILAS, FONDO2_COLUMNAS, fondo2_mosaico, fondo2_paleta);
-    
+    if(fondo2 == NULL){
+        roms_destruir(teselas, figuras, ruta_completa);
+        moto_destruir(moto);
+        imagen_destruir(cuadro);
+        imagen_destruir(cielo);
+        imagen_destruir(pasto_estirado);
+        imagen_destruir(fondo1);
+        return 1;
+    }
     /*
     imagen_t *cuadros_de_texto[CANTIDAD_CUADROS]
-    for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
+    for(size_t i = 0; i < CANTIDAD_CUADROS; i++){
         cuadro_de_textos[i] = generar_mosaico(teselas,paleta_3,cuadro_textos[i].filas,cuadro_textos[i].columnas,cuadro_textos[i].mosaico,cuadro_textos[i].paleta);
+        if(cuadro_de_textos[i] == NULL){
+            roms_destruir(teselas, figuras, ruta);
+            imagen_destruir(ruta_completa);
+            moto_destruir(moto);
+            imagen_destruir(cuadro);
+            imagen_destruir(cielo);
+            imagen_destruir(pasto_estirado);
+            imagen_destruir(fondo1);
+            imagen_destruir(fondo2);
+            for(size_t j = 0; j < i; j++)
+                imagen_destruir(cuadro_de_textos[j]);
+            return 1;
+        }
+    }
     */
 
     // END código del alumno
@@ -213,6 +277,18 @@ int main() {
 
         // BEGIN código del alumno       
         imagen_t *cuadro_moto = imagen_generar(60, 73, 0);
+        if(cuadro_moto == NULL){
+            roms_destruir(teselas, figuras, ruta_completa);
+            moto_destruir(moto);
+            imagen_destruir(cuadro);
+            imagen_destruir(cielo);
+            imagen_destruir(pasto_estirado);
+            imagen_destruir(fondo1);
+            imagen_destruir(fondo2);
+            for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
+                //imagen_destruir(cuadro_de_textos[i]);
+            return 1;
+        }
 
         imagen_pegar(cuadro, cielo, 0, 0);
         imagen_pegar(cuadro, pasto_estirado, 0, 128);       
@@ -237,11 +313,11 @@ int main() {
         //Posicion m_y junto al movimiento de los fondos
         if(moto_get_izq(moto)){
             x_fondo += 10;
-            y -= (6 * moto_get_pos(moto) + 3);
+            y += (6 * moto_get_pos(moto) + 3);
         } 
         else if(moto_get_der(moto)) {
             x_fondo -= 10;
-            y -= (6 * moto_get_pos(moto) - 3);
+            y += (6 * moto_get_pos(moto) - 3);      
         } 
 
         if(y < -435 || y > 435)
@@ -319,25 +395,73 @@ int main() {
         //Acá se pega la ruta
         //lo que hay que hacer es intercalar cada cierta cantidad de metros la paleta para que queden bien las rayas blancas y negras, nos conviene hacerlo al mismo tiempo que las curvamos y eso
         //paleta
-        imagen_pegar_con_paleta(cuadro,ruta_completa,(y - 346),128 - 16,colores_ruta[3]);
-        //A ver, la ruta esta pero hay que arreglarlo
-    
         
+        imagen_t *linea_ruta = imagen_generar(2* ANCHO_RUTA,1,0);
+        if(linea_ruta == NULL){
+            roms_destruir(teselas, figuras, ruta_completa);
+            moto_destruir(moto);
+            imagen_destruir(cuadro);
+            imagen_destruir(cielo);
+            imagen_destruir(pasto_estirado);
+            imagen_destruir(fondo1);
+            imagen_destruir(fondo2);
+            for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
+                //imagen_destruir(cuadro_de_textos[i]);
+            imagen_destruir(cuadro_moto);
+            return 1;    
+        }
+        int dc_anterior = 0;
+        for(int i = 0; i < 96; i++){
+            imagen_pegar(linea_ruta,ruta_completa,0, i - 111);
+            int d_l = -y * (96 - i) / 96;
+            int d_c = dc_anterior + ruta[moto_get_x(moto) + i].radio_curva * exp(0.105 * i - 8.6);
+            if(d_c < 0)
+                y+= 0.5;
+            else if(d_c > 0)
+                y-= 0.5;
+            dc_anterior = d_c;
+            imagen_pegar_con_paleta(cuadro,linea_ruta,d_l + d_c - 346,223 - i,colores_ruta[(int)((1/0.11) * log((float)(96 - i) / 96)) % 3]); //112 porque sacas las 16 filas de abajo    
+            /*if (ruta[moto_get_x(moto) + i].indice_figura != 9999){
+                figs_t figura_a_pegar = figuras_en_ruta[ruta[moto_get_x(moto) + i].indice_figura].figura + CANTIDAD_MOTOS;
+                size_t alto_figura = figura_get_alto(figura_a_pegar) * ((96 - i)/ 96) + (5 * i)/96, ancho_figura = figura_get_ancho(figura_a_pegar);
+                imagen_t * fig_escalada = imagen_escalar(figuras[figura_a_pegar], ancho_figura, alto_figura);
+                //if (fig_escalada == NULL){
+                    //libera magoya} //Att: no magoya 
+                if (figuras_en_ruta[ruta[moto_get_x(moto) + i].indice_figura].reflejar){
+                    imagen_reflejar()
+                }
+                imagen_pegar_con_paleta(cuadro, fig_escalada, i - ancho_figura /2, figuras_en_ruta[ruta[moto_get_x(moto) + i].indice_figura].y - alto_figura,paleta_4[figuras_en_ruta[ruta[moto_get_x(moto) + i].indice_figura].paleta]);
+                imagen_destruir(fig_escalada);
+            }
+            */
+        }
+            
+        
+        
+        x_ruta = 2,5 * (moto_get_x(moto) - x) * ruta[x].radio_curva;
+        imagen_destruir(linea_ruta);
+            
         //esto sería la moto
-        imagen_pegar(cuadro, cuadro_moto, x_moto - 30, 151);
-
+        imagen_pegar(cuadro, cuadro_moto, 132, 151);
+        //132 (la mitad del cuadro es 162, la mitad del cuadro de la moto es 30) 
+        //alto del cuadro - alto de la moto
 
         // Procedemos a dibujar a pantalla completa:
         imagen_t *cuadro_escalado = imagen_escalar(cuadro, VENTANA_ANCHO, VENTANA_ALTO);
-        // Hay que implementar esta función que dibuja de forma eficiente:
+        if(cuadro_escalado == NULL){
+            roms_destruir(teselas, figuras, ruta_completa);
+            moto_destruir(moto);
+            imagen_destruir(cuadro);
+            imagen_destruir(cielo);
+            imagen_destruir(pasto_estirado);
+            imagen_destruir(fondo1);
+            imagen_destruir(fondo2);
+            for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
+                //imagen_destruir(cuadro_de_textos[i]);
+            imagen_destruir(cuadro_moto);
+            return 1;   
+        }
         imagen_a_textura(cuadro_escalado, canvas);
-        /*
-        // Como todavía no la tenemos lo hacemos de forma ineficiente con primitivas:
-        for(size_t f = 0; f < imagen_get_alto(cuadro_escalado); f++)
-            for(size_t c = 0; c < imagen_get_ancho(cuadro_escalado); c++)
-                canvas[f * imagen_get_ancho(cuadro_escalado) + c] = imagen_get_pixel(cuadro_escalado, c, f);
-        // Implementar imagen_a_textura() cuanto antes!
-        */ 
 
         imagen_destruir(cuadro_escalado);
         imagen_destruir(cuadro_moto);
@@ -368,7 +492,10 @@ int main() {
 
     moto_destruir(moto);
 
-    roms_destruir(teselas, figuras, ruta);
+    roms_destruir(teselas, figuras, ruta_completa);
+
+    for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
+        //imagen_destruir(cuadro_de_textos[i]);
 
     // END código del alumno
 
