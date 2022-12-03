@@ -1,0 +1,11 @@
+main.c:147:11: warning: unused variable ‘u_anterior’ [-Wunused-variable]
+  147 |     float u_anterior = 0;
+      |           ^~~~~~~~~~
+main.c:143:9: warning: variable ‘x_ruta’ set but not used [-Wunused-but-set-variable]
+  143 |     int x_ruta = 0;
+      |         ^~~~~~
+gcc config.o pixel.o imagen.o paleta.o ruta.o fondo.o roms.o figuras.o moto.o main.o -o hang.on  -lSDL2
+/usr/bin/ld: main.o: undefined reference to symbol 'exp@@GLIBC_2.29'
+/usr/bin/ld: /lib/x86_64-linux-gnu/libm.so.6: error al añadir símbolos: DSO missing from command line
+collect2: error: ld returned 1 exit status
+make: *** [Makefile:38: hang.on] Error 1
