@@ -12,6 +12,9 @@ typedef struct imagen imagen_t;
 //esta función recibe una imagenn y libera la memoria asociada a la misma
 void imagen_destruir (imagen_t *imagen);
 
+//La función se hizo para destruir 3 imagenes a la vez y no llenar de codigo
+void imagen_destruir_mas(imagen_t *im1, imagen_t *im2, imagen_t *im3);
+
 //la función devuelve una imagen de ancho x alto con todos los pixeles inicializados en un valor
 imagen_t *imagen_generar (size_t ancho, size_t alto, pixel_t valor);
 
@@ -54,4 +57,7 @@ bool imagen_redimensionar(imagen_t * im, size_t n_ancho, size_t n_alto);
 
 //Esta función recibe una imagen y devuelve por el nombre esa imagen reflejada
 imagen_t * imagen_reflejar (imagen_t * im);
+
+//Esta funcion es similar a la de mismo nombre, pero tiene unos cambios para asi pegar la ruta correctamente
+void imagen_pegar_ruta_con_paleta(imagen_t * destino, const imagen_t *origen, int x, int y, const pixel_t paleta[]);
 #endif

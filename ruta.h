@@ -23,5 +23,4 @@ struct ruta {
 extern const struct figura_en_ruta figuras_en_ruta[];
 extern const struct ruta ruta[4200 + 70];
 
-
 #endif

@@ -184,18 +184,14 @@ int main() {
     if(fondo1 == NULL){
         roms_destruir(teselas, figuras, ruta_completa);
         moto_destruir(moto);
-        imagen_destruir(cuadro);
-        imagen_destruir(cielo);
-        imagen_destruir(pasto_estirado);
+        imagen_destruir_mas(cuadro, cielo, pasto_estirado);
         return 1;
     }
     imagen_t *fondo2 = generar_mosaico(teselas, paleta_3, FONDO2_FILAS, FONDO2_COLUMNAS, fondo2_mosaico, fondo2_paleta);
     if(fondo2 == NULL){
         roms_destruir(teselas, figuras, ruta_completa);
         moto_destruir(moto);
-        imagen_destruir(cuadro);
-        imagen_destruir(cielo);
-        imagen_destruir(pasto_estirado);
+        imagen_destruir_mas(cuadro, cielo, pasto_estirado);
         imagen_destruir(fondo1);
         return 1;
     }
@@ -207,9 +203,7 @@ int main() {
             roms_destruir(teselas, figuras, ruta);
             imagen_destruir(ruta_completa);
             moto_destruir(moto);
-            imagen_destruir(cuadro);
-            imagen_destruir(cielo);
-            imagen_destruir(pasto_estirado);
+            imagen_destruir_mas(cuadro, cielo, pasto_estirado);
             imagen_destruir(fondo1);
             imagen_destruir(fondo2);
             for(size_t j = 0; j < i; j++)
@@ -280,9 +274,7 @@ int main() {
         if(cuadro_moto == NULL){
             roms_destruir(teselas, figuras, ruta_completa);
             moto_destruir(moto);
-            imagen_destruir(cuadro);
-            imagen_destruir(cielo);
-            imagen_destruir(pasto_estirado);
+            imagen_destruir_mas(cuadro, cielo, pasto_estirado);
             imagen_destruir(fondo1);
             imagen_destruir(fondo2);
             for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
@@ -312,13 +304,13 @@ int main() {
         
         //Posicion m_y junto al movimiento de los fondos
         if(moto_get_izq(moto)){
-            x_fondo += 10;
             y += (6 * moto_get_pos(moto) + 3);
         } 
         else if(moto_get_der(moto)) {
-            x_fondo -= 10;
             y += (6 * moto_get_pos(moto) - 3);      
         } 
+        x_fondo -= ruta[moto_get_x(moto)].radio_curva;
+
 
         if(y < -435 || y > 435)
             y = y < 0 ? -435 : 435;
@@ -395,52 +387,64 @@ int main() {
         //Acá se pega la ruta
         //lo que hay que hacer es intercalar cada cierta cantidad de metros la paleta para que queden bien las rayas blancas y negras, nos conviene hacerlo al mismo tiempo que las curvamos y eso
         //paleta
-        
+
         imagen_t *linea_ruta = imagen_generar(2* ANCHO_RUTA,1,0);
         if(linea_ruta == NULL){
             roms_destruir(teselas, figuras, ruta_completa);
             moto_destruir(moto);
-            imagen_destruir(cuadro);
-            imagen_destruir(cielo);
-            imagen_destruir(pasto_estirado);
-            imagen_destruir(fondo1);
-            imagen_destruir(fondo2);
+            imagen_destruir_mas(cuadro, cielo, pasto_estirado);
+            imagen_destruir_mas(fondo1, fondo2, cuadro_moto);
             for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
                 //imagen_destruir(cuadro_de_textos[i]);
-            imagen_destruir(cuadro_moto);
             return 1;    
         }
-        int dc_anterior = 0;
+
+        int d_c = 0;
         for(int i = 0; i < 96; i++){
             imagen_pegar(linea_ruta,ruta_completa,0, i - 111);
             int d_l = -y * (96 - i) / 96;
-            int d_c = dc_anterior + ruta[moto_get_x(moto) + i].radio_curva * exp(0.105 * i - 8.6);
-            if(d_c < 0)
-                y+= 0.5;
-            else if(d_c > 0)
-                y-= 0.5;
-            dc_anterior = d_c;
-            imagen_pegar_con_paleta(cuadro,linea_ruta,d_l + d_c - 346,223 - i,colores_ruta[(int)((1/0.11) * log((float)(96 - i) / 96)) % 3]); //112 porque sacas las 16 filas de abajo    
-            /*if (ruta[moto_get_x(moto) + i].indice_figura != 9999){
-                figs_t figura_a_pegar = figuras_en_ruta[ruta[moto_get_x(moto) + i].indice_figura].figura + CANTIDAD_MOTOS;
-                size_t alto_figura = figura_get_alto(figura_a_pegar) * ((96 - i)/ 96) + (5 * i)/96, ancho_figura = figura_get_ancho(figura_a_pegar);
+            d_c += ruta[x + i].radio_curva * exp(0.105 * i - 8.6);
+            imagen_pegar_ruta_con_paleta(cuadro,linea_ruta,d_l + d_c - 346,223 - i,colores_ruta[((95 - x - i)/4) % 4]); //112 porque sacas las 16 filas de abajo    
+           ///* 
+            if (ruta[x + i].indice_figura != 9999){
+                figs_t figura_a_pegar = figuras_en_ruta[ruta[x + i].indice_figura].figura;
+
+                size_t alto_figura = figura_get_alto(figura_a_pegar) * ((96 - i)/ 96) + (5 * i)/96; 
+                size_t ancho_figura = figura_get_ancho(figura_a_pegar) * ((float)alto_figura / figura_get_alto(figura_a_pegar));
+                if(ancho_figura < 3) ancho_figura = 3;
+            
                 imagen_t * fig_escalada = imagen_escalar(figuras[figura_a_pegar], ancho_figura, alto_figura);
-                //if (fig_escalada == NULL){
-                    //libera magoya} //Att: no magoya 
-                if (figuras_en_ruta[ruta[moto_get_x(moto) + i].indice_figura].reflejar){
-                    imagen_reflejar()
+                if (fig_escalada == NULL){
+                    roms_destruir(teselas, figuras, ruta_completa);
+                    moto_destruir(moto);
+                    imagen_destruir_mas(cuadro, cielo, pasto_estirado);
+                    imagen_destruir_mas(fondo1, fondo2, cuadro_moto);
+                    imagen_destruir(linea_ruta);
+                    return 1;
                 }
-                imagen_pegar_con_paleta(cuadro, fig_escalada, i - ancho_figura /2, figuras_en_ruta[ruta[moto_get_x(moto) + i].indice_figura].y - alto_figura,paleta_4[figuras_en_ruta[ruta[moto_get_x(moto) + i].indice_figura].paleta]);
+                if (figuras_en_ruta[ruta[x + i].indice_figura].reflejar){
+                    imagen_t * ref = imagen_reflejar(fig_escalada);
+                    if (ref == NULL){
+                        roms_destruir(teselas, figuras, ruta_completa);
+                        moto_destruir(moto);
+                        imagen_destruir_mas(cuadro, cielo, pasto_estirado);
+                        imagen_destruir_mas(fondo1, fondo2, cuadro_moto);
+                        imagen_destruir(linea_ruta);
+                        imagen_destruir(fig_escalada);
+                        return 1;
+                    }
+                    fig_escalada = ref;
+                }   
+                imagen_pegar_con_paleta(cuadro, fig_escalada,y * ((float)(96 - i)/96) + y * (i/5000.0) + d_c + d_l,128 + alto_figura,paleta_4[figuras_en_ruta[ruta[x + i].indice_figura].paleta]);
                 imagen_destruir(fig_escalada);
             }
-            */
         }
-            
-        
-        
-        x_ruta = 2,5 * (moto_get_x(moto) - x) * ruta[x].radio_curva;
+
+    
+
+        //y += 2,5 * (moto_get_x(moto) - x) * ruta[moto_get_x(moto)].radio_curva; //Està mal 
         imagen_destruir(linea_ruta);
-            
+        
         //esto sería la moto
         imagen_pegar(cuadro, cuadro_moto, 132, 151);
         //132 (la mitad del cuadro es 162, la mitad del cuadro de la moto es 30) 
@@ -449,22 +453,21 @@ int main() {
         // Procedemos a dibujar a pantalla completa:
         imagen_t *cuadro_escalado = imagen_escalar(cuadro, VENTANA_ANCHO, VENTANA_ALTO);
         if(cuadro_escalado == NULL){
+            fprintf(stderr, "cuadro escalado da null\n");
             roms_destruir(teselas, figuras, ruta_completa);
             moto_destruir(moto);
-            imagen_destruir(cuadro);
-            imagen_destruir(cielo);
-            imagen_destruir(pasto_estirado);
-            imagen_destruir(fondo1);
-            imagen_destruir(fondo2);
+            imagen_destruir_mas(cuadro, cielo, pasto_estirado);
+            imagen_destruir_mas(fondo1, fondo2, cuadro_moto);
             for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
                 //imagen_destruir(cuadro_de_textos[i]);
-            imagen_destruir(cuadro_moto);
             return 1;   
         }
         imagen_a_textura(cuadro_escalado, canvas);
 
         imagen_destruir(cuadro_escalado);
         imagen_destruir(cuadro_moto);
+
+
 
         // END código del alumno
 
@@ -484,11 +487,10 @@ int main() {
     }
 
     // BEGIN código del alumno
-    imagen_destruir(cuadro);
+
+    imagen_destruir_mas(cuadro, cielo, pasto_estirado);
     imagen_destruir(fondo1);
     imagen_destruir(fondo2);
-    imagen_destruir(cielo);
-    imagen_destruir(pasto_estirado);
 
     moto_destruir(moto);
 

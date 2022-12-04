@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 
-
 const struct figura_en_ruta figuras_en_ruta[] = {
     {ARBOL, 38, -300, 0},
     {ARBOL, 38, 300, 1},

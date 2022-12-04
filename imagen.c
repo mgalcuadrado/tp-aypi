@@ -107,6 +107,29 @@ for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++){
     }
 }
 
+void imagen_pegar_ruta_con_paleta(imagen_t * destino, const imagen_t *origen, int x, int y, const pixel_t paleta[]){
+    for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++){
+        bool pixeles_pegados = false;
+        for(int c = (x >= 0 ? 0 : -x); c < origen->ancho && c + x < destino->ancho; c++){
+            if ((origen->pixeles[f][c] == 0 || (origen->pixeles[f][c] == 0xF))){
+                if(origen->pixeles[f][c + 5 > origen->ancho ? c : c + 5] != 0 && (origen->pixeles[f][c + 5 > origen->ancho ? c : c + 5] != 0xF) && (origen->pixeles[f][c - 5 < 0 ? c : c - 5] != 0 && (origen->pixeles[f][c - 5 < 0 ? c : c - 5] != 0xF)))
+                    pixeles_pegados = true;
+                else
+                    pixeles_pegados = false;
+            }
+            if (origen->pixeles[f][c] != 0 && ((origen->pixeles[f][c] != 0xF || pixeles_pegados) )){ 
+                destino->pixeles[y + f][x + c] = paleta[origen->pixeles[f][c]]; 
+                pixeles_pegados = true;
+            } 
+        }
+    }    
+}
+
+//1eros blancos -> no pegue
+//color 
+//2dos blancos -> pegue
+//color
+//3eros blancos ->no pegue
 
 
 
@@ -219,4 +242,10 @@ imagen_t * imagen_reflejar (imagen_t * im){
     */
     return ref;
     
+}
+
+void imagen_destruir_mas(imagen_t *im1, imagen_t *im2, imagen_t *im3){
+    imagen_destruir(im1);
+    imagen_destruir(im2);
+    imagen_destruir(im3);
 }
