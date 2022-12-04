@@ -42,11 +42,12 @@ const stcuadro_t cuadro_textos[CANTIDAD_CUADROS] = {
     [GOAL] = {FILA_GOAL_GAMEOVER, COLUMNA_GOAL, mos_cuadro_goal, mos_paleta_goal},
     [GAMEOVER] = {FILA_GOAL_GAMEOVER, COLUMNA_CUADRO, mos_cuadro_gameover, mos_paleta_gameover},
 };
+
+
 */
 //Esta es una funcion auxiliar que imprime los diferentes tipos de numeros en la pantalla 
 void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text, size_t paleta);
-
-bool roms_inicializar(imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta);
+void destructor_masivo(imagen_t ** teselas, imagen_t ** figuras, imagen_t * ruta_completa, moto_t * moto, imagen_t * cuadro, imagen_t * cielo, imagen_t * pasto_estirado, imagen_t * fondo1, imagen_t * fondo2, imagen_t * top, imagen_t * score, imagen_t * time, imagen_t * goal, imagen_t * gameover);
 
 
 int main() {
@@ -195,24 +196,52 @@ int main() {
         imagen_destruir(fondo1);
         return 1;
     }
-    /*
-    imagen_t *cuadros_de_texto[CANTIDAD_CUADROS]
-    for(size_t i = 0; i < CANTIDAD_CUADROS; i++){
-        cuadro_de_textos[i] = generar_mosaico(teselas,paleta_3,cuadro_textos[i].filas,cuadro_textos[i].columnas,cuadro_textos[i].mosaico,cuadro_textos[i].paleta);
-        if(cuadro_de_textos[i] == NULL){
-            roms_destruir(teselas, figuras, ruta);
-            imagen_destruir(ruta_completa);
+
+    imagen_t *top = generar_mosaico(teselas, paleta_3, FILA_CUADROS, COLUMNA_TOP, mos_cuadro_top, mos_paleta_time);
+    if(top == NULL){
+        roms_destruir(teselas, figuras, ruta_completa);
+        moto_destruir(moto);
+        imagen_destruir_mas(cuadro, cielo, pasto_estirado);
+        imagen_destruir(fondo1);
+        imagen_destruir(fondo2); 
+        return 1;
+    }
+    imagen_t *score = generar_mosaico(teselas, paleta_3, FILA_CUADROS, COLUMNA_SCORE, mos_cuadro_score, mos_paleta_time);
+    if(score == NULL){
+        roms_destruir(teselas, figuras, ruta_completa);
+        moto_destruir(moto);
+        imagen_destruir_mas(cuadro, cielo, pasto_estirado);
+        imagen_destruir_mas(fondo1, fondo2, top);
+        return 1;
+    }
+    imagen_t *time = generar_mosaico(teselas, paleta_3, FILA_CUADROS, COLUMNA_TIME, mos_cuadro_time, mos_paleta_time);
+    if (time == NULL){
+        roms_destruir(teselas, figuras, ruta_completa);
+        moto_destruir(moto);
+        imagen_destruir_mas(cuadro, cielo, pasto_estirado);
+        imagen_destruir_mas(fondo1, fondo2, top);
+        imagen_destruir(score);
+        return 1;
+    }
+    imagen_t * goal = generar_mosaico(teselas, paleta_3, FILA_GG, COLUMNA_GOAL, mos_cuadro_goal, mos_paleta_goal);
+    if (goal == NULL){
+        roms_destruir(teselas, figuras, ruta_completa);
+        moto_destruir(moto);
+        imagen_destruir_mas(cuadro, cielo, pasto_estirado);
+        imagen_destruir_mas(fondo1, fondo2, top);
+        imagen_destruir(score);
+        imagen_destruir(time);
+        return 1;
+    }
+    imagen_t * gameover = generar_mosaico(teselas, paleta_3, FILA_GG, COLUMNA_GAMEOVER, mos_cuadro_gameover, mos_paleta_gameover);
+        if (gameover == NULL){
+            roms_destruir(teselas, figuras, ruta_completa);
             moto_destruir(moto);
             imagen_destruir_mas(cuadro, cielo, pasto_estirado);
-            imagen_destruir(fondo1);
-            imagen_destruir(fondo2);
-            for(size_t j = 0; j < i; j++)
-                imagen_destruir(cuadro_de_textos[j]);
-            return 1;
+            imagen_destruir_mas(fondo1, fondo2, top);
+            imagen_destruir_mas(score, time, goal);
         }
-    }
-    */
-
+    
     // END código del alumno
 
     unsigned int ticks = SDL_GetTicks();
@@ -272,13 +301,7 @@ int main() {
         // BEGIN código del alumno       
         imagen_t *cuadro_moto = imagen_generar(60, 73, 0);
         if(cuadro_moto == NULL){
-            roms_destruir(teselas, figuras, ruta_completa);
-            moto_destruir(moto);
-            imagen_destruir_mas(cuadro, cielo, pasto_estirado);
-            imagen_destruir(fondo1);
-            imagen_destruir(fondo2);
-            for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
-                //imagen_destruir(cuadro_de_textos[i]);
+            destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, top, score, time, goal, gameover);
             return 1;
         }
 
@@ -293,14 +316,13 @@ int main() {
         for(size_t i = 0; i < CANTIDAD_TEXTOS; i++){
             if(i < (CANTIDAD_TEXTOS - 1))
                 numeros_a_pantalla(cuadro, teselas, i, 8 + textos[i].pos_x + (i < 3 ? 8 : 0),textos[i].pos_y + (i < 3 ? 0x8 : 0),n_textos,textos[i].paleta);
-            if(i < 3){
-                //imagen_pegar(cuadro,,textos[i].pos_x,textos[i].pos_y);
-                continue;
-            }
+    
             for (size_t j = 0; textos[i].cadena[j] != '\0'; j++)
                 imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[textos[i].paleta]);
-
         }
+        imagen_pegar(cuadro,top,textos[0].pos_x,textos[0].pos_y);
+        imagen_pegar(cuadro,time,textos[1].pos_x,textos[1].pos_y);
+        imagen_pegar(cuadro,score,textos[2].pos_x,textos[2].pos_y);
         
         //Posicion m_y junto al movimiento de los fondos
         if(moto_get_izq(moto)){
@@ -360,29 +382,32 @@ int main() {
                 n_textos[SCORE] += (moto_get_x(moto) - x) * (3.13 * moto_get_vel(moto) - 240);
         }
 
-        //Victoria
         if(n_textos[TOP] < n_textos[SCORE])
             n_textos[TOP] = n_textos[SCORE];
-        
+
+
+        size_t secs;
+
+        //Victoria
         if(moto_get_x(moto) == 4200){
-            size_t secs = 0;
-            for(size_t i = 0;secs < 10; i++){
-                //Mensaje de win
-                secs = i/JUEGO_FPS;
+            secs += 1/JUEGO_FPS;
+
+            imagen_pegar(cuadro, goal, 320/ 2 - (4 * FILA_GG), 224/ 2 - 4 * COLUMNA_GOAL);
+            //MENSAJE DE WIN
             }
-            break; //Podria hacer una funcion auxiliar para pegar los mensajes y hacer esperar unos
-                   //5 segundos para que se vean los msg 
-        }
+                    //Podria hacer una funcion auxiliar para pegar los mensajes y hacer esperar unos
+                    //5 segundos para que se vean los msg 
 
         //Derrota
-        if(n_textos[TIME] == 0){
-            size_t secs = 0;
-            for(size_t i = 0;secs < 10; i++){
-                //Mensaje de game over
-                secs = i/JUEGO_FPS;
-            }
+        else if(n_textos[TIME] == 0){
+            secs += 1/JUEGO_FPS;
+            //MENSAJE DE LOSE
+            imagen_pegar(cuadro, gameover, 320/ 2 - (4 * FILA_GG), 224/ 2 - 4 * COLUMNA_GAMEOVER);
+        }
+        
+        if(secs == 5)
             break;
-        } 
+ 
 
         //Acá se pega la ruta
         //lo que hay que hacer es intercalar cada cierta cantidad de metros la paleta para que queden bien las rayas blancas y negras, nos conviene hacerlo al mismo tiempo que las curvamos y eso
@@ -390,59 +415,48 @@ int main() {
 
         imagen_t *linea_ruta = imagen_generar(2* ANCHO_RUTA,1,0);
         if(linea_ruta == NULL){
-            roms_destruir(teselas, figuras, ruta_completa);
-            moto_destruir(moto);
-            imagen_destruir_mas(cuadro, cielo, pasto_estirado);
-            imagen_destruir_mas(fondo1, fondo2, cuadro_moto);
-            for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
-                //imagen_destruir(cuadro_de_textos[i]);
+            destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, top, score, time, goal, gameover);
+            imagen_destruir(cuadro_moto);
             return 1;    
         }
 
         int d_c = 0;
-        for(int i = 0; i < 96; i++){
-            imagen_pegar(linea_ruta,ruta_completa,0, i - 111);
+        for(int i = 95; i >= 0; i--){
+            imagen_pegar(linea_ruta, ruta_completa, 0, i - 111);
             int d_l = -y * (96 - i) / 96;
-            d_c += ruta[x + i].radio_curva * exp(0.105 * i - 8.6);
-            imagen_pegar_ruta_con_paleta(cuadro,linea_ruta,d_l + d_c - 346,223 - i,colores_ruta[((95 - x - i)/4) % 4]); //112 porque sacas las 16 filas de abajo    
-           ///* 
+            d_c += -1 * (ruta[x + i].radio_curva * exp(0.105 * i - 8.6));
+            imagen_pegar_ruta_con_paleta(cuadro,linea_ruta,d_l + d_c - 346,223 - i,colores_ruta[((95 - x - i) /4) % 4]); //112 porque sacas las 16 filas de abajo    
+            
             if (ruta[x + i].indice_figura != 9999){
                 figs_t figura_a_pegar = figuras_en_ruta[ruta[x + i].indice_figura].figura;
 
-                size_t alto_figura = figura_get_alto(figura_a_pegar) * ((96 - i)/ 96) + (5 * i)/96; 
+                size_t alto_figura = figura_get_alto(figura_a_pegar) * ((96 - i)/ 96.0) + (5.0 * i)/96; 
                 size_t ancho_figura = figura_get_ancho(figura_a_pegar) * ((float)alto_figura / figura_get_alto(figura_a_pegar));
                 if(ancho_figura < 3) ancho_figura = 3;
             
                 imagen_t * fig_escalada = imagen_escalar(figuras[figura_a_pegar], ancho_figura, alto_figura);
                 if (fig_escalada == NULL){
-                    roms_destruir(teselas, figuras, ruta_completa);
-                    moto_destruir(moto);
-                    imagen_destruir_mas(cuadro, cielo, pasto_estirado);
-                    imagen_destruir_mas(fondo1, fondo2, cuadro_moto);
-                    imagen_destruir(linea_ruta);
+                    destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, top, score, time, goal, gameover);
+                    imagen_destruir_mas(NULL, cuadro_moto, linea_ruta);
                     return 1;
                 }
                 if (figuras_en_ruta[ruta[x + i].indice_figura].reflejar){
                     imagen_t * ref = imagen_reflejar(fig_escalada);
                     if (ref == NULL){
-                        roms_destruir(teselas, figuras, ruta_completa);
-                        moto_destruir(moto);
-                        imagen_destruir_mas(cuadro, cielo, pasto_estirado);
-                        imagen_destruir_mas(fondo1, fondo2, cuadro_moto);
-                        imagen_destruir(linea_ruta);
-                        imagen_destruir(fig_escalada);
+                        destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, top, score, time, goal, gameover);
+                        imagen_destruir_mas(fig_escalada,cuadro_moto,linea_ruta);
                         return 1;
                     }
                     fig_escalada = ref;
                 }   
-                imagen_pegar_con_paleta(cuadro, fig_escalada,y * ((float)(96 - i)/96) + y * (i/5000.0) + d_c + d_l,128 + alto_figura,paleta_4[figuras_en_ruta[ruta[x + i].indice_figura].paleta]);
+                imagen_pegar_con_paleta(cuadro, fig_escalada, 162 + figuras_en_ruta[ruta[x + i].indice_figura].y * ((96 - i)/96.0) + figuras_en_ruta[ruta[x + i].indice_figura].y * (i/5000.0) + d_l + d_c - ancho_figura/2, 224 - i - alto_figura, paleta_4[figuras_en_ruta[ruta[x + i].indice_figura].paleta]);
                 imagen_destruir(fig_escalada);
             }
         }
 
     
 
-        //y += 2,5 * (moto_get_x(moto) - x) * ruta[moto_get_x(moto)].radio_curva; //Està mal 
+        y += 2,5 * (moto_get_x(moto) - x) * ruta[moto_get_x(moto)].radio_curva; //Està mal 
         imagen_destruir(linea_ruta);
         
         //esto sería la moto
@@ -454,12 +468,8 @@ int main() {
         imagen_t *cuadro_escalado = imagen_escalar(cuadro, VENTANA_ANCHO, VENTANA_ALTO);
         if(cuadro_escalado == NULL){
             fprintf(stderr, "cuadro escalado da null\n");
-            roms_destruir(teselas, figuras, ruta_completa);
-            moto_destruir(moto);
-            imagen_destruir_mas(cuadro, cielo, pasto_estirado);
-            imagen_destruir_mas(fondo1, fondo2, cuadro_moto);
-            for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
-                //imagen_destruir(cuadro_de_textos[i]);
+            destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, top, score, time, goal, gameover);
+            imagen_destruir(cuadro_moto);
             return 1;   
         }
         imagen_a_textura(cuadro_escalado, canvas);
@@ -488,16 +498,7 @@ int main() {
 
     // BEGIN código del alumno
 
-    imagen_destruir_mas(cuadro, cielo, pasto_estirado);
-    imagen_destruir(fondo1);
-    imagen_destruir(fondo2);
-
-    moto_destruir(moto);
-
-    roms_destruir(teselas, figuras, ruta_completa);
-
-    for(size_t i = 0; i < CANTIDAD_CUADROS; i++)
-        //imagen_destruir(cuadro_de_textos[i]);
+    destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, top, score, time, goal, gameover);
 
     // END código del alumno
 
@@ -520,4 +521,14 @@ void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, i
     }
     for (size_t j = 0; n_string[j]; j++)
         imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j])], x + (8 * j) + (8 * strlen(textos[i].cadena)) + (i == 4 && text[i] < 100 ? (text[i] < 0 ? 16 : 8) : 0),y,paleta_3[paleta + (i == 3 ? 1 : 0)]);
+}
+
+
+void destructor_masivo(imagen_t ** teselas, imagen_t ** figuras, imagen_t * ruta_completa, moto_t * moto, imagen_t * cuadro, imagen_t * cielo, imagen_t * pasto_estirado, imagen_t * fondo1, imagen_t * fondo2, imagen_t * top, imagen_t * score, imagen_t * time, imagen_t * goal, imagen_t * gameover){
+    roms_destruir(teselas, figuras, ruta_completa);
+    moto_destruir(moto);
+    imagen_destruir_mas(cuadro, cielo, pasto_estirado);
+    imagen_destruir_mas(fondo1, fondo2, top);
+    imagen_destruir_mas(score, time, goal);
+    imagen_destruir(gameover);
 }

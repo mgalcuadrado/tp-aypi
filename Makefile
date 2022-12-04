@@ -31,7 +31,7 @@ roms.o: roms.c roms.h figuras.h imagen.h
 main.o: main.c config.h imagen.h pixel.h fondo.h paleta.h roms.h figuras.h moto.h ruta.h
 	$(CC) $(CFLAGS) main.c $(LFLAGS)
 
-moto.c: moto.c moto.h imagen.h paleta.h
+moto.o: moto.c moto.h imagen.h paleta.h
 	$(CC) $(CFLAGS) moto.c
 
 hang.on:  config.o pixel.o imagen.o paleta.o ruta.o fondo.o roms.o figuras.o moto.o main.o 
