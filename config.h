@@ -17,8 +17,6 @@
 #define ANCHO_RUTA 512
 #define ALTO_RUTA 128
 
-/*#define VENTANA_ANCHO 800
-#define VENTANA_ALTO 600*/
 #define VENTANA_ANCHO 320
 #define VENTANA_ALTO 224
 
@@ -35,6 +33,7 @@
 
 #define JUEGO_FPS 15
 
+//Enumerativo de roms
 typedef enum{
     ARCHIVO_ROM_B,
     ARCHIVO_ROM_G,

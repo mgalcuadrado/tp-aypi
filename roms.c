@@ -41,41 +41,6 @@ void roms_destruir (imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta)
         imagen_destruir(ruta);
 }
 
-/*
-bool roms_inicializar(imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta){
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
-        teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
-        if (teselas[i] == NULL){
-            fprintf(stderr, "generar teselas falló\n");
-            for (size_t j = 0; j < i; j++)
-                imagen_destruir(teselas[j]);
-            return false;
-        }
-    }
-
-    for(figs_t i = 0; i < CANTIDAD_FIGURAS; i++){
-        figuras[i] = imagen_generar(figura_get_ancho(i), figura_get_alto(i), 0);
-        if (figuras[i] == NULL){
-            fprintf(stderr, "generar figuras falló\n");
-            for (size_t j = 0; j < CANTIDAD_TESELAS; j++)
-                imagen_destruir(teselas[j]);
-            for (size_t j = 0; j < i; j++)
-                imagen_destruir(figuras[j]);
-            return false;
-        }
-    }
-
-    ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA_NUEVO, 0);
-    if (ruta == NULL){
-        fprintf(stderr, "generar ruta falló\n");
-        roms_destruir(teselas, figuras, ruta);
-        return false;
-    }
-
-    return true;
-}
-*/
-
 bool roms_levantar (imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta){
     if(!leer_teselas(teselas)){
         fprintf(stderr, "No se pudieron leer las teselas\n");
@@ -97,7 +62,7 @@ bool roms_levantar (imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta)
 
 
 
-//función interna creada por el alumno para sumar en las teselas los valores dados por cada archivo.
+//Función interna creada por el alumno para sumar en las teselas los valores dados por cada archivo.
 //recibe un archivo abierto en formato de lectura binaria y el puntero al arreglo de imágenes teselas (no cierra el archivo).
 static bool _sumar_teselas(FILE * f, imagen_t *teselas[], size_t corrimiento/*, size_t cant_bits*/){
     for (size_t a = 0; a < CANTIDAD_TESELAS; a++){
@@ -150,40 +115,6 @@ static bool leer_ruta(imagen_t * ruta){
     return (fclose(archivo) != EOF);
 }
 
-
-bool prueba_ruta(imagen_t * ruta){
-
-    FILE * archivo = fopen (archivos_rom[ARCHIVO_ROM_RUTA], "rb");
-    if (archivo == NULL) return false;
-    /*for (*/size_t r = 0; //r < CANTIDAD_RUTAS; r++){
-        uint8_t n[16 * ANCHO_RUTA / 8];
-        if (fread(n, sizeof(uint8_t), 16 * ANCHO_RUTA / 8, archivo) != 16 * ANCHO_RUTA / 8){
-            fclose(archivo);
-            return false;
-        }
-        for (size_t f = 16; f < ALTO_RUTA - 16; f++){
-            for (size_t c = 0; c < ANCHO_RUTA / 8; c++){
-                uint8_t n;
-                if (fread(&n, sizeof(uint8_t), 1, archivo) != 1){
-                    fclose(archivo);
-                    return false;
-                }
-                for (size_t j = 0; j < 8; j++){
-                    imagen_set_pixel(ruta, c * 8 + j, f, imagen_get_pixel(ruta, c * 8 + j, f) + (((n >> (CORRIMIENTO_MAX_UINT8T - j)) & MASK_LSB) << r)); 
-                }
-            }
-        }
-        if (fread(n, sizeof(uint8_t), 16 * ANCHO_RUTA / 8, archivo) != 16 * ANCHO_RUTA / 8){
-            fclose(archivo);
-            return false;
-        }
-    fclose(archivo);
-    imagen_guardar_ppm(ruta, "rutamil.ppm", pixel12_a_rgb);
-    return true;
-}
-
-
-
 static bool leer_figuras (imagen_t * figuras[]){
     uint16_t rom[229376];
     for (size_t a = 4, i = 0; a < CANTIDAD_ROMS && i < 229376; a += 2, i += (229376 / 7)){
@@ -218,7 +149,6 @@ static bool leer_figuras (imagen_t * figuras[]){
             return false;
         }
     }
-///*
     for (figs_t fig = 0; fig < CANTIDAD_FIGURAS; fig++){
         size_t in = figura_get_inicio(fig), iter_ancho = (figura_get_ancho(fig) / 4) + ((figura_get_ancho(fig) % 4 != 0) ? 1 : 0);
 
@@ -249,61 +179,6 @@ static bool leer_figuras (imagen_t * figuras[]){
             }
         }
     }
-    return true;
-}
-//*/
-
-/*
- for (figs_t fig = 0; fig < 13; fig++){
-        bool new_line = false;
-        for (size_t f = 0; f < figura_get_alto(fig); f++){
-            for (size_t c = 0, x = 0; c < figura_get_ancho(fig) / 4; c++){
-                uint16_t n = rom[figura_get_inicio(fig) + f * figura_get_ancho(fig) / 4 + c];
-                for (size_t i = 0; i < 4; i++){
-                  // if ((n & (MASK_4LSB << 12) == (MASK_4LSB << 12)) && ((n & MASK_4LSB) == MASK_4LSB)){
-                      //  new_line = true;
-                      //  break;
-                   // } 
-                    if (i == 3 && (n & MASK_4LSB) == MASK_4LSB) {
-                        new_line = true;
-                        break;
-                    }
-                    imagen_set_pixel(figuras[fig], x++, f, (n & (MASK_4MSB >> i * 4)) >> (SHIFT_BYTE + SHIFT_4LEC - i * 4));
-                    new_line = false;
-                }
-                if (new_line) break;
-            }
-        }
-    }
-    return true;
-}
-//*/
-
-bool prueba_figuras(void){
-    imagen_t * im = imagen_generar(8, 9, 0);
-    //valida magoya
-    //bool new_line = false;
-    uint16_t prueba[18] = {0xf0fe, 0x0f0f, 0xf0ee, 0xef0f, 0xf07e, 0x170f, 0xf422, 0x440f, 0xfabb, 0xae0f, 0xf05b, 0x240f, 0xf04c, 0x7b0f, 0xf0b9, 0xba0f, 0xf0ab, 0xaf0f};
-    for (size_t f = 0; f < 9; f++){
-            for (size_t c = 0, x = 0; c < 8 / 4; c++){
-                uint16_t n = prueba[f * 2 + c];
-                for (size_t i = 0; i < 4; i++){
-                  /* if ((n & (MASK_4LSB << 12) == (MASK_4LSB << 12)) && ((n & MASK_4LSB) == MASK_4LSB)){
-                        new_line = true;
-                        break;
-                    } */
-                    if (i == 3 && (n & MASK_4LSB) == MASK_4LSB) {
-                        //new_line = true;
-                        break;
-                    }
-                    imagen_set_pixel(im, x++, f, (n & (MASK_4MSB >> i * 4)) >> (SHIFT_BYTE + SHIFT_4LEC - i * 4));
-                    //new_line = false;
-                }
-               // if (new_line) break;
-            }
-    }
-   // imagen_guardar_ppm (im, "prueba.ppm", pixel3_a_rgb);
-    imagen_destruir(im);
     return true;
 }
 

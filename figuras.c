@@ -1,4 +1,5 @@
 #include "figuras.h"
+#include "ruta.h"
 
 #include <stddef.h>
 
@@ -35,13 +36,12 @@ size_t figura_get_alto (figs_t fig){
     return arr_pos_figuras[fig].alto;
 }
 
-/*
-void figura_set_ancho(figs_t fig, size_t n_ancho){
-    arr_pos_figuras[fig].ancho = n_ancho;
+bool hay_choque (figs_t fig, size_t ancho_escalado, size_t x, size_t y, int arreglo[]){
+    for (size_t i = x; i < x + 5; i++){
+        if (ruta[i].indice_figura == 9999) continue;
+        //162 + figuras_en_ruta[ruta[x + i].indice_figura].y * ((96 - i)/96.0) + figuras_en_ruta[ruta[x + i].indice_figura].y * (i/5000.0) + d_l + d_c - ancho_figura/2, 224 - i - alto_figura, paleta_4[figuras_en_ruta[ruta[x + i].indice_figura].paleta]);
+        if (y > figuras_en_ruta[ruta[i].indice_figura].y * ((96 - i) * (i /5000.0) / 96) + arreglo[i - x] - ancho_escalado/2 && y < figuras_en_ruta[ruta[i].indice_figura].y * ((96 - i) * (i /5000.0) / 96) + arreglo[i - x] - ancho_escalado/ 2)
+            return true;
+    }
+    return false;
 }
-
-void figura_set_alto(figs_t fig, size_t n_alto){
-    arr_pos_figuras[fig].alto = n_alto;
-}
-
-*/

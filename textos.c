@@ -1,5 +1,5 @@
 #include "textos.h"
-
+/*
 const stcuadro_t cuadro_textos[CANTIDAD_CUADROS] = {
     [TOP] = {3, 5, mos_cuadro_top[COLUMNA_TOP], mos_paleta_top[COLUMNA_TOP]},
     [SCORE] = {3, 7, mos_cuadro_score[COLUMNA_SCORE], mos_paleta_score[COLUMNA_SCORE]},
@@ -7,7 +7,7 @@ const stcuadro_t cuadro_textos[CANTIDAD_CUADROS] = {
     [GOAL] = {2, 8, mos_cuadro_goal[COLUMNA_GOAL], mos_paleta_goal[COLUMNA_GOAL]},
     [GAMEOVER] = {2, 16, mos_cuadro_gameover[COLUMNA_GAMEOVER], mos_paleta_gameover[COLUMNA_GAMEOVER]},
 };
-
+*/
 const uint16_t mos_cuadro_top[FILA_CUADROS][COLUMNA_TOP] = {
     {0x94, 0x95, 0x95, 0x95, 0x96},
     {0x97, 0x98, 0x99, 0x9a, 0x9b},

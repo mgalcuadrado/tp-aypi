@@ -7,7 +7,7 @@
 
 typedef struct pos_figuras pos_figuras_t;
 
-// ?????
+// Enumerativo de figuras que aparecen en la pantalla
 typedef enum{
     MOTO_1,
     MOTO_2,
@@ -24,10 +24,13 @@ typedef enum{
     VIGA_BANNER
 } figs_t;
 
+//Getter de las figuras
 size_t figura_get_inicio (figs_t fig);
 size_t figura_get_ancho (figs_t fig);
 size_t figura_get_alto (figs_t fig);
-//void figura_set_alto (figs_t fig, size_t n_alto);
+
+//Funcion para saber si hay choque con alguna de las figuras
+bool hay_choque(figs_t fig, size_t ancho_escalado, size_t x, size_t y, int arreglo[]);
 
 #endif
 
