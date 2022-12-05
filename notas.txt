@@ -1,5 +1,0 @@
-Hola, Lucho! Bienvido a GitHub y al repo del TP final! 
-
-Estoy escribiendo esto para hacerte un tutorial de cómo hacer los commits y eso en GitHub con VS!
-
-Que tengas lindo día!

@@ -27,7 +27,7 @@ typedef enum{
 size_t figura_get_inicio (figs_t fig);
 size_t figura_get_ancho (figs_t fig);
 size_t figura_get_alto (figs_t fig);
-
+//void figura_set_alto (figs_t fig, size_t n_alto);
 
 #endif
 

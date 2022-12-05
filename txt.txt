@@ -1,4 +1,0 @@
-main.c: In function ‘main’:
-main.c:144:9: warning: unused variable ‘x_ruta’ [-Wunused-variable]
-  144 |     int x_ruta = 0;
-      |         ^~~~~~

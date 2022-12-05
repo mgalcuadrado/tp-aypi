@@ -2,7 +2,7 @@ CFLAGS = -c -Wall -pedantic -std=c99 -c
 CC = gcc
 LFLAGS = -lSDL2 -lm
 
-all: hang.on
+all: hangon
 
 pixel.o: pixel.c pixel.h
 	$(CC) $(CFLAGS) pixel.c
@@ -13,8 +13,8 @@ imagen.o: imagen.c imagen.h config.h pixel.h
 paleta.o: paleta.c paleta.h pixel.h
 	$(CC) $(CFLAGS) paleta.c
 
-config.o: config.c config.h
-	$(CC) $(CFLAGS) config.c
+textos.o: textos.c textos.h config.h
+	$(CC) $(CFLAGS) textos.c
 
 ruta.o : ruta.c ruta.h imagen.h figuras.h
 	$(CC) $(CFLAGS) ruta.c
@@ -22,20 +22,23 @@ ruta.o : ruta.c ruta.h imagen.h figuras.h
 fondo.o: fondo.c fondo.h 
 	$(CC) $(CFLAGS) fondo.c
 
+config.o: config.c config.h
+	$(CC) $(CFLAGS) config.c
+
 figuras.o: figuras.c figuras.h config.h imagen.h
 	$(CC) $(CFLAGS) figuras.c
 
 roms.o: roms.c roms.h figuras.h imagen.h
 	$(CC) $(CFLAGS) roms.c
 
-main.o: main.c config.h imagen.h pixel.h fondo.h paleta.h roms.h figuras.h moto.h ruta.h
+main.o: main.c config.h imagen.h pixel.h fondo.h paleta.h roms.h figuras.h moto.h ruta.h textos.h
 	$(CC) $(CFLAGS) main.c $(LFLAGS)
 
 moto.o: moto.c moto.h imagen.h paleta.h
 	$(CC) $(CFLAGS) moto.c
 
-hang.on:  config.o pixel.o imagen.o paleta.o ruta.o fondo.o roms.o figuras.o moto.o main.o 
-	$(CC) config.o pixel.o imagen.o paleta.o ruta.o fondo.o roms.o figuras.o moto.o main.o -o hang.on  $(LFLAGS)
+hangon: textos.o pixel.o imagen.o config.o paleta.o ruta.o fondo.o roms.o figuras.o moto.o main.o 
+	$(CC) textos.o pixel.o imagen.o config.o paleta.o ruta.o fondo.o roms.o figuras.o moto.o main.o -o hangon  $(LFLAGS)
 
 clear:
-	rm *.o hang.on
+	rm *.o hangon

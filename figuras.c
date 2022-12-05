@@ -7,7 +7,7 @@ struct pos_figuras{
     size_t inicio, ancho, alto;
 };
 
-const pos_figuras_t arr_pos_figuras[CANTIDAD_FIGURAS] = {
+pos_figuras_t arr_pos_figuras[CANTIDAD_FIGURAS] = {
     [MOTO_1] = {532, 36, 73},
     [MOTO_2] = {5670, 36, 70},
     [MOTO_3] = {11284, 46, 63},
@@ -35,3 +35,13 @@ size_t figura_get_alto (figs_t fig){
     return arr_pos_figuras[fig].alto;
 }
 
+/*
+void figura_set_ancho(figs_t fig, size_t n_ancho){
+    arr_pos_figuras[fig].ancho = n_ancho;
+}
+
+void figura_set_alto(figs_t fig, size_t n_alto){
+    arr_pos_figuras[fig].alto = n_alto;
+}
+
+*/
