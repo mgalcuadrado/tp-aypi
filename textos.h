@@ -16,6 +16,14 @@ typedef enum{
 }texto_t;
 
 
+typedef struct{
+    const char cadena[MAX_CADENA];
+    size_t pos_x, pos_y, paleta;
+}sttexto_t;
+
+
+extern const sttexto_t textos[CANTIDAD_TEXTOS];
+
 //Estos son los mosaicos y paletas para generar los mosaicos de los cuadros de textos
 extern const uint16_t mos_cuadro_top[FILA_CUADROS][COLUMNA_TOP];
 extern const uint8_t mos_paleta_top[FILA_CUADROS][COLUMNA_TOP];
@@ -31,15 +39,5 @@ extern const uint8_t mos_paleta_goal[FILA_GG][COLUMNA_GOAL];
 
 extern const uint16_t mos_cuadro_gameover[FILA_GG][COLUMNA_GAMEOVER];
 extern const uint8_t mos_paleta_gameover[FILA_GG][COLUMNA_GAMEOVER];
-
-/* F
-typedef struct{
-    const size_t filas, columnas;
-    const void *mosaico;
-    const void *paleta;
-}stcuadro_t;
- 
-extern const stcuadro_t cuadro_textos[CANTIDAD_CUADROS];
-*/
 
 #endif

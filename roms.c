@@ -8,30 +8,22 @@
 
 #define CANTIDAD_ROMS_OG 3
 
-
 //para leer_figuras 
 #define MASK_4MSB 0xF000
 #define SHIFT_BYTE 8
-
-
 
 //para leer_ruta
 #define MASK_4LSB 0xF
 #define SHIFT_4LEC 4
 
-#define SHIFT_4LEC 4
-
 //para leer_figuras 
 #define MASK_4MSB 0xF000
 #define MASK_4LSB 0xF
 #define SHIFT_BYTE 8
 
-
-
 static bool leer_teselas(imagen_t * teselas[]);
 static bool leer_figuras(imagen_t * figuras[]);
 static bool leer_ruta(imagen_t * ruta);
-
 
 void roms_destruir (imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta){
     for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
@@ -59,8 +51,6 @@ bool roms_levantar (imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta)
 
     return true;
 } 
-
-
 
 //Función interna creada por el alumno para sumar en las teselas los valores dados por cada archivo.
 //recibe un archivo abierto en formato de lectura binaria y el puntero al arreglo de imágenes teselas (no cierra el archivo).
@@ -111,7 +101,6 @@ static bool leer_ruta(imagen_t * ruta){
             return false;
         }
     }
-    imagen_guardar_ppm(ruta, "ruta8.ppm", pixel12_a_rgb);
     return (fclose(archivo) != EOF);
 }
 
@@ -149,9 +138,9 @@ static bool leer_figuras (imagen_t * figuras[]){
             return false;
         }
     }
+
     for (figs_t fig = 0; fig < CANTIDAD_FIGURAS; fig++){
         size_t in = figura_get_inicio(fig), iter_ancho = (figura_get_ancho(fig) / 4) + ((figura_get_ancho(fig) % 4 != 0) ? 1 : 0);
-
         for(size_t f = 0; f < figura_get_alto(fig); f++){
             bool new_line = false;
             size_t x = 0;

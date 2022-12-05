@@ -10,41 +10,9 @@
 #include "ruta.h"
 #include "textos.h"
 
-typedef struct{
-    const char cadena[MAX_CADENA];
-    size_t pos_x, pos_y, paleta;
-}sttexto_t;
-
-const sttexto_t textos[CANTIDAD_TEXTOS] = {
-    [TOP] = {"   ", 0xd, 0x6, 8},
-    [TIME] = {" ", 0x89, 0x6, 7},
-    [SCORE] = {"      ", 0xbf, 0x6, 7},
-    [STAGE] = {"STAGE", 0x14, 0x1c, 5},
-    [SPEED] = {"SPEED", 0xc6, 0x1c, 6},
-    [KM] = {"KM", 0x10e, 0x1c, 6},
-};
-/*
-typedef struct{
-    size_t filas, columnas;
-    const uint16_t *mosaico[COLUMNA_CUADRO];
-    const uint8_t *paleta[COLUMNA_CUADRO];
-}stcuadro_t;
-    
- 
-const stcuadro_t cuadro_textos[CANTIDAD_CUADROS] = {
-    [TOP] = {FILA_CUADROS, COLUMNA_TOP, mos_cuadro_top, mos_paleta_top},
-    [SCORE] = {FILA_CUADROS, COLUMNA_SCORE, mos_cuadro_score, mos_paleta_score},
-    [TIME] = {FILA_CUADROS, COLUMNA_TIME, mos_cuadro_time, mos_paleta_time},
-    [GOAL] = {FILA_GOAL_GAMEOVER, COLUMNA_GOAL, mos_cuadro_goal, mos_paleta_goal},
-    [GAMEOVER] = {FILA_GOAL_GAMEOVER, COLUMNA_CUADRO, mos_cuadro_gameover, mos_paleta_gameover},
-};
-
-
-*/
 //Esta es una funcion auxiliar que imprime los diferentes tipos de numeros en la pantalla 
 void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text, size_t paleta);
 void destructor_masivo(imagen_t ** teselas, imagen_t ** figuras, imagen_t * ruta_completa, moto_t * moto, imagen_t * cuadro, imagen_t * cielo, imagen_t * pasto_estirado, imagen_t * fondo1, imagen_t * fondo2, imagen_t * top, imagen_t * score, imagen_t * time, imagen_t * goal, imagen_t * gameover, imagen_t * semaforo_sup);
-
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -64,9 +32,10 @@ int main() {
 
     // BEGIN código del alumno
 
-    //inicio creación de imagenes
+    
     size_t n_textos[CANTIDAD_TEXTOS] = {[TOP] = 1000000,[TIME] = 75, [SCORE] = 0, [STAGE] = 1, [SPEED] = 0}; //en este arreglo de size_ts se guardan los valores asociados a los textos        
 
+    //inicio creación de imagenes
     imagen_t *teselas[CANTIDAD_TESELAS];
     imagen_t *figuras[CANTIDAD_FIGURAS];
     imagen_t *rutaza;
@@ -102,6 +71,7 @@ int main() {
 
     if (!roms_levantar(teselas, figuras, rutaza)){
         fprintf(stderr, "No se levantaron las roms correctamente\n");
+        roms_destruir(teselas, figuras, rutaza);
         return 1;
     }
 
@@ -109,12 +79,15 @@ int main() {
     if (ruta_reflejada == NULL){
         fprintf(stderr, "No se reflejó correctamente la ruta\n");
         roms_destruir(teselas, figuras, rutaza);
-        imagen_destruir(rutaza);
         return 1;
     }
 
     imagen_t *ruta_completa = imagen_generar(2 * ANCHO_RUTA,ALTO_RUTA, 0);
-    if(ruta_completa == NULL) return 1;
+    if(ruta_completa == NULL){
+        roms_destruir(teselas, figuras, rutaza);
+        imagen_destruir(ruta_reflejada);
+        return 1;
+    }
 
     imagen_pegar(ruta_completa,rutaza,0,0); 
     imagen_pegar(ruta_completa,ruta_reflejada,ANCHO_RUTA - 8,0);
@@ -223,6 +196,7 @@ int main() {
         imagen_destruir_mas(cuadro, cielo, pasto_estirado);
         imagen_destruir_mas(fondo1, fondo2, top);
         imagen_destruir_mas(score, time, goal);
+        imagen_destruir(gameover);
         return 1;   
     }
     imagen_pegar(semaforo_sup, figuras[VIGA_BANNER], 0, 0);
@@ -234,7 +208,12 @@ int main() {
     moto_t *moto = moto_crear(0, 0, 0, false, false, false, false);
     if(moto == NULL){
         fprintf(stderr, "No se generó correctamente la memoria para la moto\n");
-        destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, top, score, time, goal, gameover, semaforo_sup);
+        roms_destruir(teselas, figuras, ruta_completa);
+        imagen_destruir_mas(cuadro, cielo, pasto_estirado);
+        imagen_destruir_mas(fondo1, fondo2, top);
+        imagen_destruir_mas(score, time, goal);
+        imagen_destruir(gameover);
+        imagen_destruir(semaforo_sup);        
         return 1;
     }
     
@@ -378,7 +357,6 @@ int main() {
 
         pegar_moto(cuadro_moto, figuras, moto, t);
 
-        n_textos[SPEED] = moto_get_vel(moto);
 
         //Morder la banquina + puntaje
         if (del >= 4 * JUEGO_FPS && (y > -215 || y < 215) && moto_get_x(moto) < 4200){
@@ -403,7 +381,6 @@ int main() {
             return 1;    
         }
         int d_c = 0;
-        int d_r_ppio[5];
         for(int i = 95; i >= 0; i--){
             imagen_pegar(linea_ruta, ruta_completa, 0, i - 111);
             int d_l = -y * (96 - i) / 96;
@@ -412,9 +389,6 @@ int main() {
                 d = (d != 0) ? 60 : 0;
             if (x + i > 4260) continue;
             d_c += -1 * (ruta[x + d].radio_curva * exp(0.105 * i - 8.6));
-            if (i < 5){
-                d_r_ppio[i] = d_l + d_c;
-            }
             imagen_pegar_ruta_con_paleta(cuadro,linea_ruta,d_l + d_c - 346,223 - i,colores_ruta[((95 - x - i) /4) % 4]); //112 porque sacas las 16 filas de abajo    
             if (ruta[x + i].indice_figura != 9999){
                 figs_t figura_a_pegar = figuras_en_ruta[ruta[x + i].indice_figura].figura;
@@ -425,7 +399,8 @@ int main() {
                 if (fig_escalada == NULL){
                     fprintf(stderr, "no se pudo escalar la figura\n");
                     destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, top, score, time, goal, gameover, semaforo_sup);
-                    imagen_destruir_mas(NULL, cuadro_moto, linea_ruta);
+                    imagen_destruir(cuadro_moto);
+                    imagen_destruir(linea_ruta);
                     return 1;
                 }
                 if (figuras_en_ruta[ruta[x + i].indice_figura].reflejar){
@@ -433,14 +408,15 @@ int main() {
                     if (ref == NULL){
                         fprintf(stderr, "no se pudo reflejar la figura\n");
                         destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, top, score, time, goal, gameover, semaforo_sup);
-                        imagen_destruir_mas(fig_escalada, cuadro_moto, linea_ruta);
+                        imagen_destruir_mas(cuadro_moto, fig_escalada, linea_ruta);
                         return 1;
                     }
                     imagen_destruir(fig_escalada);
                     fig_escalada = ref;
                 }   
                 imagen_pegar_con_paleta(cuadro, fig_escalada, 162 + figuras_en_ruta[ruta[x + i].indice_figura].y * ((96 - i)/96.0) + figuras_en_ruta[ruta[x + i].indice_figura].y * (i/5000.0) + d_l + d_c - ancho_figura/2, 224 - i - alto_figura, paleta_4[figuras_en_ruta[ruta[x + i].indice_figura].paleta]);
-                chocamos = hay_choque(figura_a_pegar, ancho_figura, x, y, d_r_ppio);
+                if(hay_choque(figura_a_pegar, ancho_figura, x, y))
+                    chocamos = true;
                 imagen_destruir(fig_escalada);
             }
         }
@@ -451,29 +427,19 @@ int main() {
         //Choques
 
         if (chocamos){
-            fprintf(stdout, "chocamos\n");
             moto_set_vel(moto, 0);
-            if(y < 0)
-                y+= 5;
-            else if (y > 0)
-                y-= 5;
+            moto_set_x(moto, x);
+            if(y < -6)
+                y += 3;
+            else if (y > 6)
+                y -= 3;
             else {
                 y = 0;
                 chocamos = false;
             }
-
-            /*
-            if (y > 2 * 100.0 / JUEGO_FPS){
-                y -= 100.0 / JUEGO_FPS;
-            }
-            else if (y < 2 * 100.0 / JUEGO_FPS){
-                y += 100.0 / JUEGO_FPS;
-            }
-            else{
-                y = 0;
-                chocamos = false;
-            }*/
         }
+
+        n_textos[SPEED] = moto_get_vel(moto);
         
         //Creacion del semaforo y banners de llegada y salida
         if (del <= 6 * JUEGO_FPS || moto_get_x(moto) >= 4200 - 130){
@@ -529,20 +495,14 @@ int main() {
 
         //Victoria
         if(moto_get_x(moto) >= 4200){
-            //secs += 1.0/JUEGO_FPS;
             secs++;
-           //es_el_fin = true;
-           fprintf(stderr, "es el fin :\n");
-            imagen_pegar(cuadro, goal, 320/ 2 - (4 * FILA_GG), 224/ 2 - 4 * COLUMNA_GOAL);
+            imagen_pegar(cuadro, goal, 320/2 - (4 * FILA_GG), 224/2);
         }
 
         //Derrota
         else if(n_textos[TIME] == 0){
-           // secs += 1.0/JUEGO_FPS;
-           secs++;
-           // es_el_fin = true;
-           fprintf(stderr, "es el fin D:\n");
-            imagen_pegar(cuadro, gameover, 320/ 2 - (4 * FILA_GG), 224/ 2 - 4 * COLUMNA_GAMEOVER);
+            secs++;
+            imagen_pegar(cuadro, gameover, 320/ 2 - (4 * FILA_GG), 224/ 2);
         }
         
         if (secs > 3 * JUEGO_FPS) break;
@@ -558,8 +518,8 @@ int main() {
 
         imagen_a_textura(cuadro_escalado, canvas);
 
-        imagen_destruir(cuadro_escalado);
         imagen_destruir(cuadro_moto);
+        imagen_destruir(cuadro_escalado);
         // END código del alumno
 
         SDL_UpdateTexture(texture, NULL, canvas, VENTANA_ANCHO * sizeof(uint16_t));

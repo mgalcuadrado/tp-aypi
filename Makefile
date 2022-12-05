@@ -1,4 +1,4 @@
-CFLAGS = -c -Wall -pedantic -std=c99 -c
+CFLAGS = -c -Wall -pedantic -std=c99 -c -g
 CC = gcc
 LFLAGS = -lSDL2 -lm
 

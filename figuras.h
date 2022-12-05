@@ -24,13 +24,13 @@ typedef enum{
     VIGA_BANNER
 } figs_t;
 
-//Getter de las figuras
+//Getters de las figuras
 size_t figura_get_inicio (figs_t fig);
 size_t figura_get_ancho (figs_t fig);
 size_t figura_get_alto (figs_t fig);
 
 //Funcion para saber si hay choque con alguna de las figuras
-bool hay_choque(figs_t fig, size_t ancho_escalado, size_t x, size_t y, int arreglo[]);
+bool hay_choque(figs_t fig, size_t ancho_escalado, size_t x, size_t y);
 
 #endif
 

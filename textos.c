@@ -1,13 +1,14 @@
 #include "textos.h"
-/*
-const stcuadro_t cuadro_textos[CANTIDAD_CUADROS] = {
-    [TOP] = {3, 5, mos_cuadro_top[COLUMNA_TOP], mos_paleta_top[COLUMNA_TOP]},
-    [SCORE] = {3, 7, mos_cuadro_score[COLUMNA_SCORE], mos_paleta_score[COLUMNA_SCORE]},
-    [TIME] = {3, 6, mos_cuadro_time[COLUMNA_TIME], mos_paleta_time[COLUMNA_TIME]},
-    [GOAL] = {2, 8, mos_cuadro_goal[COLUMNA_GOAL], mos_paleta_goal[COLUMNA_GOAL]},
-    [GAMEOVER] = {2, 16, mos_cuadro_gameover[COLUMNA_GAMEOVER], mos_paleta_gameover[COLUMNA_GAMEOVER]},
+
+const sttexto_t textos[CANTIDAD_TEXTOS] = {
+    [TOP] = {"   ", 0xd, 0x6, 8},
+    [TIME] = {" ", 0x89, 0x6, 7},
+    [SCORE] = {"      ", 0xbf, 0x6, 7},
+    [STAGE] = {"STAGE", 0x14, 0x1c, 5},
+    [SPEED] = {"SPEED", 0xc6, 0x1c, 6},
+    [KM] = {"KM", 0x10e, 0x1c, 6},
 };
-*/
+
 const uint16_t mos_cuadro_top[FILA_CUADROS][COLUMNA_TOP] = {
     {0x94, 0x95, 0x95, 0x95, 0x96},
     {0x97, 0x98, 0x99, 0x9a, 0x9b},
