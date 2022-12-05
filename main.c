@@ -10,8 +10,6 @@
 #include "ruta.h"
 #include "textos.h"
 
-//Esta es una funcion auxiliar que imprime los diferentes tipos de numeros en la pantalla 
-void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text, size_t paleta);
 void destructor_masivo(imagen_t ** teselas, imagen_t ** figuras, imagen_t * ruta_completa, moto_t * moto, imagen_t * cuadro, imagen_t * cielo, imagen_t * pasto_estirado, imagen_t * fondo1, imagen_t * fondo2, imagen_t * top, imagen_t * score, imagen_t * time, imagen_t * goal, imagen_t * gameover, imagen_t * semaforo_sup);
 
 int main() {
@@ -550,21 +548,6 @@ int main() {
     SDL_Quit();
     return 0;
 }
-
-void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text, size_t paleta){
-    char n_string[MAX_CADENA];
-    sprintf(n_string,"%ld",text[i]);
-    if(i == 1){
-        for(size_t j = 0; j < 2; j++){ //
-            imagen_pegar_con_paleta(destino, origen[0x80 + (j == 0? 2 * (text[i]/10) : 0) + (j == 1 ? (2 * (text[i] - (10 * (text[i]/10)))) : 0)], x + (8 * j),y + 16,paleta_3[5]);
-            imagen_pegar_con_paleta(destino, origen[0x81 + (j == 0? 2 * (text[i]/10) : 0) + (j == 1 ? (2 * (text[i] - (10 * (text[i]/10)))) : 0)], x + (8 * j),y + 24,paleta_3[5]);
-        } 
-        return;
-    }
-    for (size_t j = 0; n_string[j]; j++)
-        imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j])], x + (8 * j) + (8 * strlen(textos[i].cadena)) + (i == 4 && text[i] < 100 ? (text[i] < 0 ? 16 : 8) : 0),y,paleta_3[paleta + (i == 3 ? 1 : 0)]);
-}
-
 
 void destructor_masivo(imagen_t ** teselas, imagen_t ** figuras, imagen_t * ruta_completa, moto_t * moto, imagen_t * cuadro, imagen_t * cielo, imagen_t * pasto_estirado, imagen_t * fondo1, imagen_t * fondo2, imagen_t * top, imagen_t * score, imagen_t * time, imagen_t * goal, imagen_t * gameover, imagen_t * semaforo_sup){
     roms_destruir(teselas, figuras, ruta_completa);

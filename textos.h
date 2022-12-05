@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "config.h"
+#include "imagen.h"
 
 typedef enum{
     TOP,
@@ -21,8 +22,10 @@ typedef struct{
     size_t pos_x, pos_y, paleta;
 }sttexto_t;
 
-
 extern const sttexto_t textos[CANTIDAD_TEXTOS];
+
+//Formula para imprimir los distintos numeros en pantala
+void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text, size_t paleta);
 
 //Estos son los mosaicos y paletas para generar los mosaicos de los cuadros de textos
 extern const uint16_t mos_cuadro_top[FILA_CUADROS][COLUMNA_TOP];
