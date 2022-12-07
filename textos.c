@@ -6,7 +6,7 @@ void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, i
     char n_string[MAX_CADENA];
     sprintf(n_string,"%ld",text[i]);
     if(i == 1){
-        for(size_t j = 0; j < 2; j++){ //
+        for(size_t j = 0; j < 2; j++){
             imagen_pegar_con_paleta(destino, origen[0x80 + (j == 0? 2 * (text[i]/10) : 0) + (j == 1 ? (2 * (text[i] - (10 * (text[i]/10)))) : 0)], x + (8 * j),y + 16,paleta_3[5]);
             imagen_pegar_con_paleta(destino, origen[0x81 + (j == 0? 2 * (text[i]/10) : 0) + (j == 1 ? (2 * (text[i] - (10 * (text[i]/10)))) : 0)], x + (8 * j),y + 24,paleta_3[5]);
         } 

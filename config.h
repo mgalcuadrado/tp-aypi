@@ -33,6 +33,11 @@
 
 #define JUEGO_FPS 15
 
+#define INICIO_PALETA_SEMAFORO 41
+#define FIN_PALETA_SEMAFORO 44
+#define PALETA_START 45
+#define PALETA_GOAL 47
+
 //Enumerativo de roms
 typedef enum{
     ARCHIVO_ROM_B,

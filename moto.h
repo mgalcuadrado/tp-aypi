@@ -16,20 +16,11 @@ void moto_destruir(moto_t * m);
 //Getter de la intensidad de giro de la moto
 short moto_get_pos (moto_t * m);
 
-//Setter de la intensidad de giro de la moto 
-void moto_set_pos(moto_t * m, short p);
-
 //Getter del metro de la ruta en el que se encuentra la moto 
 size_t moto_get_x (moto_t * m);
 
-//Setter del metro de la ruta en el que se encuentra la moto
-void moto_set_x (moto_t * m, size_t x);
-
 //Getter de la velocidad actual la moto
 size_t moto_get_vel (moto_t * m);
-
-//Setter de la velocidad actual la moto
-void moto_set_vel (moto_t * m, size_t v);
 
 //Getter de que se apretó el acelerador
 bool moto_get_acelerar (moto_t * m);
@@ -43,6 +34,18 @@ bool moto_get_der (moto_t * m);
 //Getter de que se pulsó el giro hacia la izquierda
 bool moto_get_izq (moto_t * m);
 
+//Getter del tiempo que queda en el juego
+size_t moto_get_tiempo(moto_t * m);
+
+//Setter de la intensidad de giro de la moto 
+void moto_set_pos(moto_t * m, short p);
+
+//Setter del metro de la ruta en el que se encuentra la moto
+void moto_set_x (moto_t * m, size_t x);
+
+//Setter de la velocidad actual la moto
+void moto_set_vel (moto_t * m, size_t v);
+
 //Setter de que se soltó el acelerador
 void moto_set_acelerar (moto_t * m, bool ac);
 
@@ -55,7 +58,16 @@ void moto_set_der (moto_t * m, bool d);
 //Setter de que se soltó el giro hacia la izquierda
 void moto_set_izq (moto_t * m, bool i);
 
+//Función hecha para guardar los puntajes de juego
+void moto_set_puntajes(moto_t *moto, size_t x, size_t y);
+
+//Setter del tiempo jugado
+void moto_set_tiempo(moto_t *moto, size_t t);
+
 //Función creada para pegar la moto dependiendo hacia donde este doblando la misma
-void pegar_moto(imagen_t *imagen, imagen_t *origen[], moto_t *moto, size_t t);
+void pegar_moto(imagen_t *imagen, imagen_t *origen[], moto_t *moto, size_t t, bool choque);
+
+//Función que imprime los textos en pantalla
+void imprimir_textos(moto_t *moto, imagen_t *cuadro, imagen_t * teselas[], imagen_t * cuadros_textos[CANTIDAD_CUADROS]);
 
 #endif
