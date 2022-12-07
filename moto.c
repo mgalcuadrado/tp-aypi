@@ -86,7 +86,7 @@ void moto_set_pos(moto_t * m, short p){
 }
 
 void moto_set_x (moto_t * m, size_t x){
-    if(m->n_textos[TIME] > 0 || m->x < 4200)
+    if(m->n_textos[TIME] > 0 || m->x <= 4150)
         m->x = x;
 }
 
@@ -112,12 +112,12 @@ void moto_set_izq (moto_t * m, bool i){
 }
 
 void moto_set_tiempo(moto_t *moto, size_t t){
-    if(moto->n_textos[TIME] > 0 || moto->x < 4200)
-        moto->n_textos[TIME] = 2 - (t / JUEGO_FPS);
+    if(moto->n_textos[TIME] > 0 || moto->x < 4150)
+        moto->n_textos[TIME] = 150 - (t / JUEGO_FPS);
 }
 
-void moto_set_puntajes(moto_t *moto, size_t x, size_t y){
-    if(moto->x >= 4200) return;
+void moto_set_puntajes(moto_t *moto, size_t x, int y){
+    if(moto->x >= 4150) return;
     if(y > -215 || y < 215){
         if(moto->vel < 117)
             moto->n_textos[SCORE] += 125 * (moto->x - x);
@@ -134,25 +134,30 @@ void moto_set_puntajes(moto_t *moto, size_t x, size_t y){
     }
 }
 
-void pegar_moto(imagen_t *imagen, imagen_t *origen[], moto_t *moto, size_t t, bool choque){
+bool moto_pegar(imagen_t **imagen, imagen_t *origen[], moto_t *moto, size_t t, bool choque){
     if (moto->pos < 0){
         imagen_t *reflejo = imagen_reflejar(origen[-1 * (moto->pos)]);
-        imagen_pegar_con_paleta(imagen, reflejo,pos[-1 * moto->pos].x,pos[-1 * moto->pos].y, paleta_4[(!choque) * (t % 2 + (moto->frenar) * 2)]);
+        if (reflejo == NULL) {
+            return false;
+        }
+        imagen_pegar_con_paleta(*imagen, reflejo, pos[-1 * moto->pos].x, pos[-1 * moto->pos].y, paleta_4[(!choque) * (t % 2 + (moto->frenar) * 2)]);
         free(reflejo);
     }
-    else
-        imagen_pegar_con_paleta(imagen, origen[moto->pos],pos[moto->pos].x,pos[moto->pos].y, paleta_4[(!choque) * (t % 2 + (moto->frenar) * 2)]);
+    else{
+        imagen_pegar_con_paleta(*imagen, origen[moto->pos], pos[moto->pos].x, pos[moto->pos].y, paleta_4[(!choque) * (t % 2 + (moto->frenar) * 2)]);
+    }
+    return true;
 }
 
-void imprimir_textos(moto_t *moto, imagen_t *cuadro, imagen_t *teselas[], imagen_t * cuadros_textos[CANTIDAD_CUADROS]){
+void imprimir_textos(moto_t *moto, imagen_t **cuadro, imagen_t *teselas[], imagen_t * cuadros_textos[CANTIDAD_CUADROS]){
     for(size_t i = 0; i < CANTIDAD_TEXTOS; i++){
         if(i < (CANTIDAD_TEXTOS - 1))
-            numeros_a_pantalla(cuadro, teselas, i, 8 + textos[i].pos_x + (i < 3 ? 8 : 0),textos[i].pos_y + (i < 3 ? 0x8 : 0),moto->n_textos,textos[i].paleta);
+            numeros_a_pantalla(*cuadro, teselas, i, 8 + textos[i].pos_x + (i < 3 ? 8 : 0),textos[i].pos_y + (i < 3 ? 0x8 : 0),moto->n_textos,textos[i].paleta);
 
         for (size_t j = 0; textos[i].cadena[j] != '\0'; j++)
-            imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[textos[i].paleta]);
+            imagen_pegar_con_paleta(*cuadro, teselas[(uint8_t)(textos[i].cadena[j])], textos[i].pos_x + (8 * j), textos[i].pos_y, paleta_3[textos[i].paleta]);
     }
-    imagen_pegar(cuadro, cuadros_textos[TOP], textos[TOP].pos_x, textos[TOP].pos_y);
-    imagen_pegar(cuadro, cuadros_textos[TIME], textos[TIME].pos_x, textos[TIME].pos_y);
-    imagen_pegar(cuadro, cuadros_textos[SCORE], textos[SCORE].pos_x, textos[SCORE].pos_y);
+    imagen_pegar(*cuadro, cuadros_textos[TOP], textos[TOP].pos_x, textos[TOP].pos_y);
+    imagen_pegar(*cuadro, cuadros_textos[TIME], textos[TIME].pos_x, textos[TIME].pos_y);
+    imagen_pegar(*cuadro, cuadros_textos[SCORE], textos[SCORE].pos_x, textos[SCORE].pos_y);
 }

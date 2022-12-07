@@ -38,6 +38,8 @@
 #define PALETA_START 45
 #define PALETA_GOAL 47
 
+#define METROS_VISIBLES 60
+
 //Enumerativo de roms
 typedef enum{
     ARCHIVO_ROM_B,

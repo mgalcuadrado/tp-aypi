@@ -60,4 +60,8 @@ imagen_t * imagen_reflejar (imagen_t * im);
 
 //Esta funcion es similar a la de mismo nombre, pero tiene unos cambios para asi pegar la ruta correctamente
 void imagen_pegar_ruta_con_paleta(imagen_t * destino, const imagen_t *origen, int x, int y, const pixel_t paleta[]);
+
+//imagen pintar recibe una imagen im y le asigna a todos los pixeles de esa imagen un valor pasado como parámetro
+void imagen_pintar (imagen_t * im, int valor);
+
 #endif

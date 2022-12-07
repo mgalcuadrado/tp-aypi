@@ -38,9 +38,9 @@ size_t figura_get_alto (figs_t fig){
 }
 
 bool hay_choque (size_t ancho_escalado , int d, size_t x, size_t y){
-        if (ruta[x + d].indice_figura == 9999) return false;
-        if (y < figuras_en_ruta[ruta[x + d].indice_figura].y + ancho_escalado && y > figuras_en_ruta[ruta[x + d].indice_figura].y - ancho_escalado)
-            return true;
+    if (ruta[x + d].indice_figura == 9999) return false;
+    if (y < figuras_en_ruta[ruta[x + d].indice_figura].y + ancho_escalado / 2 && y > figuras_en_ruta[ruta[x + d].indice_figura].y - ancho_escalado / 2)
+        return true;
     return false;
 }
 
@@ -89,7 +89,7 @@ bool pegar_semaforo(size_t del, int *pos, imagen_t * figuras[], imagen_t * sup, 
     }
     size_t paleta_semaforo = INICIO_PALETA_SEMAFORO + del / JUEGO_FPS;
     if (paleta_semaforo > FIN_PALETA_SEMAFORO) paleta_semaforo = FIN_PALETA_SEMAFORO;
-    imagen_pegar_con_paleta(*destino, semaforo_escalado, 162 - imagen_get_ancho(sup_escalado) / 2 - y, 224 - alto_semaforo - *pos, paleta_4[paleta_semaforo]);
+    imagen_pegar_con_paleta(*destino, semaforo_escalado, 162 - imagen_get_ancho(sup_escalado) / 2 - y, 224 - alto_semaforo - (*pos), paleta_4[paleta_semaforo]);
     imagen_pegar_con_paleta(*destino, semaforo_escalado, 162 + imagen_get_ancho(sup_escalado) / 2 - ancho_semaforo - y, 224 - alto_semaforo - *pos, paleta_4[paleta_semaforo]);
     imagen_pegar_con_paleta(*destino, sup_escalado, 162 - imagen_get_ancho(sup_escalado) /2 - y, 224 - (alto_semaforo + imagen_get_alto(sup_escalado)) - *pos, paleta_4[(paleta_goal) ? PALETA_GOAL : PALETA_START]);
     imagen_destruir(semaforo_escalado);

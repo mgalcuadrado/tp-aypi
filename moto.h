@@ -59,15 +59,17 @@ void moto_set_der (moto_t * m, bool d);
 void moto_set_izq (moto_t * m, bool i);
 
 //Función hecha para guardar los puntajes de juego
-void moto_set_puntajes(moto_t *moto, size_t x, size_t y);
+void moto_set_puntajes(moto_t *moto, size_t x, int y);
 
-//Setter del tiempo jugado
+//Setter del tiempo jugado, recibe la moto y el valor de tiempo t a asignar
 void moto_set_tiempo(moto_t *moto, size_t t);
 
-//Función creada para pegar la moto dependiendo hacia donde este doblando la misma
-void pegar_moto(imagen_t *imagen, imagen_t *origen[], moto_t *moto, size_t t, bool choque);
+//Función creada para pegar la moto dependiendo hacia donde está doblando la misma
+//recibe una puntero a una imagen, el arreglo de imágenes en el que se encuentran las motos, la moto, el marcador de tiempo y un booleano indicando si hubo o no choques
+bool moto_pegar(imagen_t **imagen, imagen_t *origen[], moto_t *moto, size_t t, bool choque);
 
 //Función que imprime los textos en pantalla
-void imprimir_textos(moto_t *moto, imagen_t *cuadro, imagen_t * teselas[], imagen_t * cuadros_textos[CANTIDAD_CUADROS]);
+//recibe la moto, un puntero a los cuadros, el arreglo de teselas levantadas de la rom y el arreglo de cuadros de textos
+void imprimir_textos(moto_t *moto, imagen_t **cuadro, imagen_t * teselas[], imagen_t * cuadros_textos[CANTIDAD_CUADROS]);
 
 #endif

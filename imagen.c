@@ -76,7 +76,6 @@ imagen_t *imagen_escalar (const imagen_t *origen, size_t ancho_destino, size_t a
     return destino;
 }
 
-
 void imagen_pegar (imagen_t *destino, const imagen_t *origen, int x, int y){
     for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++){
         for(int c = (x >= 0 ? 0 : -x); c < origen->ancho && c + x < destino->ancho; c++)
@@ -85,10 +84,6 @@ void imagen_pegar (imagen_t *destino, const imagen_t *origen, int x, int y){
             } 
     }
 }       
-
-
-//********************FUNCIONES TP4******************************//
-
 
 void imagen_pegar_con_paleta(imagen_t *destino, const imagen_t *origen, int x, int y, const pixel_t paleta[]){
 for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++){
@@ -183,74 +178,34 @@ bool imagen_guardar_ppm(const imagen_t *im, const char *fn, void (*pixel_a_rgb)(
     return true;
 }
 
-//PRIMITIVAS NUEVAS //TP
+//convierte una imagen im en un arreglo v de uint16_ts
 void imagen_a_textura(const imagen_t *im, uint16_t *v){
     for (size_t f = 0; f < im->alto; f++)
         for (size_t c = 0; c < im->ancho; c++)
             v[(f * im->ancho) + c] = im->pixeles[f][c];
 }
 
-/*
-bool imagen_redimensionar(imagen_t * im, size_t n_ancho, size_t n_alto){
-    pixel_t ** aux = realloc (im->pixeles, n_alto * sizeof(pixel_t*));
-    if (aux == NULL){
-        return false;
-    }
-    if (im->alto < n_alto){
-        size_t i;
-        for (i = 0; i < im->alto; i++){
-            aux[i] = realloc (im->pixeles[i], n_ancho * sizeof(pixel_t));
-            if (aux[i] == NULL){
-                fprintf(stderr, "salió mal la redimensión de la fila %zd de aux\n", i);
-                _pixeles_destruir (i, aux);
-                free (aux);
-                return false;  
-            }
-        }
-        for (; i < n_alto; i++){
-            aux[i] = malloc (n_ancho * sizeof(pixel_t));
-            if (aux[i] == NULL){
-                fprintf(stderr, "salió mal el malloc en las fila %zd de las que me faltaban\n", i);
-                _pixeles_destruir (i, aux);
-                free (aux);
-                return false;
-            }
-        }
-        fprintf(stderr, "todo salió bien?????????????????\n");
-        im->pixeles = aux;
-        im->ancho = n_ancho;
-        im->alto = n_alto;
-        return true;
-    }
-    free(aux);
-    return false;
-}
-*/
 //Esta funcion refleja las imagenes
 imagen_t * imagen_reflejar (imagen_t * im){
     imagen_t * ref = imagen_generar(im->ancho, im->alto, 0);
     if (ref == NULL) return NULL;
     ref->ancho = im->ancho;
     ref->alto = im->alto;
-    
-    for (size_t f = 0; f < im->alto; f++){
+    for (size_t f = 0; f < im->alto; f++)
         for (size_t c = 0; c < im->ancho; c++)
             ref->pixeles[f][c] = im->pixeles[f][(im->ancho - 1) - c];
-    }
-    //dejé f igual y solo cambié las columnas de lugar, también arreglé la comentada por si queremos ir por esa opción para ahorrar iteraciones
-    /*
-    for (size_t f = 0; f < im->alto; f++)
-        for (size_t c = 0; c < im->ancho /2; c++){
-            ref->pixeles[f][c] = im->pixeles[f][(im->ancho - 1) - c];
-            ref->pixeles[f][(im->ancho - 1) -c] = im->pixeles[f][c];
-        }
-    */
     return ref;
-    
 }
 
+//un destructor con 3 argumentos para que ocupe menos líneas de código la destrucción
 void imagen_destruir_mas(imagen_t *im1, imagen_t *im2, imagen_t *im3){
     imagen_destruir(im1);
     imagen_destruir(im2);
     imagen_destruir(im3);
+}
+
+void imagen_pintar (imagen_t * im, int valor){
+    for (size_t f = 0; f < im->alto; f++)
+        for (size_t c = 0; c < im->ancho; c++)
+            im->pixeles[f][c] = valor;
 }

@@ -25,7 +25,7 @@ fondo.o: fondo.c fondo.h
 config.o: config.c config.h
 	$(CC) $(CFLAGS) config.c
 
-figuras.o: figuras.c figuras.h config.h imagen.h
+figuras.o: figuras.c figuras.h config.h imagen.h paleta.h ruta.h
 	$(CC) $(CFLAGS) figuras.c
 
 roms.o: roms.c roms.h figuras.h imagen.h
@@ -34,7 +34,7 @@ roms.o: roms.c roms.h figuras.h imagen.h
 main.o: main.c config.h imagen.h pixel.h fondo.h paleta.h roms.h figuras.h moto.h ruta.h textos.h
 	$(CC) $(CFLAGS) main.c $(LFLAGS)
 
-moto.o: moto.c moto.h imagen.h paleta.h
+moto.o: moto.c moto.h textos.h imagen.h paleta.h config.h
 	$(CC) $(CFLAGS) moto.c
 
 hangon: textos.o pixel.o imagen.o config.o paleta.o ruta.o fondo.o roms.o figuras.o moto.o main.o 

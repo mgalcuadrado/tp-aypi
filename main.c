@@ -10,7 +10,7 @@
 #include "ruta.h"
 #include "textos.h"
 
-void destructor_masivo(imagen_t ** teselas, imagen_t ** figuras, imagen_t * ruta_completa, moto_t * moto, imagen_t * cuadro, imagen_t * cielo, imagen_t * pasto_estirado, imagen_t * fondo1, imagen_t * fondo2, imagen_t * cuadros_textos[CANTIDAD_CUADROS], imagen_t * semaforo_sup);
+void destructor_masivo(imagen_t ** teselas, imagen_t ** figuras, imagen_t * ruta_completa, moto_t * moto, imagen_t * cuadro, imagen_t * cielo, imagen_t * pasto_estirado, imagen_t * fondo1, imagen_t * fondo2, imagen_t * cuadros_textos[CANTIDAD_CUADROS], imagen_t * semaforo_sup, imagen_t *cuadro_moto);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -79,6 +79,7 @@ int main() {
 
     imagen_t *ruta_completa = imagen_generar(2 * ANCHO_RUTA,ALTO_RUTA, 0);
     if(ruta_completa == NULL){
+        fprintf(stderr, "no se pudo generar correctamente la ruta\n");
         roms_destruir(teselas, figuras, rutaza);
         imagen_destruir(ruta_reflejada);
         return 1;
@@ -188,6 +189,7 @@ int main() {
     
     imagen_t * semaforo_sup = imagen_generar(640 - 132 - 33, 48, 0);
     if (semaforo_sup == NULL){
+        fprintf(stderr, "No se pudo generar el semáforo\n");
         roms_destruir(teselas, figuras, ruta_completa);
         imagen_destruir_mas(cuadro, cielo, pasto_estirado);
         imagen_destruir_mas(fondo1, fondo2, cuadros_textos[TOP]);
@@ -198,7 +200,6 @@ int main() {
     imagen_pegar(semaforo_sup, figuras[VIGA_BANNER], 0, 0);
     imagen_pegar(semaforo_sup, figuras[VIGA_BANNER], 132 + 244 - 33, 0);
     imagen_pegar(semaforo_sup, figuras[BANNER_LARGADA], 132 - (33 / 2), 0);
-
 
     //Acá se crea la moto inicializado en sus respectivos valores
     moto_t *moto = moto_crear(0, 0, 0, false, false, false, false);
@@ -212,10 +213,18 @@ int main() {
         imagen_destruir(semaforo_sup);        
         return 1;
     }
+
+    imagen_t *cuadro_moto = imagen_generar(60, 73, 0);
+    if(cuadro_moto == NULL){
+        fprintf(stderr, "cuadro_moto no se pudo generar\n");
+        destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
+        return 1;
+    }
     
     //Acá voy a crear las variables que necesito relativas a la posición de la ruta/figuras
 
-    double x_fondo = 320, y = 0;
+    double x_fondo = 320;
+    int y = 0;
     size_t t = 0, del = 0, xi_semaforo = 35;
     bool chocamos = false, es_el_fin = false;
     float secs = 0;
@@ -279,13 +288,6 @@ int main() {
         }
 
         // BEGIN código del alumno       
-        imagen_t *cuadro_moto = imagen_generar(60, 73, 0);
-        if(cuadro_moto == NULL){
-            fprintf(stderr, "cuadro_moto no se pudo generar\n");
-            destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup);
-            imagen_destruir(cuadro_moto);
-            return 1;
-        }
 
         imagen_pegar(cuadro, cielo, 0, 0);
         imagen_pegar(cuadro, pasto_estirado, 0, 128);       
@@ -302,6 +304,10 @@ int main() {
             moto_set_x(moto, x + (1.0/JUEGO_FPS) * ((moto_get_vel(moto) * (1000.0/3600))));   
         }
 
+        if (es_el_fin){
+            moto_set_izq(moto, false);
+            moto_set_der(moto, false);
+        }
         //Posicion m_y junto al movimiento de los fondos
         if(moto_get_izq(moto) && !chocamos){
             y += (6 * moto_get_pos(moto) + 3);
@@ -328,7 +334,7 @@ int main() {
         if(secs == 0){
             //Aceleración
             if((moto_get_acelerar(moto) || moto_get_vel(moto) < 80) && (!moto_get_frenar(moto) && del >= 4 * JUEGO_FPS)){
-                moto_set_vel(moto,279 - (size_t)((279 - (moto_get_vel(moto))) * exp(-0.224358 * ((float)1/JUEGO_FPS))));        
+                moto_set_vel(moto,279 - (size_t)((279 - (moto_get_vel(moto))) * exp(-0.224358 * (1.0/JUEGO_FPS))));        
             }
             //Frenado
             else if(moto_get_frenar(moto) && moto_get_vel(moto) > 80){
@@ -355,33 +361,32 @@ int main() {
         }
         
         //ruta
-        imagen_t *linea_ruta = imagen_generar(2* ANCHO_RUTA,1,0);
+        imagen_t *linea_ruta = imagen_generar(2* ANCHO_RUTA, 1, 0);
         if(linea_ruta == NULL){
             fprintf(stderr, "No se pudo generar la línea de la ruta :c\n");
-            destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup);
             imagen_destruir(cuadro_moto);
+            destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
             return 1;    
         }
         int d_c = 0;
+        int figuras_pegadas[METROS_VISIBLES] = {0};
         //el arreglo de figuras pegadas se encarga de guardar cuántas figuras se pegaron en cada posición d del arreglo
-        int figuras_pegadas[60] = {0};
         for(int i = 95; i >= 0; i--){
             imagen_pegar(linea_ruta, ruta_completa, 0, i - 111);
             int d_l = -y * (96 - i) / 96.0;
             int d = -1/0.11 * log((96 - i)/96.0);
-            if (d < 0 || d > 60) 
-                d = (d > 60) ? 60 : 0;
+            if (d < 0 || d > METROS_VISIBLES) 
+                d = (d > METROS_VISIBLES) ? METROS_VISIBLES : 0;
             if (x + i > 4270) continue;
             d_c += -1 * (ruta[x + d].radio_curva * exp(0.105 * i - 8.6));
-            size_t mover_ruta = (chocamos || es_el_fin) ? 0 : t;
-            imagen_pegar_ruta_con_paleta(cuadro,linea_ruta,d_l + d_c - 346,223 - i,colores_ruta[(x/4 + d + mover_ruta) % 4]);  
+            imagen_pegar_ruta_con_paleta(cuadro,linea_ruta,d_l + d_c - 346,223 - i, colores_ruta[(x/4 + d) % 4]);  
             if (ruta[x + d].indice_figura != 9999){
                 if (figuras_pegadas[d] != 0) continue;
                 figuras_pegadas[d]++;
                 size_t ancho_figura;
                 if (!pegar_figuras(&cuadro, figuras, ruta[x + d].indice_figura, i, &ancho_figura, d_l, d_c)){
-                    destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup);
-                    imagen_destruir(cuadro_moto);
+                    fprintf(stderr, "no se pueden pegar las figuras\n");
+                    destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
                     imagen_destruir(linea_ruta);
                     return 1;
                 }
@@ -409,28 +414,34 @@ int main() {
             }
         }
         
-        //Creacion del semaforo y banners de llegada y salida
+        //Creación del semáforo y banners de llegada y salida
         if (del <= 6 * JUEGO_FPS || moto_get_x(moto) >= 4200 - 130){
             int pos = moto_get_x(moto) - xi_semaforo;
             if (pos < 0 || pos > 4200 - 130){
                 if (!pegar_semaforo(del++, &pos, figuras, semaforo_sup, &cuadro, y, moto_get_x(moto))){
-                    destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup);
-                    imagen_destruir(cuadro_moto);
+                    fprintf(stderr, "no se pudo pegar el semáforo\n");
+                    destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
                     return 1;
                 }
             }
         }
         
-        //Esto sería la moto
-        pegar_moto(cuadro_moto, figuras, moto, t, chocamos);
+        //Acá se pega la moto
+        if (!moto_pegar(&cuadro_moto, figuras, moto, t, chocamos)){
+            fprintf(stderr, "No se pego correctamente la moto\n");
+            destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
+            return 1;
+        }
+    
         imagen_pegar(cuadro, cuadro_moto, 132, 151);
+        imagen_pintar(cuadro_moto, 0); //esto "limpia" el cuadro_moto
 
         //Impresión de textos:
-        imprimir_textos(moto, cuadro, teselas, cuadros_textos);
+        imprimir_textos(moto, &cuadro, teselas, cuadros_textos);
 
 
         //Victoria
-        if(moto_get_x(moto) >= 4200){
+        if(moto_get_x(moto) >= 4150){
             secs++;
             es_el_fin = true;
             imagen_pegar(cuadro, cuadros_textos[GOAL], 320/2 - (4 * FILA_GG), 224/2);
@@ -447,15 +458,14 @@ int main() {
 
         // Procedemos a dibujar a pantalla completa:
         imagen_t *cuadro_escalado = imagen_escalar(cuadro, VENTANA_ANCHO, VENTANA_ALTO);
-        imagen_destruir(cuadro_moto);
         if(cuadro_escalado == NULL){
             fprintf(stderr, "cuadro escalado falló\n");
-            destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup);
+            destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
             return 1;   
         }
 
         imagen_a_textura(cuadro_escalado, canvas);
-
+    
         imagen_destruir(cuadro_escalado);
         // END código del alumno
 
@@ -476,8 +486,8 @@ int main() {
     }
 
     // BEGIN código del alumno
-
-    destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup);
+    
+   destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
 
     // END código del alumno
 
@@ -488,12 +498,11 @@ int main() {
     return 0;
 }
 
-void destructor_masivo(imagen_t ** teselas, imagen_t ** figuras, imagen_t * ruta_completa, moto_t * moto, imagen_t * cuadro, imagen_t * cielo, imagen_t * pasto_estirado, imagen_t * fondo1, imagen_t * fondo2, imagen_t **cuadros_textos, imagen_t * semaforo_sup){
+void destructor_masivo(imagen_t ** teselas, imagen_t ** figuras, imagen_t * ruta_completa, moto_t * moto, imagen_t * cuadro, imagen_t * cielo, imagen_t * pasto_estirado, imagen_t * fondo1, imagen_t * fondo2, imagen_t * cuadros_textos[CANTIDAD_CUADROS], imagen_t * semaforo_sup, imagen_t * cuadro_moto){
     roms_destruir(teselas, figuras, ruta_completa);
     moto_destruir(moto);
     imagen_destruir_mas(cuadro, cielo, pasto_estirado);
     imagen_destruir_mas(fondo1, fondo2, semaforo_sup);
     imagen_destruir_mas(cuadros_textos[TOP], cuadros_textos[SCORE], cuadros_textos[TIME]);
-    imagen_destruir(cuadros_textos[GOAL]);
-    imagen_destruir(cuadros_textos[GAMEOVER]);
+    imagen_destruir_mas(cuadros_textos[GOAL], cuadros_textos[GAMEOVER], cuadro_moto);
 }
