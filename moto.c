@@ -86,7 +86,7 @@ void moto_set_pos(moto_t * m, short p){
 }
 
 void moto_set_x (moto_t * m, size_t x){
-    if(m->n_textos[TIME] > 0 || m->x <= 4150)
+    if(m->n_textos[TIME] > 0 || m->x <= META_MOTO)
         m->x = x;
 }
 
@@ -112,12 +112,12 @@ void moto_set_izq (moto_t * m, bool i){
 }
 
 void moto_set_tiempo(moto_t *moto, size_t t){
-    if(moto->n_textos[TIME] > 0 || moto->x < 4150)
+    if(moto->n_textos[TIME] > 0 || moto->x < META_MOTO)
         moto->n_textos[TIME] = 150 - (t / JUEGO_FPS);
 }
 
 void moto_set_puntajes(moto_t *moto, size_t x, int y){
-    if(moto->x >= 4150) return;
+    if(moto->x >= META_MOTO) return;
     if(y > -215 || y < 215){
         if(moto->vel < 117)
             moto->n_textos[SCORE] += 125 * (moto->x - x);

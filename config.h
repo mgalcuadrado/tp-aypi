@@ -39,6 +39,7 @@
 #define PALETA_GOAL 47
 
 #define METROS_VISIBLES 60
+#define META_MOTO 4160
 
 //Enumerativo de roms
 typedef enum{

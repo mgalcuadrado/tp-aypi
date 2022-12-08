@@ -371,8 +371,8 @@ int main() {
         int d_c = 0;
         int figuras_pegadas[METROS_VISIBLES] = {0};
         //el arreglo de figuras pegadas se encarga de guardar cuántas figuras se pegaron en cada posición d del arreglo
-        for(int i = 95; i >= 0; i--){
-            imagen_pegar(linea_ruta, ruta_completa, 0, i - 111);
+        for(int i = 0; i < 96; i--){
+            imagen_pegar(linea_ruta, ruta_completa, 0, 111 - i);
             int d_l = -y * (96 - i) / 96.0;
             int d = -1/0.11 * log((96 - i)/96.0);
             if (d < 0 || d > METROS_VISIBLES) 
@@ -441,7 +441,7 @@ int main() {
 
 
         //Victoria
-        if(moto_get_x(moto) >= 4150){
+        if(moto_get_x(moto) >= META_MOTO){
             secs++;
             es_el_fin = true;
             imagen_pegar(cuadro, cuadros_textos[GOAL], 320/2 - (4 * FILA_GG), 224/2);
