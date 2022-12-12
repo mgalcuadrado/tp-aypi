@@ -10,15 +10,17 @@
 #define CANTIDAD_FIGURAS 13
 #define CANTIDAD_RUTAS 4
 #define CANTIDAD_ROMS 18
+#define INICIO_ROMS_FIGURAS 4
 #define CANTIDAD_MOTOS 4
+#define CANTIDAD_PIXELES_EN_ELEMENTO 4
 
 #define ANCHO_TESELA 8
 #define ALTO_TESELA 8
 #define ANCHO_RUTA 512
 #define ALTO_RUTA 128
 
-#define VENTANA_ANCHO 320
-#define VENTANA_ALTO 224
+#define FILAS_A_IGNORAR 16
+#define PIXELES_EN_FIGURAS 229376
 
 #define FILA_CUADROS 3
 #define COLUMNA_TOP 5
@@ -31,7 +33,11 @@
 #define CANTIDAD_TEXTOS 6
 #define CANTIDAD_CUADROS 8
 
+#define VENTANA_ANCHO 320
+#define VENTANA_ALTO 224
 #define JUEGO_FPS 15
+#define TIEMPO_JUEGO 75 //por si se quiere extender el tiempo es acá :D
+#define VELOCIDAD_MINIMA 80
 
 #define INICIO_PALETA_SEMAFORO 41
 #define FIN_PALETA_SEMAFORO 44
@@ -40,6 +46,7 @@
 
 #define METROS_VISIBLES 60
 #define META_MOTO 4160
+#define FIN_RUTA 4270
 
 //Enumerativo de roms
 typedef enum{

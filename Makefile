@@ -1,6 +1,7 @@
-CFLAGS = -c -Wall -pedantic -std=c99 -c -g
+CFLAGS = -c -Wall -Werror -pedantic -std=c99 -c -g
 CC = gcc
-LFLAGS = -lSDL2 -lm
+LFLAGS = -lm
+SDLFLAG = -lSDL2
 
 all: hangon
 
@@ -14,7 +15,10 @@ paleta.o: paleta.c paleta.h pixel.h
 	$(CC) $(CFLAGS) paleta.c
 
 textos.o: textos.c textos.h config.h
-	$(CC) $(CFLAGS) textos.c
+	$(CC) $(CFLAGS) textos.c $(LFLAGS)
+
+juego.o: juego.c juego.h config.h moto.h textos.h
+	$(CC) $(CFLAGS) juego.c
 
 ruta.o : ruta.c ruta.h imagen.h figuras.h
 	$(CC) $(CFLAGS) ruta.c
@@ -32,13 +36,13 @@ roms.o: roms.c roms.h figuras.h imagen.h
 	$(CC) $(CFLAGS) roms.c
 
 main.o: main.c config.h imagen.h pixel.h fondo.h paleta.h roms.h figuras.h moto.h ruta.h textos.h
-	$(CC) $(CFLAGS) main.c $(LFLAGS)
+	$(CC) $(CFLAGS) main.c $(SDLFLAG) $(LFLAGS)
 
 moto.o: moto.c moto.h textos.h imagen.h paleta.h config.h
 	$(CC) $(CFLAGS) moto.c
 
-hangon: textos.o pixel.o imagen.o config.o paleta.o ruta.o fondo.o roms.o figuras.o moto.o main.o 
-	$(CC) textos.o pixel.o imagen.o config.o paleta.o ruta.o fondo.o roms.o figuras.o moto.o main.o -o hangon  $(LFLAGS)
+hangon: textos.o pixel.o imagen.o config.o juego.o paleta.o ruta.o fondo.o roms.o figuras.o moto.o main.o 
+	$(CC) textos.o pixel.o imagen.o config.o juego.o paleta.o ruta.o fondo.o roms.o figuras.o moto.o main.o -o hangon $(SDLFLAG) $(LFLAGS)
 
 clear:
 	rm *.o hangon

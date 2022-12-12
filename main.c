@@ -9,6 +9,7 @@
 #include "moto.h"
 #include "ruta.h"
 #include "textos.h"
+#include "juego.h"
 
 void destructor_masivo(imagen_t ** teselas, imagen_t ** figuras, imagen_t * ruta_completa, moto_t * moto, imagen_t * cuadro, imagen_t * cielo, imagen_t * pasto_estirado, imagen_t * fondo1, imagen_t * fondo2, imagen_t * cuadros_textos[CANTIDAD_CUADROS], imagen_t * semaforo_sup, imagen_t *cuadro_moto);
 
@@ -220,12 +221,19 @@ int main() {
         destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
         return 1;
     }
+
+    juego_t * juego = juego_iniciar_parametros();
+    if (juego == NULL){
+        fprintf(stderr, "cuadro_moto no se pudo generar\n");
+        destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
+        return 1;
+    }
     
     //Acá voy a crear las variables que necesito relativas a la posición de la ruta/figuras
 
     double x_fondo = 320;
     int y = 0;
-    size_t t = 0, del = 0, xi_semaforo = 35;
+    size_t t = 0, del = 0, xi_semaforo = 35, s = 0;
     bool chocamos = false, es_el_fin = false;
     float secs = 0;
     
@@ -295,25 +303,25 @@ int main() {
         imagen_pegar(cuadro, fondo1, x_fondo + 320, 112);
         
         if(del >= 4 * JUEGO_FPS && secs == 0)
-            moto_set_tiempo(moto,t++);
+            juego_set_tiempo(juego, moto,t++);
 
         //Posicion m_x    
         size_t x = 0;
         if(del >= 4 * JUEGO_FPS){
             x = moto_get_x(moto);
-            moto_set_x(moto, x + (1.0/JUEGO_FPS) * ((moto_get_vel(moto) * (1000.0/3600))));   
+            moto_set_x(moto, x + (1.0/JUEGO_FPS) * ((moto_get_vel(moto) * (1000.0/3600))), juego_get_tiempo(juego));   
         }
 
         if (es_el_fin){
             moto_set_izq(moto, false);
             moto_set_der(moto, false);
         }
-        //Posicion m_y junto al movimiento de los fondos
-        if(moto_get_izq(moto) && !chocamos){
+        //Posicion m_y 
+        if(moto_gira_izq(moto) && !chocamos){
             y += (6 * moto_get_pos(moto) + 3);
         } 
 
-        else if(moto_get_der(moto) && !chocamos) {
+        else if(moto_gira_der(moto) && !chocamos) {
             y += (6 * moto_get_pos(moto) - 3);      
         } 
         
@@ -324,7 +332,9 @@ int main() {
         if(y < -435 || y > 435)
             y = y < 0 ? -435 : 435;
         
-        if(!chocamos && moto_get_tiempo(moto) != 0)
+
+        //Fondos
+        if(!chocamos && juego_get_tiempo(juego) != 0 && moto_get_x(moto) != x)
             x_fondo -= ruta[moto_get_x(moto)].radio_curva;
 
         if(x_fondo < -2048 || x_fondo > 640)
@@ -333,31 +343,32 @@ int main() {
                       
         if(secs == 0){
             //Aceleración
-            if((moto_get_acelerar(moto) || moto_get_vel(moto) < 80) && (!moto_get_frenar(moto) && del >= 4 * JUEGO_FPS)){
+            if((moto_esta_acelerando(moto) || moto_get_vel(moto) < 80) && del >= 4 * JUEGO_FPS){
                 moto_set_vel(moto,279 - (size_t)((279 - (moto_get_vel(moto))) * exp(-0.224358 * (1.0/JUEGO_FPS))));        
             }
             //Frenado
-            else if(moto_get_frenar(moto) && moto_get_vel(moto) > 80){
+            else if(moto_esta_frenando(moto) && moto_get_vel(moto) > VELOCIDAD_MINIMA){
                 moto_set_vel(moto,(size_t)(moto_get_vel(moto) - 300.0/JUEGO_FPS));
             }
 
             //Desaceleración
-            else if(!moto_get_acelerar(moto) && !moto_get_frenar(moto) && moto_get_vel(moto) >= 80){ 
+            else if(!moto_esta_acelerando(moto) && !moto_esta_frenando(moto) && moto_get_vel(moto) >= VELOCIDAD_MINIMA){ 
                 moto_set_vel(moto,(size_t)(moto_get_vel(moto))- 90.0/JUEGO_FPS);                   
             }
         }
         else 
             moto_set_vel(moto,0);
+
+        juego_set_speed(juego, moto);
     
-    
-        if((!moto_get_izq(moto) && !moto_get_der(moto)) && moto_get_pos(moto) != 0){
+        if((!moto_gira_izq(moto) && !moto_gira_der(moto)) && moto_get_pos(moto) != 0){
             short aux = moto_get_pos(moto);
             moto_set_pos(moto,aux < 0 ? ++aux : --aux);   
         }
 
         //Morder la banquina + puntaje
         if (del >= 4 * JUEGO_FPS){
-            moto_set_puntajes(moto, x, y);
+            juego_set_puntajes(juego, moto, x, y);
         }
         
         //ruta
@@ -366,47 +377,51 @@ int main() {
             fprintf(stderr, "No se pudo generar la línea de la ruta :c\n");
             imagen_destruir(cuadro_moto);
             destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
+            juego_finalizar(juego);
             return 1;    
         }
-        int d_c = 0;
-        int figuras_pegadas[METROS_VISIBLES] = {0};
+        int curva[96] = {0};
+        int lateral[96] = {0};
         //el arreglo de figuras pegadas se encarga de guardar cuántas figuras se pegaron en cada posición d del arreglo
-        for(int i = 0; i < 96; i--){
-            imagen_pegar(linea_ruta, ruta_completa, 0, 111 - i);
-            int d_l = -y * (96 - i) / 96.0;
-            int d = -1/0.11 * log((96 - i)/96.0);
-            if (d < 0 || d > METROS_VISIBLES) 
+        for(int i = 0; i < 96; i++){
+            int d = -1/0.11 * log((96.0 - i)/96.0);
+            if (d < 0 || d > METROS_VISIBLES)
                 d = (d > METROS_VISIBLES) ? METROS_VISIBLES : 0;
-            if (x + i > 4270) continue;
-            d_c += -1 * (ruta[x + d].radio_curva * exp(0.105 * i - 8.6));
-            imagen_pegar_ruta_con_paleta(cuadro,linea_ruta,d_l + d_c - 346,223 - i, colores_ruta[(x/4 + d) % 4]);  
+            if (x + d >= FIN_RUTA) continue;
+            imagen_pegar(linea_ruta, ruta_completa, 0, i - 111);
+            lateral[i] = -y * (96.0 - i) / 96.0;
+            if (i > 0)
+                curva[i] = curva[i - 1] + (ruta[x + d].radio_curva * exp(0.105 * i - 8.6));
+            imagen_pegar_ruta_con_paleta(cuadro, linea_ruta, lateral[i] + curva[i] - 346, 223 - i, colores_ruta[(x/4 + d) % 4]);  
+        }
+        for (int d = 60; d >= 0; d--){
             if (ruta[x + d].indice_figura != 9999){
-                if (figuras_pegadas[d] != 0) continue;
-                figuras_pegadas[d]++;
                 size_t ancho_figura;
-                if (!pegar_figuras(&cuadro, figuras, ruta[x + d].indice_figura, i, &ancho_figura, d_l, d_c)){
-                    fprintf(stderr, "no se pueden pegar las figuras\n");
+                int v = 96 - 96 * exp (-0.11 * d);
+                if (!pegar_figuras(&cuadro, figuras, ruta[x + d].indice_figura, v, &ancho_figura, lateral[v], curva[v])){
                     destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
                     imagen_destruir(linea_ruta);
+                    juego_finalizar(juego);
                     return 1;
                 }
                 if(hay_choque(ancho_figura, d, x, y))
                     chocamos = true;
             }
         }
-        
         imagen_destruir(linea_ruta);
         
         //Choques
         if (chocamos){
+            s++;
             moto_set_pos(moto, 0);
             moto_set_frenar(moto, false);
             moto_set_acelerar(moto, false);
             moto_set_vel(moto, 0);
-            moto_set_x(moto, x);
-            if(y < -6)
+            juego_set_speed(juego, moto);
+            moto_set_x(moto, x, juego_get_tiempo(juego));
+            if(s < (5 * JUEGO_FPS) && y < -6)
                 y += 3;
-            else if (y > 6)
+            else if (s < (5 * JUEGO_FPS) && y > 6)
                 y -= 3;
             else {
                 y = 0;
@@ -421,6 +436,7 @@ int main() {
                 if (!pegar_semaforo(del++, &pos, figuras, semaforo_sup, &cuadro, y, moto_get_x(moto))){
                     fprintf(stderr, "no se pudo pegar el semáforo\n");
                     destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
+                    juego_finalizar(juego);
                     return 1;
                 }
             }
@@ -430,6 +446,7 @@ int main() {
         if (!moto_pegar(&cuadro_moto, figuras, moto, t, chocamos)){
             fprintf(stderr, "No se pego correctamente la moto\n");
             destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
+            juego_finalizar(juego);
             return 1;
         }
     
@@ -437,7 +454,7 @@ int main() {
         imagen_pintar(cuadro_moto, 0); //esto "limpia" el cuadro_moto
 
         //Impresión de textos:
-        imprimir_textos(moto, &cuadro, teselas, cuadros_textos);
+        imprimir_textos(juego, &cuadro, teselas, cuadros_textos);
 
 
         //Victoria
@@ -448,7 +465,7 @@ int main() {
         }
 
         //Derrota
-        else if(moto_get_tiempo(moto) == 0){
+        else if(juego_get_tiempo(juego) == 0){
             secs++;
             es_el_fin = true;
             imagen_pegar(cuadro, cuadros_textos[GAMEOVER], 320/ 2 - (4 * FILA_GG), 224/ 2);
@@ -461,6 +478,7 @@ int main() {
         if(cuadro_escalado == NULL){
             fprintf(stderr, "cuadro escalado falló\n");
             destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
+            juego_finalizar(juego);
             return 1;   
         }
 
@@ -487,7 +505,8 @@ int main() {
 
     // BEGIN código del alumno
     
-   destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
+    destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
+    juego_finalizar(juego);
 
     // END código del alumno
 

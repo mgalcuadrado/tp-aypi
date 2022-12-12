@@ -7,6 +7,7 @@
 #define CORRIMIENTO_MAX_UINT8T 7
 
 #define CANTIDAD_ROMS_OG 3
+#define CANTIDAD_ROMS_LEIDAS_EN_SIMULTANEO 2
 
 //para leer_figuras 
 #define MASK_4MSB 0xF000
@@ -15,6 +16,7 @@
 //para leer_ruta
 #define MASK_4LSB 0xF
 #define SHIFT_4LEC 4
+#define BITS_EN_UN_BYTE 8
 
 //para leer_figuras 
 #define MASK_4MSB 0xF000
@@ -61,7 +63,6 @@ static bool _sumar_teselas(FILE * f, imagen_t *teselas[], size_t corrimiento/*, 
             if (fread(&n, sizeof(n), 1, f) != 1) return false;
             for (size_t j = 0; j < imagen_get_ancho(teselas[a]); j++)
                imagen_set_pixel(teselas[a], j, i, imagen_get_pixel(teselas[a], j, i) + (((n >> (CORRIMIENTO_MAX_UINT8T - j)) & MASK_LSB) << corrimiento)); 
-               //imagen_set_pixel(teselas[a], j, i, (imagen_get_pixel(teselas[a], j, i)) << 1 + ((n >> (CORRIMIENTO_MAX_UINT8T - j)) & MASK_LSB)); 
         }
     }
     return true;
@@ -77,14 +78,14 @@ static bool leer_ruta(imagen_t * ruta){
         return false;
     }
     for (size_t i = 0; i < CANTIDAD_RUTAS; i++){ 
-        uint8_t n[16  * ANCHO_RUTA / 8];
-        if (fread(n, sizeof(uint8_t), 16 * ANCHO_RUTA / 8, archivo) != 16 * ANCHO_RUTA / 8){
+        uint8_t n[FILAS_A_IGNORAR  * ANCHO_RUTA / BITS_EN_UN_BYTE];
+        if (fread(n, sizeof(uint8_t), FILAS_A_IGNORAR * ANCHO_RUTA / BITS_EN_UN_BYTE, archivo) != FILAS_A_IGNORAR * ANCHO_RUTA / BITS_EN_UN_BYTE){
             fprintf(stderr, "la ruta no se pudo leer por completo\n");
             fclose(archivo);
             return false;
         }
-        for (size_t f = 16; f < ALTO_RUTA - 16; f++){
-                for (size_t c = 0; c < ANCHO_RUTA / 8; c ++){
+        for (size_t f = 16; f < ALTO_RUTA - FILAS_A_IGNORAR; f++){
+                for (size_t c = 0; c < ANCHO_RUTA / BITS_EN_UN_BYTE; c++){
                     uint8_t lec;
                     if (fread(&lec, sizeof(uint8_t), 1, archivo) != 1){
                         fprintf(stderr, "la ruta no se pudo leer por completo\n");
@@ -92,10 +93,10 @@ static bool leer_ruta(imagen_t * ruta){
                         return false;
                     }
                     for (size_t j = 0; j < 8; j++)
-                        imagen_set_pixel(ruta, c * 8 + j, f, imagen_get_pixel(ruta, c * 8 + j, f) + (((lec >> (CORRIMIENTO_MAX_UINT8T - j)) & MASK_LSB) << i)); 
+                        imagen_set_pixel(ruta, c * BITS_EN_UN_BYTE + j, f, imagen_get_pixel(ruta, c * BITS_EN_UN_BYTE + j, f) + (((lec >> (CORRIMIENTO_MAX_UINT8T - j)) & MASK_LSB) << i)); 
                 }
         }
-        if (fread(n, sizeof(uint8_t), 16 * ANCHO_RUTA / 8, archivo) != 16 * ANCHO_RUTA / 8){
+        if (fread(n, sizeof(uint8_t), FILAS_A_IGNORAR * ANCHO_RUTA / BITS_EN_UN_BYTE, archivo) != FILAS_A_IGNORAR * ANCHO_RUTA / BITS_EN_UN_BYTE){
             fprintf(stderr, "la ruta no se pudo leer por completo\n");
             fclose(archivo);
             return false;
@@ -105,8 +106,8 @@ static bool leer_ruta(imagen_t * ruta){
 }
 
 static bool leer_figuras (imagen_t * figuras[]){
-    uint16_t rom[229376];
-    for (size_t a = 4, i = 0; a < CANTIDAD_ROMS && i < 229376; a += 2, i += (229376 / 7)){
+    uint16_t rom[PIXELES_EN_FIGURAS];
+    for (size_t a = INICIO_ROMS_FIGURAS, i = 0; a < CANTIDAD_ROMS && i < PIXELES_EN_FIGURAS; a += CANTIDAD_ROMS_LEIDAS_EN_SIMULTANEO, i += (PIXELES_EN_FIGURAS / ((CANTIDAD_ROMS - INICIO_ROMS_FIGURAS) / CANTIDAD_ROMS_LEIDAS_EN_SIMULTANEO))){
         FILE * bajo = fopen (archivos_rom[a], "rb");
         if (bajo == NULL){
             fprintf(stderr, "no se pudo abrir el archivo %s\n", archivos_rom[a - 1]);
@@ -118,7 +119,7 @@ static bool leer_figuras (imagen_t * figuras[]){
             fclose(bajo);
             return false;
         }
-        for (size_t byte = 0; byte < 32768; byte++){
+        for (size_t byte = 0; byte < PIXELES_EN_FIGURAS / ((CANTIDAD_ROMS - INICIO_ROMS_FIGURAS) / CANTIDAD_ROMS_LEIDAS_EN_SIMULTANEO); byte++){
             uint8_t b, a;
             if ((fread (&b, sizeof(uint8_t), 1, bajo) != 1) || fread(&a, sizeof(uint8_t), 1, alto) != 1){
                 fprintf(stderr, "falló la lectura del byte %zd por el archivo este o uno menos %d\n", byte, a);
@@ -140,24 +141,24 @@ static bool leer_figuras (imagen_t * figuras[]){
     }
 
     for (figs_t fig = 0; fig < CANTIDAD_FIGURAS; fig++){
-        size_t in = figura_get_inicio(fig), iter_ancho = (figura_get_ancho(fig) / 4) + ((figura_get_ancho(fig) % 4 != 0) ? 1 : 0);
+        size_t in = figura_get_inicio(fig), iter_ancho = (figura_get_ancho(fig) / CANTIDAD_PIXELES_EN_ELEMENTO) + ((figura_get_ancho(fig) % CANTIDAD_PIXELES_EN_ELEMENTO != 0) ? 1 : 0);
         for(size_t f = 0; f < figura_get_alto(fig); f++){
             bool new_line = false;
             size_t x = 0;
-            for(size_t col = 0; /*!new_line && */ col < iter_ancho; col++){
+            for(size_t col = 0; col < iter_ancho; col++){
                 uint16_t n = rom[in++];
-                for (size_t i = 0; i < 4; i++){
+                for (size_t i = 0; i < CANTIDAD_PIXELES_EN_ELEMENTO; i++){
                   if (((n & (MASK_4MSB >> SHIFT_4LEC)) == (MASK_4MSB >> SHIFT_4LEC)) && ((n & MASK_4LSB) == MASK_4LSB) && x == 0){
                         new_line = true;
                         f--;
                         break;
                     }
                     if (x < figura_get_ancho(fig)){
-                        if (i == 3 && (n & MASK_4LSB) == MASK_4LSB) {
+                        if (i == (CANTIDAD_PIXELES_EN_ELEMENTO - 1) && (n & MASK_4LSB) == MASK_4LSB) {
                             new_line = true;
                             break;
                         }
-                        imagen_set_pixel(figuras[fig], x, f, (n & (MASK_4MSB >> i * 4)) >> (SHIFT_BYTE + SHIFT_4LEC - i * 4));
+                        imagen_set_pixel(figuras[fig], x, f, (n & (MASK_4MSB >> i * CANTIDAD_PIXELES_EN_ELEMENTO)) >> (SHIFT_BYTE + SHIFT_4LEC - i * CANTIDAD_PIXELES_EN_ELEMENTO));
                         x += 1;
                     }
                     if (x == figura_get_ancho(fig)){
