@@ -17,11 +17,11 @@ DONE 6) La variable stmoto_pos_t pos debería ser static, si no es una variable 
 Del juego:
 1)  La mecánica del choque está un poco rara. Según entiendo, la moto debería aparecer en la posición central de la ruta mientras el juego se detiene 5 segundos. 
 
-2) La moto no frena nunca. Si no acelero, o si toco el freno, eventualmente debería llegar a 0 la velocidad.
+DONE 2) La moto no frena nunca. Si no acelero, o si toco el freno, eventualmente debería llegar a 0 la velocidad.
    Esto dijo que està bien que llegue a 80km/h, solo hay que arreglar el hecho de que cuando frene a menos de 80 
    no se pare
 
-3) Si seteo un tiempo de 3 o más dígitos se rompe el sprite del reloj.
+DONE 3) Si seteo un tiempo de 3 o más dígitos se rompe el sprite del reloj.
 
 4) Al finalizar el juego, sea por tiempo o por terminar la carrera, la aplicación lanza una señal de SIGSEGV. Por lo pronto no pude detectar de dónde viene, si ustedes saben díganme y les puedo ayudar a corregirlo.
 

@@ -8,15 +8,17 @@ void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, i
     sprintf(n_string,"%ld",text[i]);
     size_t len = strlen(n_string);
     if(i == 1){
-        int res = pow(10, (len - 1 == 0) ? 1 : len - 1);
+        int res = pow(10, (len > 1) ? len - 1 : len);
+        size_t aux = text[i]; //La pongo en un auxiliar porque sino modifico el valor *text y termina el juego antes de comenzar
         for(size_t j = 0; j < (len > 1 ? len : 2); j++){
-            imagen_pegar_con_paleta(destino, origen[0x80 + 2 * text[i]/res], x + (8 * j),y + 16,paleta_3[5]);
-            imagen_pegar_con_paleta(destino, origen[0x81 + 2 * text[i]/res], x + (8 * j),y + 24,paleta_3[5]);
+            imagen_pegar_con_paleta(destino, origen[0x80 + (2 * (aux/res))], x + (8 * j),y + 16,paleta_3[5]);
+            imagen_pegar_con_paleta(destino, origen[0x81 + (2 * (aux/res))], x + (8 * j),y + 24,paleta_3[5]);
+            aux -= res * (aux/res);
             res /= 10;
         }  
         return;
     }
-    for (size_t j = 0; n_string[j]; j++)
+    for (size_t j = 0; j < len; j++)
         imagen_pegar_con_paleta(destino, origen[(uint8_t)(n_string[j])], x + (8 * j) + (8 * strlen(textos[i].cadena)) + (i == 4 && text[i] < 100 ? (text[i] < 0 ? 16 : 8) : 0),y,paleta_3[paleta + (i == 3 ? 1 : 0)]);
 }
 
