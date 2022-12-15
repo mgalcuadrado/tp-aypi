@@ -5,7 +5,7 @@ Generé un nuevo archivo de supresión de valgrind para la WSL 2, de win 11, si 
 DONE 2) Las primitivas del TDA moto que devuelvan bool deberían ir en forma de pregunta.
 bool moto_esta_acelerando(); bool moto_esta_frenando(); etc. De la forma actual parece que están queriendo tomar la aceleración, la posición a izq, der, etc.
 
-3) El manejo de la velocidad de la moto, y su radio de giro debería realizarse dentro del TDA. Actualmente realizan todos los chequeos en el main y solo le indican el resultado final a la moto.
+DONE 3) El manejo de la velocidad de la moto, y su radio de giro debería realizarse dentro del TDA. Actualmente realizan todos los chequeos en el main y solo le indican el resultado final a la moto.
 
 DONE 4) Los atributos n_textos del TDA moto no me parece que pertenezcan a la moto. Habría que armar un módulo / TDA juego que tenga dichos parámetros y los maneje y calcule adquiriendo la información adecuada del TDA moto.
     Esto no nos dijo Santisi que lo hicieramos ahí?? igual es una boludez cambiarlo pero...
@@ -15,7 +15,7 @@ DONE 5) Hay mucho hardcoding en las funciones de manejos de las roms. Usen macro
 DONE 6) La variable stmoto_pos_t pos debería ser static, si no es una variable global.
 
 Del juego:
-1)  La mecánica del choque está un poco rara. Según entiendo, la moto debería aparecer en la posición central de la ruta mientras el juego se detiene 5 segundos. 
+DONE 1) La mecánica del choque está un poco rara. Según entiendo, la moto debería aparecer en la posición central de la ruta mientras el juego se detiene 5 segundos. 
 
 DONE 2) La moto no frena nunca. Si no acelero, o si toco el freno, eventualmente debería llegar a 0 la velocidad.
    Esto dijo que està bien que llegue a 80km/h, solo hay que arreglar el hecho de que cuando frene a menos de 80 
@@ -23,6 +23,6 @@ DONE 2) La moto no frena nunca. Si no acelero, o si toco el freno, eventualmente
 
 DONE 3) Si seteo un tiempo de 3 o más dígitos se rompe el sprite del reloj.
 
-4) Al finalizar el juego, sea por tiempo o por terminar la carrera, la aplicación lanza una señal de SIGSEGV. Por lo pronto no pude detectar de dónde viene, si ustedes saben díganme y les puedo ayudar a corregirlo.
+DONE 4) Al finalizar el juego, sea por tiempo o por terminar la carrera, la aplicación lanza una señal de SIGSEGV. Por lo pronto no pude detectar de dónde viene, si ustedes saben díganme y les puedo ayudar a corregirlo.
 
 Eso es todo. El diseño de los TDA, por fuera de lo que ya mencioné, está muy bien. Quedan esos puntos para mejorar en el TDA moto.

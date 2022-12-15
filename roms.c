@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <stdio.h>
 #include "roms.h"
 
 #define MASK_MSB 0x80

@@ -35,18 +35,24 @@
 
 #define VENTANA_ANCHO 320
 #define VENTANA_ALTO 224
-#define JUEGO_FPS 15
+#define JUEGO_FPS 30
 #define TIEMPO_JUEGO 75 //por si se quiere extender el tiempo es acá :D
 #define VELOCIDAD_MINIMA 80
+#define VELOCIDAD_MAXIMA 279
+#define IRSE_AL_PASTO 435
+#define DELAY_CHOQUE 5
 
 #define INICIO_PALETA_SEMAFORO 41
 #define FIN_PALETA_SEMAFORO 44
 #define PALETA_START 45
 #define PALETA_GOAL 47
+#define CANTIDAD_PALETAS_RUTA 4
 
 #define METROS_VISIBLES 60
 #define META_MOTO 4160
 #define FIN_RUTA 4270
+#define NO_HAY_FIGURAS_EN_RUTA 9999
+
 
 //Enumerativo de roms
 typedef enum{

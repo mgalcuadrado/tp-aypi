@@ -1,6 +1,6 @@
 #include "imagen.h"
 #include <stdint.h>
-#include <stdio.h>
+#include <stdio.h> //para manejo de archivos
 #include <stdbool.h>
 #include <stdlib.h> //para malloc() y free()
 
@@ -32,7 +32,7 @@ static imagen_t * _imagen_crear (size_t ancho, size_t alto){
         return NULL;
     imagen -> pixeles = malloc (alto * sizeof(pixel_t*)); 
     if (imagen -> pixeles == NULL){
-        free (imagen);
+        free(imagen);
         return NULL;
     }
     for (size_t i = 0; i < alto; i++){
@@ -54,7 +54,7 @@ imagen_t *imagen_generar (size_t ancho, size_t alto, pixel_t valor){
         return NULL;
     for (size_t i = 0; i < imagen->alto; i++){
         for (size_t j = 0; j < imagen->ancho; j++)
-            imagen -> pixeles[i][j] = valor;
+            imagen->pixeles[i][j] = valor;
     }
     return imagen;
 }
@@ -100,9 +100,8 @@ for(int f = (y >= 0 ? 0 : -y); f < origen->alto && f + y < destino->alto; f++){
     }
 }
 
-
 //Condiciones del pegar_ruta
-static bool condiciones_pegar(const imagen_t *origen, int f , int c){
+static bool condiciones_pegar_ruta(const imagen_t *origen, int f , int c){
 	if(origen->pixeles[f][c + 5 > origen->ancho ? c : c + 5] == 0)
 		return false;
 	if(origen->pixeles[f][c + 5 > origen->ancho ? c : c + 5] == 0xf)
@@ -119,7 +118,7 @@ void imagen_pegar_ruta_con_paleta(imagen_t * destino, const imagen_t *origen, in
         bool pixeles_pegados = false;
         for(int c = (x >= 0 ? 0 : -x); c < origen->ancho && c + x < destino->ancho; c++){
             if ((origen->pixeles[f][c] == 0 || (origen->pixeles[f][c] == 0xF))){
-                if(condiciones_pegar(origen, f, c))
+                if(condiciones_pegar_ruta(origen, f, c))
                     pixeles_pegados = true;
                 else
                     pixeles_pegados = false;
@@ -131,7 +130,6 @@ void imagen_pegar_ruta_con_paleta(imagen_t * destino, const imagen_t *origen, in
         }
     }    
 }
-
 
 //recibe la imagen, devuelve el ancho por el nombre
 size_t imagen_get_ancho(const imagen_t *im){
@@ -145,7 +143,6 @@ size_t imagen_get_alto(const imagen_t *im){
 
 //devuelve el píxel de imagen en la posición (x,y)
 //se impone como precondición que 0 <= x < ancho y que 0 <= y < alto
-//mgalcuadrado chequear rango xy
 pixel_t imagen_get_pixel(const imagen_t *im, size_t x, size_t y){
     return im->pixeles[y][x];
 }

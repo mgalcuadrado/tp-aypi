@@ -1,7 +1,8 @@
 #include "textos.h" 
-#include <string.h>
 #include "paleta.h"
-#include "math.h"
+
+#include <string.h>
+#include <math.h>
 
 void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, int y, size_t *text, size_t paleta){
     char n_string[MAX_CADENA];
@@ -9,7 +10,7 @@ void numeros_a_pantalla(imagen_t *destino, imagen_t **origen, size_t i, int x, i
     size_t len = strlen(n_string);
     if(i == 1){
         int res = pow(10, (len > 1) ? len - 1 : len);
-        size_t aux = text[i]; //La pongo en un auxiliar porque sino modifico el valor *text y termina el juego antes de comenzar
+        size_t aux = text[i]; //La pongo en un auxiliar porque sino modifico el valor *text
         for(size_t j = 0; j < (len > 1 ? len : 2); j++){
             imagen_pegar_con_paleta(destino, origen[0x80 + (2 * (aux/res))], x + (8 * j),y + 16,paleta_3[5]);
             imagen_pegar_con_paleta(destino, origen[0x81 + (2 * (aux/res))], x + (8 * j),y + 24,paleta_3[5]);

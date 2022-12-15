@@ -1,16 +1,17 @@
 #ifndef ROMS_H
 #define ROMS_H
 
-#include <stdint.h>
 #include "paleta.h"
 #include "imagen.h"
 #include "figuras.h"
 
-//Esta función recibe arreglos de imagen_t's para teselas y figuras y una imagen_t ruta cuya memoria NO FUE PEDIDA
-//y devuelve true si funciona correctamente y false si no
+#include <stdint.h>
+
+//Esta función recibe arreglos de imagen_t's para teselas y figuras y una imagen_t ruta cuya memoria fue pedida previamente
+//devuelve false en caso de falla
 bool roms_levantar (imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta);
 
-//Funcion que destruye las teselas, figuras y las roms, si hizo asi para ahorrar codigo
+//Funcion que destruye las teselas, figuras y las roms
 void roms_destruir (imagen_t * teselas[], imagen_t * figuras[], imagen_t * ruta);
 
 //Función que recibe un mosaico de imagenes incluidas en teselas con su respectiva paleta y las unifica en una imagen_t imagen

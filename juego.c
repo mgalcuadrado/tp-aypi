@@ -35,9 +35,9 @@ void juego_set_speed(juego_t *juego, moto_t * moto){
     juego->n_textos[SPEED] = moto_get_vel(moto);
 }
 
-void juego_set_puntajes(juego_t * juego, moto_t *moto, size_t x, int y){
+void juego_set_puntajes(juego_t * juego, moto_t *moto, size_t x){
     if(moto_get_x(moto) >= META_MOTO) return;
-    if(y > -215 && y < 215){
+    if(moto_get_y(moto) > -215 && moto_get_y(moto) < 215){
         if(moto_get_vel(moto) < 117)
             juego->n_textos[SCORE] += 125 * (moto_get_x(moto) - x); //fórmula dada por el enunciado
 
@@ -48,7 +48,7 @@ void juego_set_puntajes(juego_t * juego, moto_t *moto, size_t x, int y){
             juego->n_textos[TOP] = juego->n_textos[SCORE];
     }
     else if (moto_get_vel(moto) > 93){
-        moto_set_vel(moto, moto_get_vel(moto) - 3);
+        moto_set_vel(moto, 0, 0, true);
         juego->n_textos[SPEED] = moto_get_vel(moto);
     }
 }

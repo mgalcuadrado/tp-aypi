@@ -1,6 +1,5 @@
 #include "ruta.h"
 #include "config.h"
-#include <stdio.h>
 
 
 const struct figura_en_ruta figuras_en_ruta[] = {

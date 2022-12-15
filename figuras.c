@@ -1,9 +1,7 @@
 #include "figuras.h"
 #include "ruta.h"
 #include "paleta.h"
-
-#include <stddef.h>
-
+#include "config.h"
 
 struct pos_figuras{
     size_t inicio, ancho, alto;
@@ -37,13 +35,6 @@ size_t figura_get_alto (figs_t fig){
     return arr_pos_figuras[fig].alto;
 }
 
-bool hay_choque (size_t ancho_escalado , int d, size_t x, size_t y){
-    if (ruta[x + d].indice_figura == 9999) return false;
-    if (y < figuras_en_ruta[ruta[x + d].indice_figura].y + ancho_escalado / 2 && y > figuras_en_ruta[ruta[x + d].indice_figura].y - ancho_escalado / 2)
-        return true;
-    return false;
-}
-
 bool pegar_figuras(imagen_t ** destino, imagen_t * figuras[], size_t indice, size_t i, size_t *ancho_figura, int dlat, int dcur){
     figs_t figura_a_pegar = figuras_en_ruta[indice].figura;
     size_t alto_figura = figura_get_alto(figura_a_pegar) * ((96 - i)/ 96.0) + (5.0 * i)/96; 
@@ -67,7 +58,6 @@ bool pegar_figuras(imagen_t ** destino, imagen_t * figuras[], size_t indice, siz
  imagen_destruir(fig_escalada);
     return true;
 }
-
 
 bool pegar_semaforo(size_t del, int *pos, imagen_t * figuras[], imagen_t * sup, imagen_t **destino, int y, size_t x){
     bool paleta_goal = false;
