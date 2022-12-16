@@ -35,7 +35,7 @@ void juego_set_speed(juego_t *juego, moto_t * moto){
     juego->n_textos[SPEED] = moto_get_vel(moto);
 }
 
-void juego_set_puntajes(juego_t * juego, moto_t *moto, size_t x){
+void juego_set_puntajes(juego_t * juego, moto_t *moto, float x){
     if(moto_get_x(moto) >= META_MOTO) return;
     if(moto_get_y(moto) > -215 && moto_get_y(moto) < 215){
         if(moto_get_vel(moto) < 117)

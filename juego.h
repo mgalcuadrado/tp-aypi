@@ -24,7 +24,7 @@ void juego_set_tiempo(juego_t *juego, moto_t *moto, size_t t);
 void juego_set_speed(juego_t *juego, moto_t * moto);
 
 //Setter de los puntajes del juego, recibe el TDA juego, la moto y la posicion anterior de la moto
-void juego_set_puntajes(juego_t *juego, moto_t *moto, size_t x);
+void juego_set_puntajes(juego_t *juego, moto_t *moto, float x);
 
 //Función que imprime los textos en pantalla
 //Recibe los valores del juego, un puntero a los cuadros, el arreglo de teselas levantadas de la rom y el arreglo de cuadros de textos

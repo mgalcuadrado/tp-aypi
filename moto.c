@@ -12,7 +12,7 @@
 struct moto{
     int ym;
     short pos;
-    size_t vel, x;
+    float vel, x;
     bool acelera, frena, mover_izq, mover_der, chocamos;
 };
 //
@@ -29,7 +29,7 @@ static const stmoto_pos_t pos[4] = {
 
 //inv de rep: moto_t siempre tiene inicializados sus valores mientras m != NULL
 
-static void moto_inicializar(moto_t * m, int y_i, short pos_i, size_t x_i, size_t vel_i, bool ac_i, bool fr_i, bool izq_i, bool der_i, bool choque_i){
+static void moto_inicializar(moto_t * m, int y_i, short pos_i, float x_i, float vel_i, bool ac_i, bool fr_i, bool izq_i, bool der_i, bool choque_i){
     m->ym = y_i;
     m->pos = pos_i;
     m->x = x_i;
@@ -41,7 +41,7 @@ static void moto_inicializar(moto_t * m, int y_i, short pos_i, size_t x_i, size_
     m->chocamos = choque_i;
 }
 
-moto_t *moto_crear(int y_i, short pos_i, size_t x_i, size_t vel_i, bool ac_i, bool fr_i, bool izq_i, bool der_i, bool choque_i){
+moto_t *moto_crear(int y_i, short pos_i, float x_i, float vel_i, bool ac_i, bool fr_i, bool izq_i, bool der_i, bool choque_i){
     moto_t *m = malloc (sizeof(moto_t));
     if (m == NULL) return NULL;
     moto_inicializar(m, y_i, pos_i, x_i, vel_i, ac_i, fr_i, izq_i, der_i, choque_i);
@@ -56,11 +56,11 @@ short moto_get_pos (moto_t * m){
     return m->pos;
 }
 
-size_t moto_get_x (moto_t * m){
+float moto_get_x (moto_t * m){
     return m->x;
 }
 
-size_t moto_get_vel (moto_t * m){
+float moto_get_vel (moto_t * m){
     return m->vel;
 }
 
@@ -92,7 +92,7 @@ void moto_set_pos(moto_t * m, short p){
     m->pos = p;
 }
 
-void moto_set_x (moto_t * m, size_t x, size_t tiempo){
+void moto_set_x (moto_t * m, float x, size_t tiempo){
     if(tiempo > 0 || m->x <= META_MOTO)
         m->x = x;
 }
@@ -110,16 +110,16 @@ void moto_set_vel (moto_t * m, size_t del, size_t secs, bool mordiendo_banquina)
 
     //Aceleración
     if((m->acelera || m->vel < VELOCIDAD_MINIMA) && del >= 4 * JUEGO_FPS)
-        m->vel = VELOCIDAD_MAXIMA - (size_t)((VELOCIDAD_MAXIMA - m->vel) * exp(-0.224358 * (1.0/JUEGO_FPS)));  //fórmula dada por el enunciado       
+        m->vel = VELOCIDAD_MAXIMA - ((VELOCIDAD_MAXIMA - m->vel) * exp(-0.224358 * (1.0/JUEGO_FPS)));  //fórmula dada por el enunciado       
 
     //Frenado
     else if(m->frena && m->vel > VELOCIDAD_MINIMA){
-        m->vel -= (size_t)(300.0/JUEGO_FPS); //fórmula dada por el enunciado
+        m->vel -= (300.0/JUEGO_FPS); //fórmula dada por el enunciado
     }
 
     //Desaceleración
     else if(!m->acelera && !m->frena && m->vel >= VELOCIDAD_MINIMA){ 
-        m->vel -= (size_t)(90.0/JUEGO_FPS); //fórmula dada por el enunciado          
+        m->vel -= (90.0/JUEGO_FPS); //fórmula dada por el enunciado          
     }
 }
 
@@ -173,14 +173,14 @@ bool moto_pegar(imagen_t **imagen, imagen_t *origen[], moto_t *moto, size_t t, b
     return true;
 }
 
-void hay_choque_con_figuras (moto_t * m, size_t ancho, int d, size_t x){
-    if (ruta[x + d].indice_figura == NO_HAY_FIGURAS_EN_RUTA) return;
-    if (m->ym < figuras_en_ruta[ruta[x + d].indice_figura].y + ancho / 2 && m->ym > figuras_en_ruta[ruta[x + d].indice_figura].y - ancho / 2){
+void hay_choque_con_figuras (moto_t * m, size_t ancho, int d, float x){
+    if (ruta[(size_t)(x + d)].indice_figura == NO_HAY_FIGURAS_EN_RUTA) return;
+    if (m->ym < figuras_en_ruta[ruta[(size_t)(x + d)].indice_figura].y + ancho / 2 && m->ym > figuras_en_ruta[ruta[(size_t)(x + d)].indice_figura].y - ancho / 2){
         m->chocamos = true;
     }
 }
 
-void manejo_de_choques(moto_t * m, size_t x, size_t *s){
+void manejo_de_choques(moto_t * m, float x, size_t *s){
     if(!m->chocamos) return;
     *s = *s + 1;
     moto_inicializar(m, 0, 0, x, 0, false, false, false, false, true);

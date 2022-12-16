@@ -8,7 +8,7 @@
 typedef struct moto moto_t;
 
 //Función creada para crear memoria para la estructura moto_t
-moto_t * moto_crear (int y_i, short pos_i, size_t x_i, size_t vel_i, bool ac_i, bool fr_i, bool izq_i, bool der_i, bool choque_i);
+moto_t * moto_crear (int y_i, short pos_i, float x_i, float vel_i, bool ac_i, bool fr_i, bool izq_i, bool der_i, bool choque_i);
 
 //Esta es para destruir la memoria pedida
 void moto_destruir(moto_t * m);
@@ -17,10 +17,10 @@ void moto_destruir(moto_t * m);
 short moto_get_pos (moto_t * m);
 
 //Getter del metro de la ruta en el que se encuentra la moto 
-size_t moto_get_x (moto_t * m);
+float moto_get_x (moto_t * m);
 
 //Getter de la velocidad actual la moto
-size_t moto_get_vel (moto_t * m);
+float moto_get_vel (moto_t * m);
 
 //Getter de la y actual de la moto
 int moto_get_y (moto_t * m);
@@ -44,7 +44,7 @@ bool moto_hay_choque(moto_t * m);
 void moto_set_pos(moto_t * m, short p);
 
 //Setter del metro de la ruta en el que se encuentra la moto
-void moto_set_x (moto_t * m, size_t x, size_t tiempo);
+void moto_set_x (moto_t * m, float x, size_t tiempo);
 
 //Setter de la velocidad actual la moto
 void moto_set_vel (moto_t * m, size_t del, size_t secs, bool mordiendo_banquina);
@@ -69,10 +69,10 @@ void moto_set_y(moto_t *moto, size_t x);
 bool moto_pegar(imagen_t **imagen, imagen_t *origen[], moto_t *moto, size_t t, bool choque);
 
 //esta función verifica si la moto choca con alguna figura, para ello requiere la moto, la distancia en la que está la figura, la posición x de la moto y el ancho de la figura en cuestión
-void hay_choque_con_figuras (moto_t * m, size_t ancho, int d, size_t x);
+void hay_choque_con_figuras (moto_t * m, size_t ancho, int d, float x);
 
 //esta función se encarga de verificar si la moto chocó y, en base a eso, ajustar los parámetros de la moto
 //también se encarga de manejar el delay del choque
-void manejo_de_choques(moto_t * m, size_t x, size_t *s);
+void manejo_de_choques(moto_t * m, float x, size_t *s);
 
 #endif

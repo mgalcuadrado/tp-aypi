@@ -313,7 +313,7 @@ int main(void) {
             juego_set_tiempo(juego, moto,t++);
 
         //Posicion m_x    
-        size_t x = 0;
+        float x = 0;
         if(del >= 4 * JUEGO_FPS){
             x = moto_get_x(moto);
             moto_set_x(moto, x + (1.0/JUEGO_FPS) * ((moto_get_vel(moto)/3.6)), juego_get_tiempo(juego));   
@@ -325,8 +325,8 @@ int main(void) {
         }
 
         //Fondos
-        if(!moto_hay_choque(moto) && juego_get_tiempo(juego) != 0 && moto_get_x(moto) != x)
-            x_fondo -= ruta[moto_get_x(moto)].radio_curva;
+        if(!moto_hay_choque(moto) && juego_get_tiempo(juego) != 0 && ((size_t)moto_get_x(moto)) != ((size_t)x) && !es_el_fin)
+            x_fondo -= ruta[(size_t)moto_get_x(moto)].radio_curva;
 
         if(x_fondo < -2048 || x_fondo > 640)
             x_fondo = x_fondo < 0 ? 640 : -2048;              
@@ -363,14 +363,14 @@ int main(void) {
             imagen_pegar(linea_ruta, ruta_completa, 0, i - 111);
             lateral[i] = - moto_get_y(moto) * ((float)(ALTO_RUTA - 2.0 * FILAS_A_IGNORAR) - i)/(ALTO_RUTA - 2.0 * FILAS_A_IGNORAR);;
             if (i > 0)
-                curva[i] = curva[i - 1] + (ruta[x + d].radio_curva * exp(0.105 * i - 8.6)); //fórmula dada por el enunciado
-            imagen_pegar_ruta_con_paleta(cuadro, linea_ruta, lateral[i] + curva[i] - 346, 223 - i, colores_ruta[(d + x / CANTIDAD_PALETAS_RUTA) % CANTIDAD_PALETAS_RUTA]);  
+                curva[i] = curva[i - 1] + (ruta[(size_t)(x + d)].radio_curva * exp(0.105 * i - 8.6)); //fórmula dada por el enunciado
+            imagen_pegar_ruta_con_paleta(cuadro, linea_ruta, lateral[i] + curva[i] - 346, 223 - i, colores_ruta[(size_t)(d + x / CANTIDAD_PALETAS_RUTA) % CANTIDAD_PALETAS_RUTA]);  
         }
         for (int d = 60; d >= 0; d--){
-            if (ruta[x + d].indice_figura != NO_HAY_FIGURAS_EN_RUTA){
+            if (ruta[(size_t)(x + d)].indice_figura != NO_HAY_FIGURAS_EN_RUTA){
                 size_t ancho_figura;
                 int v = (ALTO_RUTA - 2 * FILAS_A_IGNORAR) - (ALTO_RUTA - 2 * FILAS_A_IGNORAR) * exp (-0.11 * d); //formula dada por el enunciado
-                if (!pegar_figuras(&cuadro, figuras, ruta[x + d].indice_figura, v, &ancho_figura, lateral[v], curva[v])){
+                if (!pegar_figuras(&cuadro, figuras, ruta[(size_t)(x + d)].indice_figura, v, &ancho_figura, lateral[v], curva[v])){
                     destructor_masivo(teselas, figuras, ruta_completa, moto, cuadro, cielo, pasto_estirado, fondo1, fondo2, cuadros_textos, semaforo_sup, cuadro_moto);
                     imagen_destruir(linea_ruta);
                     juego_finalizar(juego);
